@@ -1,368 +1,402 @@
-# Cucumber end-to-end test
-## Step 1: Create a resources folder
-1) Delete App.java and AppTest.java files as they are just sample project files created by default by Maven. 
-To delete the files, just right click on the package and select Delete. 
-2) Create a new resources folder under src/test/. As a standard we keep Cucumber feature files in resources folder. 
-Right click on the src/test/java and create a New Package and specify the name as resources. 
- -  For Eclipse IDE - right click on the root project and select Maven >> Update Project.
- 
- (Note: In Eclipse, if any changes are made to Maven POM or any folder structure,  always update project Maven >> Update Project
- to reflect the latest changes)
- -   For IntelliJ IDE  -  right click on the resource folder and choose Mark directory as >> Test resources root.
- (Note: In IntelliJ, enable autoupdate  - prompt should pop up on the bottom-right corner)
-## Step 2: Add Selenium and JUnit to project
-1) Selenium: selenium-java; version 3.141.59
-2) JUnit: junit; version 4.12
-## Step 3: Add Cucumber Dependencies to the Project
-1) cucumber-java, version 4.2.0
-2) cucumber-junit, version 4.2.0
-(Note: Cucmber-java and cucumber-junit dependencies required to be of the same version. 
-Properties tag can be used in pom.xml to create a variable for cucumber related dependencies for easier upgrading)
-## Step 4: Set up Maven Compiler Plugin
-The Compiler Plugin is used to compile the sources of your project. 
-Also note that at present the default source setting is 1.5 and the default target setting is 1.5, independently of the JDK 
-you run Maven with. If you want to change these defaults, you should set source and target as described 
-in Setting the –source and –target of the Java Compiler.
-maven-compiler-plugin; version 3.7.0
+# Page Object Design Pattern with Selenium PageFactory
+This section is about Page Object Model Framework which is also known as Page Object Design Pattern or Page Objects.
+The main advantage of Page Object Model is that if the UI or any HTML object changes for any page,
+the test does not need any fix. Only the code within the page objects will be affected but it does not have any impact
+on the test code.
 
+Till now we have just one test and one step definition file. In real live projects we will be dealing with hundreds of tests
+which all have multiple Step Definition files. The whole project code will become unmanageable and unmaintainable.
+To better manage the code and to improve the re-usability, Page Object Design pattern suggests us to divide an application
+to sub pages / sections. So far we were writing a code with no actual structure, focusing only on elements and sending commands
+to Selenium driver.
 
-Pom.xml should look like this:
+The Page Object Pattern technique provides a solution for working with multiple web pages. It will help prevent unwanted
+code duplication and enable an effective solution for a code maintenance. In general, every page of the application involved
+in our end-to-end testing will be represented by a unique class of its own. Such class will inlcude both page element inspection
+and associated actions performed by Selenium on the corresponding page.
+
+In order to implement the Page Object Model we will be using **Selenium PageFactory**
+
+Selenium PageFactory is an inbuilt Page Object Model concept for Selenium WebDriver and it is very optimized.
+PageFactory is used to Initialise Elements of a Page class without having to use ‘FindElement‘ or ‘FindElements‘.
+Annotations can be used to supply descriptive names of target objects to improve code readability.
+
+**@FindBy Annotation:**
+
+As the name suggest, it helps to find the elements in the page using By strategy.
+@FindBy can accept TagName, PartialLinkText, Name, LinkText, Id, Css, ClassName, XPath as attributes.
 ```
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <groupId>Cuke-4-Framework</groupId>
-    <artifactId>Cuke-4-Framework</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
-    <properties>
-        <cucumber.version>4.2.0</cucumber.version>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-java</artifactId>
-            <version>3.141.59</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-        </dependency>
-        <dependency>
-            <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-java</artifactId>
-            <version>${cucumber.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-junit</artifactId>
-            <version>${cucumber.version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <compilerArgument>-Werror</compilerArgument>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-</project>
+@FindBy(id = “idname“)]
+public WebElement element;
 ```
+The above code will create a PageObject and name it as 'element' by finding it using its 'id' locator.
 
-## Step 5: Add Chrome driver to the project
-1) Download Chrome driver from http://chromedriver.chromium.org/downloads
-(Note: make sure the version of Chrome driver matches the Chrome browser version on you PC)
-2) Create a New Package and name it 'drivers' by right click on the src and select New >> Package
-3) Place Chrome driver from your Download folder to project's src/drivers folder
-## Step 6: Write End 2 End test in a Feature file
-For the purpose of this tutorial, we use the test longer than the usual. This is to demonstrate right examples of framework
-components.  Cucumber Framework requires to have complex page objects, various configurations and challenges.
-This end-to-end scenario could be viewed as a business scenario to automate and it will help us 
-demonstrate Cucumber framework implementation
-1) Test to Automate
-User visits Demo Website and searches for a Dress. User selects the first product and goes to product page. 
-User successfully adds it to the bag. User continues to Cart Page from mini cart icon at the top right corner. 
-Then user moves forward to Checkout page and order details. User fills in required information, accepts Terms and conditions 
-and proceeds with the order. User is presented with order confirmation including details on the purchased dress.
-2) Create Feature File:
-2.1) Create a New Package and name it 'features', by right click on the src/test/resources and select New >> Package. 
-(Note: It is always recommended to put all the feature files in the resources folder).
-2.2) Create a Feature file and name it as End2End_Test.feature by right click on the above created package 
-and select New >> File. 
-(Note: all feature files must have .feature extension)
-3) Add the test steps to the feature file as follows:
+**InitElements:**
+
+This Instantiate an Instance of the given class. This method will attempt to instantiate the class given to it,
+preferably using a constructor which takes a WebDriver instance as its only argument
+An exception will be thrown if the class cannot be instantiated.
 ```
-Feature: Automated End2End Tests
-  Description: The purpose of this feature is to test End 2 End integration.
-
-  Scenario: Customer place an order by purchasing an item from search
-    Given user is on Home Page
-    When he search for "dress"
-    And choose to buy the first item
-    And moves to checkout from mini cart
-    And enter customer personal details
-    And place the order
-    Then verify the order details
+PageFactory.initElements(WebDriver, PageObject.Class);
 ```
-    
-##  Step 7: Create a JUnit Test Runner
- 1) Create a New Package and name it as runners by right click on the src/test/java and select New >> Package. 
- 2) Create a New Java Class file and name it as TestRunner by right click on the above created package and select New >> Class.
+**Parameters:**
 
-(Note: It is important to have a key word 'Test' as a part of a runner class name, so test(s) can be run from the command line using Maven)
-## Step 8: Write test code to Step file
-To get the steps automatically generated, we need to execute TestRunner class. 
-Right click on the TestRunner file and select 
+- WebDriver – The driver that will be used to look up the elements
 
+- PageObjects  – A class which will be initialised
+
+**Returns:**
+An instantiated instance of the class with WebElement and List<WebElement> fields proxied
+
+**PageFactory NameSpace:**
+
+In order to use PageFactory, *org.openqa.selenium.support.PageFactory* needs to be imported to the associated Class.
+
+## Step 1: Create Checkout Page Object Class
+The flow of our test spreads across the following pages:
+- Home Page
+- Product Listing Page
+- Cart Page
+- Checkout Page
+- Confirmation Page
+
+Therefore, we will be creating corresponding Java Classes in our Project like so
+- Personal Details Page
+- Shipping Details Page
+- Payment Details Page
+- Confirmation Details Page
+
+1) Create a New Package file and name it pageObjects, by right click on the src/main/java and select New >> Package.
+
+2) Create five New Class file and name them as was mentioned above
+3) Initiate the Page Object for each Class using Constructor
 ```
-Eclipse: Run As >> JUnit Test
-IntelliJ: Run TestRunner
-```
-
-You would get the below result in the IDE Console:
-
-```
-Undefined scenarios:
-src/test/resources/features/End2End_Test.feature:4 # Customer place an order by purchasing an item from search
-
-1 Scenarios (1 undefined)
-7 Steps (7 undefined)
-0m0.399s
-
-
-You can implement missing steps with the snippets below:
-
-@Given("I am on Home Page")
-public void i_am_on_Home_Page() {
-    // Write code here that turns the phrase above into concrete actions
-    throw new cucumber.api.PendingException();
+public CheckoutPage(WebDriver driver) {
+     PageFactory.initElements(driver, this);
 }
-
-@When("I search for product in dress category")
-public void i_search_for_product_in_dress_category() {
-    // Write code here that turns the phrase above into concrete actions
-    throw new cucumber.api.PendingException();
-}
-
-@When("I choose to buy the first item")
-public void i_choose_to_buy_the_first_item() {
-    // Write code here that turns the phrase above into concrete actions
-    throw new cucumber.api.PendingException();
-}
-
-@When("I move to checkout from mini cart")
-public void i_move_to_checkout_from_mini_cart() {
-    // Write code here that turns the phrase above into concrete actions
-    throw new cucumber.api.PendingException();
-}
-
-@When("I enter my personal details")
-public void i_enter_my_personal_details() {
-    // Write code here that turns the phrase above into concrete actions
-    throw new cucumber.api.PendingException();
-}
-
-@When("I place the order")
-public void i_place_the_order() {
-    // Write code here that turns the phrase above into concrete actions
-    throw new cucumber.api.PendingException();
-}
-
-@Then("Order details are successfully verified")
-public void order_details_are_successfully_verified() {
-    // Write code here that turns the phrase above into concrete actions
-    throw new cucumber.api.PendingException();
-}
-
-
-
-Process finished with exit code 0
-
 ```
-2) Create a New Package and name it 'stepDefinitions' by right click on the src/test/java and select New >> Package.
-3) Create a New Java Class and name it is 'Steps' by right click on the above created package and select New >> Class.
-4) Now copy all the steps created by IDE to this Steps file and start filling up these steps with Selenium Code.  
-Steps test file will look like this:
+4) Move  WebElement locators associated with a particular page to a corresponding Page Object Class
+and replace 'findElement(s) (By by)' method with @FindBy annotation.
+5) Wrap Selenium actions performed on each page into re-usable methods and again, place them into corresponding Page Object Class.
 
+(Note: ConfirmationPage.java is the only Class which we leave blank as we have no implementation of @Then Step yet)
+
+Newly created **Page Object** Classes should looks like this:
+
+### HomePage.java
 ```
-package stepDefinitions;
+package pageObjects;
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import cucumber.api.java.en.Then;
-import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+public class HomePage {
+
+    WebDriver driver;
+
+    public HomePage(WebDriver driver) {
+        this.driver = driver;
+        PageFactory.initElements(driver, this);
+    }
+
+    @FindBy(css=".noo-search")
+    public WebElement btn_Search;
+
+    @FindBy(css=".form-control")
+    public WebElement input_Search;
+
+    public void navigateTo_HomePage() {
+        driver.get("http://www.shop.demoqa.com");
+    }
+
+    public void perform_Search(String search) {
+        btn_Search.click();
+        input_Search.sendKeys(search);
+        input_Search.sendKeys(Keys.RETURN);
+    }
+}
+```
+### ProductListingPage.java
+```
+package pageObjects;
+
+import java.util.List;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindAll;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.Select;
+
+public class ProductListingPage {
+
+    public ProductListingPage(WebDriver driver) {
+        PageFactory.initElements(driver, this);
+    }
+
+    @FindBy(css = "button.single_add_to_cart_button")
+    public WebElement btn_AddToCart;
+
+    @FindAll(@FindBy(css = ".noo-product-inner"))
+    public List<WebElement> prd_List;
+
+    @FindBy(id="pa_color")
+    public WebElement selectColour;
+
+    @FindBy(id="pa_size")
+    public WebElement selectSize;
+
+
+    public void select_Product(int productNumber) {
+        prd_List.get(productNumber).click();
+    }
+
+    public void makeSelection(int index) {
+        Select colour = new Select(selectColour);
+        colour.selectByIndex(index);
+        Select size  = new Select(selectSize);
+        size.selectByIndex(index);
+    }
+
+    public void clickOn_AddToCart() {
+        btn_AddToCart.click();
+    }
+
+}
+
+```
+### CartPage.java
+```
+package pageObjects;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+public class CartPage {
+
+    public CartPage(WebDriver driver) {
+        PageFactory.initElements(driver, this);
+    }
+
+    @FindBy(css = ".cart-button")
+    public WebElement btn_Cart;
+
+    @FindBy(css = ".checkout-button.alt")
+    public WebElement btn_ContinueToCheckout;
+
+
+    public void clickOn_Cart() {
+        btn_Cart.click();
+    }
+
+    public void clickOn_ContinueToCheckout(){
+        btn_ContinueToCheckout.click();
+    }
+
+}
+```
+### CheckoutPage.java
+```
+package pageObjects;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.Select;
+
+public class CheckoutPage {
+
+    public CheckoutPage(WebDriver driver) {
+        PageFactory.initElements(driver, this);
+    }
+
+    @FindBy(id = "billing_first_name")
+    public WebElement txtbx_FirstName;
+
+    @FindBy(id = "billing_last_name")
+    public WebElement txtbx_LastName;
+
+    @FindBy(id = "billing_email")
+    public WebElement txtbx_Email;
+
+    @FindBy(id = "billing_phone")
+    public WebElement txtbx_Phone;
+
+    @FindBy(id = "billing_country")
+    public WebElement select_Country;
+
+    @FindBy(id = "billing_city")
+    public WebElement txtbx_City;
+
+    @FindBy(id = "billing_address_1")
+    public WebElement txtbx_Address;
+
+    @FindBy(css = "#billing_postcode")
+    public WebElement txtbx_PostCode;
+
+    @FindBy(css = ".woocommerce-form__input-checkbox")
+    public WebElement chkbx_AcceptTermsAndCondition;
+
+    @FindBy(id = "place_order")
+    public WebElement btn_PlaceOrder;
+
+
+    public void enter_Name(String name) {
+        txtbx_FirstName.sendKeys(name);
+    }
+
+    public void enter_LastName(String lastName) {
+        txtbx_LastName.sendKeys(lastName);
+    }
+
+    public void enter_Email(String email) {
+        txtbx_Email.sendKeys(email);
+    }
+
+    public void enter_Phone(String phone) {
+        txtbx_Phone.sendKeys(phone);
+    }
+
+    public void enter_City(String city) {
+        txtbx_City.sendKeys(city);
+    }
+
+    public void enter_Address(String address) {
+        txtbx_Address.sendKeys(address);
+    }
+
+    public void enter_PostCode(String postCode) {
+        txtbx_PostCode.sendKeys(postCode);
+
+    }
+
+
+    public void select_Country(String countryName) {
+        Select country = new Select(select_Country);
+        country.selectByVisibleText(countryName);
+    }
+
+    public void check_TermsAndCondition() {
+        chkbx_AcceptTermsAndCondition.click();
+    }
+
+    public void clickOn_PlaceOrder() {
+        btn_PlaceOrder.submit();
+    }
+
+    public void fill_PersonalDetails() throws InterruptedException {
+        enter_Name("TestAutomation");
+        enter_LastName("Opencast");
+        select_Country("United Kingdom (UK)");
+        enter_Address("Hoults Yard, Walker Road");
+        enter_City("Newcastle upon Tyne");
+        enter_PostCode("NE6 3PE");
+        Thread.sleep(2000);
+        enter_Phone("07438862327");
+        enter_Email("test@test.com");
+    }
+}
+```
+### ConfirmationPage.java
+```
+package pageObjects;
+
+public class ConfirmationPage {
+}
+```
+## Step 2: Implement Page Objects in Step Definition file
+It should look like this:
+
+### Steps.java
+```
+package stepDefinitions;
+
+
+import java.util.concurrent.TimeUnit;
+import cucumber.api.java.en.Then;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
-import org.openqa.selenium.support.ui.Select;
+import pageObjects.CartPage;
+import pageObjects.CheckoutPage;
+import pageObjects.HomePage;
+import pageObjects.ProductListingPage;
+
 
 public class Steps {
     WebDriver driver;
+    HomePage home;
+    ProductListingPage productListingPage;
+    CartPage cartPage;
+    CheckoutPage checkoutPage;
 
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
-        //Get Chrome driver
         System.setProperty("webdriver.chrome.driver","src/drivers/chromedriver");
         driver = new ChromeDriver();
-        //Open Chrome driver
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        //Navigate to Home page
         driver.get("http://www.shop.demoqa.com");
     }
 
     @When("I search for product in dress category")
     public void i_search_for_product_in_dress_category() throws InterruptedException {
-        //Explicit wait is added to wait for elements to load on a page
-        Thread.sleep(2000);
-        
-        //On Home page, search for "dress" product category
-        WebElement btn_search = driver.findElement(By.cssSelector(".noo-search"));
-        btn_search.click();
-        Thread.sleep(2000);
-        WebElement input_search = driver.findElement(By.cssSelector("input.form-control"));
-        input_search.sendKeys("dress");
-        input_search.sendKeys(Keys.RETURN);
+        home = new HomePage(driver);
+        Thread.sleep(1000);
+        home.perform_Search("dress");
+        Thread.sleep(1000);
+
     }
 
     @When("I choose to buy the first item")
     public void i_choose_to_buy_the_first_item() throws InterruptedException {
-        Thread.sleep(2000);
-        //On Product page, get all items displayed on the page from the search result
-        List<WebElement> items = driver.findElements(By.cssSelector(".noo-product-inner"));
-        //Click on the first item
-        items.get(0).click();
-        //Select colour and size
-        WebElement select_colour = driver.findElement(By.id("pa_color"));
-        Select colour = new Select(select_colour);
-        colour.selectByIndex(1);
-        WebElement select_size = driver.findElement(By.id("pa_size"));
-        Select size  = new Select(select_size);
-        size.selectByIndex(1);
-        //Add item to cart
-        WebElement addToCart = driver.findElement(By.cssSelector("button.single_add_to_cart_button"));
-        addToCart.click();
+        productListingPage = new ProductListingPage(driver);
+        Thread.sleep(1000);
+        productListingPage.select_Product(0);
+        productListingPage.makeSelection(1);
+        productListingPage.clickOn_AddToCart();
     }
 
     @When("I move to checkout from mini cart")
     public void i_move_to_checkout_from_mini_cart() throws InterruptedException{
-        Thread.sleep(2000);
-        //On Cart page, click on Cart element 
-        WebElement cart = driver.findElement(By.cssSelector(".cart-button"));
-        cart.click();
-        Thread.sleep(2000);
-        //And click on chekout button
-        WebElement continueToCheckout = driver.findElement(By.cssSelector(".checkout-button.alt"));
-        continueToCheckout.click();
+        cartPage = new CartPage(driver);
+        Thread.sleep(1000);
+        cartPage.clickOn_Cart();
+        cartPage.clickOn_ContinueToCheckout();
     }
 
     @When("I enter my personal details")
-        public void i_enter_my_personal_details() throws InterruptedException {
-            Thread.sleep(2000);
-            //On Checkout page, fill in customer details
-            WebElement firstName = driver.findElement(By.id("billing_first_name"));
-            firstName.sendKeys("TestAutomation");
+    public void i_enter_my_personal_details() throws InterruptedException {
+        checkoutPage = new CheckoutPage(driver);
+        Thread.sleep(1000);
+        checkoutPage.fill_PersonalDetails();
 
-            WebElement lastName = driver.findElement(By.id("billing_last_name"));
-            lastName.sendKeys("Opencast");
-            WebElement select_Country = driver.findElement(By.id("billing_country"));
-            Select country = new Select(select_Country);
-            country.selectByVisibleText("United Kingdom (UK)");
+    }
 
-            WebElement address = driver.findElement(By.id("billing_address_1"));
-            address.sendKeys("Hoults Yard, Walker Road");
+    @When("I place the order")
+    public void i_place_the_order() throws InterruptedException {
+        checkoutPage = new CheckoutPage(driver);
+        Thread.sleep(1000);
+        checkoutPage.check_TermsAndCondition();
+        checkoutPage.clickOn_PlaceOrder();
+    }
 
-            WebElement city = driver.findElement(By.id("billing_city"));
-            city.sendKeys("Newcastle upon Tyne");
-            WebElement postcode = driver.findElement(By.id("billing_postcode"));
-            postcode.sendKeys("NE6 3PE");
-            //Page gets refreshed after the postcode is entered, so we introduce an extra wait
-            Thread.sleep(2000);
-
-            WebElement phone = driver.findElement(By.id("billing_phone"));
-            phone.sendKeys("07438862327");
-            WebElement emailAddress = driver.findElement(By.id("billing_email"));
-            emailAddress.sendKeys("test@test.com");
-
-        }
-
-        @When("I place the order")
-        public void i_place_the_order() throws InterruptedException {
-            Thread.sleep(2000);
-            //On Checkout page, click on T&Cs and submit the order
-            WebElement chkbx_AcceptTermsAndCondition = driver.findElement(By.cssSelector(".woocommerce-form__input-checkbox"));
-            chkbx_AcceptTermsAndCondition.click();
-            WebElement btn_PlaceOrder = driver.findElement(By.id("place_order"));
-            btn_PlaceOrder.submit();
-            Thread.sleep(2000);
-        }
-
-        @Then("Order details are successfully verified")
-        public void order_details_are_successfully_verified() {
-           //User is automatically re-directed to the Order confirmation page. Validation step will be implemented later on this course
-            System.out.println("Not implemented");
-            //Closing the browser
-            driver.manage().deleteAllCookies();
-            driver.close();
-            driver.quit();
-        }
+    @Then("Order details are successfully verified")
+    public void order_details_are_successfully_verified() {
+        System.out.println("Not implemented");
+        driver.manage().deleteAllCookies();
+        driver.close();
+        driver.quit();
+    }
 
 }
 
 ```
-
-5) Update TestRunner class
-
-We also need to make sure that the TestRunner would able to find the steps files.
-To achieve that we need to mention the path of the StepDefinition package in CucumberOptions.
-(Note: By default Junit/Cucumber finds the test code in the src/test/java folder, 
-this is why we just need to specify the package name for the cucumber glue).
-Updated TestRunner class should look like this:
-
-```
-package runners;
-import org.junit.runner.RunWith;
-import cucumber.api.CucumberOptions;
-import cucumber.api.junit.Cucumber;
-
-@RunWith(Cucumber.class)
-@CucumberOptions(
-        features = "src/test/resources/features",
-        glue= {"stepDefinitions"}
-)
-public class TestRunner {
-}
-```
-
-6) Run Cucumber test
- - Run as JUnit
- Right Click on TestRunner class and Click Run Test. 
- Cucumber will run the script and the result will be shown in the left hand side project explorer window in JUnit tab.
- - Run from Command Prompt
- From IDE Terminal (which sets the location automatically to the root of our project) run the following command: 
- 
- ```
- mvn clean compile test
- ```
- 
-Out end-to-end test should be executed sucessfully
-
+Run TestRunner and the test should be executed successfully
