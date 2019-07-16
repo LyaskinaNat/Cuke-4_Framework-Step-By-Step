@@ -276,55 +276,55 @@ public class Steps {
     }
 
     @When("I enter my personal details")
-    public void i_enter_my_personal_details() throws InterruptedException {
-        Thread.sleep(2000);
-        //On Checkout page, fill in customer details
-        WebElement firstName = driver.findElement(By.id("billing_first_name"));
-        firstName.sendKeys("TestAutomation");
+        public void i_enter_my_personal_details() throws InterruptedException {
+            Thread.sleep(2000);
+            //On Checkout page, fill in customer details
+            WebElement firstName = driver.findElement(By.id("billing_first_name"));
+            firstName.sendKeys("TestAutomation");
 
-        WebElement lastName = driver.findElement(By.id("billing_last_name"));
-        lastName.sendKeys("Opencast");
+            WebElement lastName = driver.findElement(By.id("billing_last_name"));
+            lastName.sendKeys("Opencast");
+            WebElement select_Country = driver.findElement(By.id("billing_country"));
+            Select country = new Select(select_Country);
+            country.selectByVisibleText("United Kingdom (UK)");
 
-        WebElement select_Country = driver.findElement(By.id("billing_country"));
-        Select country = new Select(select_Country);
-        country.selectByVisibleText("United Kingdom (UK)");
+            WebElement address = driver.findElement(By.id("billing_address_1"));
+            address.sendKeys("Hoults Yard, Walker Road");
 
-        WebElement address = driver.findElement(By.id("billing_address_1"));
-        address.sendKeys("Hoults Yard, Walker Road");
+            WebElement city = driver.findElement(By.id("billing_city"));
+            city.sendKeys("Newcastle upon Tyne");
+            WebElement postcode = driver.findElement(By.id("billing_postcode"));
+            postcode.sendKeys("NE6 3PE");
+            //Page gets refreshed after the postcode is entered, so we introduce an extra wait
+            Thread.sleep(2000);
 
-        WebElement city = driver.findElement(By.id("billing_city"));
-        city.sendKeys("Newcastle upon Tyne");
+            WebElement phone = driver.findElement(By.id("billing_phone"));
+            phone.sendKeys("07438862327");
+            WebElement emailAddress = driver.findElement(By.id("billing_email"));
+            emailAddress.sendKeys("test@test.com");
 
-        WebElement postcode = driver.findElement(By.id("billing_postcode"));
-        postcode.sendKeys("NE6 3PE");
+        }
 
-        WebElement phone = driver.findElement(By.id("billing_phone"));
-        phone.sendKeys("07438862327");
+        @When("I place the order")
+        public void i_place_the_order() throws InterruptedException {
+            Thread.sleep(2000);
+            //On Checkout page, click on T&Cs and submit the order
+            WebElement chkbx_AcceptTermsAndCondition = driver.findElement(By.cssSelector(".woocommerce-form__input-checkbox"));
+            chkbx_AcceptTermsAndCondition.click();
+            WebElement btn_PlaceOrder = driver.findElement(By.id("place_order"));
+            btn_PlaceOrder.submit();
+            Thread.sleep(2000);
+        }
 
-        WebElement emailAddress = driver.findElement(By.id("billing_email"));
-        emailAddress.sendKeys("test@test.com");
-
-    }
-
-    @When("I place the order")
-    public void i_place_the_order() throws InterruptedException {
-        //On Checkout page, click on T&Cs and submit the order
-        WebElement chkbx_AcceptTermsAndCondition = driver.findElement(By.cssSelector(".woocommerce-form__input-checkbox"));
-        chkbx_AcceptTermsAndCondition.click();
-
-        WebElement btn_PlaceOrder = driver.findElement(By.id("place_order"));
-        btn_PlaceOrder.submit();
-    }
-
-    @Then("Order details are successfully verified")
-    public void order_details_are_successfully_verified() {
-        //User is automatically re-directed to the Order confirmation page. Validation step will be implemented later on this course
-        System.out.println("Not implemented");
-        //Closing the browser
-        driver.manage().deleteAllCookies();
-        driver.close();
-        driver.quit();
-    }
+        @Then("Order details are successfully verified")
+        public void order_details_are_successfully_verified() {
+           //User is automatically re-directed to the Order confirmation page. Validation step will be implemented later on this course
+            System.out.println("Not implemented");
+            //Closing the browser
+            driver.manage().deleteAllCookies();
+            driver.close();
+            driver.quit();
+        }
 
 }
 
