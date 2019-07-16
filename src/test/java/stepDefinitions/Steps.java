@@ -13,6 +13,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
 import org.openqa.selenium.support.ui.Select;
 
+
 public class Steps {
     WebDriver driver;
 
@@ -82,7 +83,6 @@ public class Steps {
 
         WebElement lastName = driver.findElement(By.id("billing_last_name"));
         lastName.sendKeys("Opencast");
-
         WebElement select_Country = driver.findElement(By.id("billing_country"));
         Select country = new Select(select_Country);
         country.selectByVisibleText("United Kingdom (UK)");
@@ -92,13 +92,13 @@ public class Steps {
 
         WebElement city = driver.findElement(By.id("billing_city"));
         city.sendKeys("Newcastle upon Tyne");
-
         WebElement postcode = driver.findElement(By.id("billing_postcode"));
         postcode.sendKeys("NE6 3PE");
+        //Page gets refreshed after the postcode is entered, so we introduce an extra wait
+        Thread.sleep(2000);
 
         WebElement phone = driver.findElement(By.id("billing_phone"));
         phone.sendKeys("07438862327");
-
         WebElement emailAddress = driver.findElement(By.id("billing_email"));
         emailAddress.sendKeys("test@test.com");
 
@@ -106,17 +106,18 @@ public class Steps {
 
     @When("I place the order")
     public void i_place_the_order() throws InterruptedException {
+        Thread.sleep(2000);
         //On Checkout page, click on T&Cs and submit the order
         WebElement chkbx_AcceptTermsAndCondition = driver.findElement(By.cssSelector(".woocommerce-form__input-checkbox"));
         chkbx_AcceptTermsAndCondition.click();
-
         WebElement btn_PlaceOrder = driver.findElement(By.id("place_order"));
         btn_PlaceOrder.submit();
+        Thread.sleep(2000);
     }
 
     @Then("Order details are successfully verified")
     public void order_details_are_successfully_verified() {
-        //User is automatically re-directed to the Order confirmation page. Validation step will be implemented later on this course
+       //User is automatically re-directed to the Order confirmation page. Validation step will be implemented later on this course
         System.out.println("Not implemented");
         //Closing the browser
         driver.manage().deleteAllCookies();
