@@ -1,19 +1,16 @@
 package stepDefinitions;
 
 import cucumber.api.java.en.Then;
-import dataProviders.ConfigFileReader;
 import managers.PageObjectManager;
 import managers.FileReaderManager;
+import managers.WebDriverManager;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
 import pageObjects.CartPage;
 import pageObjects.CheckoutPage;
 import pageObjects.HomePage;
 import pageObjects.ProductListingPage;
-
-import java.util.concurrent.TimeUnit;
 
 
 public class Steps {
@@ -23,16 +20,16 @@ public class Steps {
     CartPage cartPage;
     CheckoutPage checkoutPage;
     PageObjectManager pageObjectManager;
+    WebDriverManager webDriverManager;
 
 
 
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
         System.setProperty("webdriver.chrome.driver", FileReaderManager.getInstance().getConfigReader().getDriverPath());
-        driver = new ChromeDriver();
+        webDriverManager = new WebDriverManager();
+        driver = webDriverManager.getDriver();
         pageObjectManager = new PageObjectManager(driver);
-        driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(FileReaderManager.getInstance().getConfigReader().getImplicitWait(), TimeUnit.SECONDS);
         homePage = pageObjectManager.getHomePage();
         homePage.navigateTo_HomePage();
     }
@@ -81,9 +78,7 @@ public class Steps {
     @Then("Order details are successfully verified")
     public void order_details_are_successfully_verified() {
         System.out.println("Not implemented");
-        driver.manage().deleteAllCookies();
-        driver.close();
-        driver.quit();
+        webDriverManager.closeDriver();
     }
 
 }
