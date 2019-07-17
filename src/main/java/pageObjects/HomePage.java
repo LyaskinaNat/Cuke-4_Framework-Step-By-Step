@@ -6,6 +6,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import managers.FileReaderManager;
 
 public class HomePage {
 
@@ -25,7 +26,7 @@ public class HomePage {
     public WebElement input_Search;
 
     public void navigateTo_HomePage() {
-        driver.get(configFileReader.getApplicationUrl());
+        driver.get(FileReaderManager.getInstance().getConfigReader().getApplicationUrl());
     }
 
     public void perform_Search(String search) {
