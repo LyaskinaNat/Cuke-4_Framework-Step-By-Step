@@ -3,6 +3,7 @@ package stepDefinitions;
 import cucumber.api.java.en.Then;
 import dataProviders.ConfigFileReader;
 import managers.PageObjectManager;
+import managers.FileReaderManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import cucumber.api.java.en.Given;
@@ -22,17 +23,16 @@ public class Steps {
     CartPage cartPage;
     CheckoutPage checkoutPage;
     PageObjectManager pageObjectManager;
-    ConfigFileReader configFileReader;
+
 
 
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
-        configFileReader= new ConfigFileReader();
-        System.setProperty("webdriver.chrome.driver", configFileReader.getDriverPath());
+        System.setProperty("webdriver.chrome.driver", FileReaderManager.getInstance().getConfigReader().getDriverPath());
         driver = new ChromeDriver();
         pageObjectManager = new PageObjectManager(driver);
         driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(configFileReader.getImplicitWait(), TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(FileReaderManager.getInstance().getConfigReader().getImplicitWait(), TimeUnit.SECONDS);
         homePage = pageObjectManager.getHomePage();
         homePage.navigateTo_HomePage();
     }

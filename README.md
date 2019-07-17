@@ -1,149 +1,60 @@
-# Read Project Configurations from Property File
-So far in our project we have been storing hard coded values inside the project code.
-It is against the coding principles to do so as it makes our test be less manageable and maintainable.
-Therefore with the help of properties file we will be focusing on eliminating these hard coded values.
+# File Reader Manager as a Singleton Design Pattern
+In the previous section, we run into a problem of having multiple instances of Property Class in our project.
+In this section we will use File Reader Manager as Singleton Design Pattern to eliminate the issue.
+Singleton Design Pattern helps in achieving having only one instance of a class which can be accessed globally.
 
-### What is a Property file in Java
-**.properties** files are mainly used in Java programs to maintain project **configuration data, database config or
-project settings**, etc.
-Each parameter in properties file is stored as a pair of strings, in key-value pair format.
-You can easily read properties from this file using object of type Properties. This is a utility provided by Java itself.
+### What is a Singleton Design Pattern?
+The Singleton’s purpose is to control object creation, limiting the number of objects to only one.
+Since there is only one Singleton instance, any instance fields of a Singleton will occur only once per class,
+just like static fields.
+
+### How to implement Singleton Pattern?
+To implement Singleton pattern, we have to implement the following concept:
+
+- **Private constructor** to restrict instantiation of the class from other classes.
+- **Private static variable** of the same class that is the only instance of the class.
+- **Public static method** that returns the instance of the class, this is the global access point
+to get the instance of the singleton class.
+
+## Step 1: Create File Reader Manager as Singleton Design Pattern
+1) Create a New Class and name it as FileReaderManager, by right click on the managers package and select New >> Class.
+2) Add the following code so **File Reader Manager** looks like this:
+### FileReaderManager.java
 ```
-java.util.Properties;
-```
-### Advantages of Property file in Java
-If any information is changed from the properties file, you don’t need to recompile the java class.
-In other words, the advantage of using properties file is we can configure things which are prone to change
-over a period of time without need of changing anything in code.
-## Step 1: Create a Property file
-1) Create a New Folder and name it 'configs', by right click on the root Project and select New >> Folder.
-2) Create a New File by right click on the above created folder and select New >> File and name it 'Configuration.properties'
-3) Write Hard Coded Values in the Property File.
+package managers;
 
-So far there are three hard coded values we will move to our **Configuration.properties** file like so:
-```
-driverPath=src/drivers/chromedriver
-url=http://shop.demoqa.com
-implicitWait=5
-```
-## Step 2: Create a Config File Reader
-1) Create a New Package under src/main/java/ and name it 'dataProviders'.
-We will keep all the data readers files here in this package.
+import dataProviders.ConfigFileReader;
 
-2) Create a New Class file and name it 'ConfigFileReader', by right click on the above created package and select New >> Class.
-3) Add the following code to ConfigFileReader
-### ConfigFileReader.java
-```
-package dataProviders;
+public class FileReaderManager {
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Properties;
+    private static FileReaderManager fileReaderManager = new FileReaderManager();
+    private static ConfigFileReader configFileReader;
 
-public class ConfigFileReader {
-
-    private Properties properties;
-    private final String propertyFilePath= "configs//Configuration.properties";
-
-
-    public ConfigFileReader(){
-        BufferedReader reader;
-        try {
-            reader = new BufferedReader(new FileReader(propertyFilePath));
-            properties = new Properties();
-            try {
-                properties.load(reader);
-                reader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Configuration.properties not found at " + propertyFilePath);
-        }
+    private FileReaderManager() {
     }
 
-    public String getDriverPath(){
-        String driverPath = properties.getProperty("driverPath");
-        if(driverPath!= null) return driverPath;
-        else throw new RuntimeException("driverPath not specified in the Configuration.properties file.");
+    public static FileReaderManager getInstance( ) {
+        return fileReaderManager;
     }
 
-    public long getImplicitlyWait() {
-        String implicitWait = properties.getProperty("implicitWait");
-        if(implicitWait != null) return Long.parseLong(implicitWait);
-        else throw new RuntimeException("implicitlyWait not specified in the Configuration.properties file.");
+    public ConfigFileReader getConfigReader() {
+        return (configFileReader == null) ? new ConfigFileReader() : configFileReader;
     }
-
-    public String getApplicationUrl() {
-        String url = properties.getProperty("url");
-        if(url != null) return url;
-        else throw new RuntimeException("url not specified in the Configuration.properties file.");
-    }
-
 }
 ```
+
 ## Explanation
-### How to Load Property File
+**FileReaderManager class** maintains a static reference to its own instance and returns that reference
+from the static getInstance() method.
+
+**FileReaderManager** implements a private constructor so clients cannot instantiate FileReaderManager instances.
+
+**getConfigReader()** method returns the instance of the **ConfigFileReader** but this method is **not static**.
+So that client has to use the **getInstance()** method to access other public methods of the FileReaderManager like
 ```
-BufferedReader reader = new BufferedReader(new FileReader(propertyFilePath));
-Properties properties = new Properties();
-properties.load(reader);
+FileReaderManager.getInstance().getConfigReader()
 ```
-
-**propertyFilePath :**
-This is just a String variable which holds the information of the config file path.
-
-**new FileReader(propertyFilePath) :**
-Creates a new FileReader, given the name of the file to read from.
-
-**new BufferedReader(new FileReader(propertyFilePath)) :**
-Reads text from a character-input stream, buffering characters so as to provide for the efficient reading of characters,
-arrays, and lines.
-
-**new Properties() :**
-The Properties class represents a persistent set of properties. The Properties can be saved to a stream or loaded
-from a stream. Each key and its corresponding value in the property list is a string.
-
-**properties.load(reader) :**
-Reads a property list (key and value) from the input character stream in a simple line-oriented format.
-
-### ConfigFileReader Method
-```
-	public String getDriverPath(){
-		String driverPath = properties.getProperty("driverPath");
-		if(driverPath!= null) return driverPath;
-		else throw new RuntimeException("driverPath not specified in the Configuration.properties file.");
-	}
-  ```
-
-**properties.getProperty(“driverPath”) :**
-Properties object gives us a *getProperty()* method which takes the Key of the property as a parameter and return
-the Value of the matched key from the .properties file.
-If the properties file does not have the specified key, it returns the null.
-This is why we have put the null check and in case of null we like to throw an exception to stop the test
-with the stack trace information.
-
-## Step 3: Use ConfigFileReader object in the Steps.java file and HomePage.java file
-To use the **ConfigFileReader object** in the test, we need to fist create an object of the class.
-```
-ConfigFileReader configFileReader= new ConfigFileReader();
-```
-
-
-Then we can replace the below statement
-```
-System.setProperty(“webdriver.chrome.driver”,“scr/drivers”);
-```
-
-with
-```
-System.setProperty(“webdriver.chrome.driver”, configFileReader.getDriverPath());
-```
-Complete Steps file will look like this now:
-
+## Step 2: Implement File Reader Manager in test code (Steps.java and HomePage.java)
 ### Steps.java
 ```
 package stepDefinitions;
@@ -151,6 +62,7 @@ package stepDefinitions;
 import cucumber.api.java.en.Then;
 import dataProviders.ConfigFileReader;
 import managers.PageObjectManager;
+import managers.FileReaderManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import cucumber.api.java.en.Given;
@@ -170,17 +82,16 @@ public class Steps {
     CartPage cartPage;
     CheckoutPage checkoutPage;
     PageObjectManager pageObjectManager;
-    ConfigFileReader configFileReader;
+
 
 
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
-        configFileReader= new ConfigFileReader();
-        System.setProperty("webdriver.chrome.driver", configFileReader.getDriverPath());
+        System.setProperty("webdriver.chrome.driver", FileReaderManager.getInstance().getConfigReader().getDriverPath());
         driver = new ChromeDriver();
         pageObjectManager = new PageObjectManager(driver);
         driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(configFileReader.getImplicitWait(), TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(FileReaderManager.getInstance().getConfigReader().getImplicitWait(), TimeUnit.SECONDS);
         homePage = pageObjectManager.getHomePage();
         homePage.navigateTo_HomePage();
     }
@@ -236,8 +147,6 @@ public class Steps {
 
 }
 ```
-And our Home Page object class file will look like this:
-
 ### HomePage.java
 ```
 package pageObjects;
@@ -248,6 +157,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import managers.FileReaderManager;
 
 public class HomePage {
 
@@ -267,7 +177,7 @@ public class HomePage {
     public WebElement input_Search;
 
     public void navigateTo_HomePage() {
-        driver.get(configFileReader.getApplicationUrl());
+        driver.get(FileReaderManager.getInstance().getConfigReader().getApplicationUrl());
     }
 
     public void perform_Search(String search) {
@@ -276,14 +186,10 @@ public class HomePage {
         input_Search.sendKeys(Keys.RETURN);
     }
 }
-
 ```
-
-
-Note: Generally, it is bad practice to create object of property file in every class.
-We have created the object of the Property Class in Steps file and another object of Properties Class again
-in the HomePage class.
-
-We will cover how to overcome this issue in the next section.
-
 Run TestRunner and the test should be executed successfully
+
+
+
+
+
