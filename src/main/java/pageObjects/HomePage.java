@@ -1,5 +1,6 @@
 package pageObjects;
 
+import dataProviders.ConfigFileReader;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -9,10 +10,12 @@ import org.openqa.selenium.support.PageFactory;
 public class HomePage {
 
     WebDriver driver;
+    ConfigFileReader configFileReader;
 
     public HomePage(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
+        configFileReader= new ConfigFileReader();
     }
 
     @FindBy(css=".noo-search")
@@ -22,7 +25,7 @@ public class HomePage {
     public WebElement input_Search;
 
     public void navigateTo_HomePage() {
-        driver.get("http://www.shop.demoqa.com");
+        driver.get(configFileReader.getApplicationUrl());
     }
 
     public void perform_Search(String search) {
