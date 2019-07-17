@@ -1,106 +1,155 @@
-# Page Object Manager
-In this section we will design a Page Object Manager.
-In previous section we have created objects for our pages like so:
+# Read Project Configurations from Property File
+So far in our project we have been storing hard coded values inside the project code.
+It is against the coding principles to do so as it makes our test be less manageable and maintainable.
+Therefore with the help of properties file we will be focusing on eliminating these hard coded values.
+
+### What is a Property file in Java
+**.properties** files are mainly used in Java programs to maintain project **configuration data, database config or
+project settings**, etc.
+Each parameter in properties file is stored as a pair of strings, in key-value pair format.
+You can easily read properties from this file using object of type Properties. This is a utility provided by Java itself.
 ```
-HomePage homePage = new HomePage(driver);
-ProductListingPage productListingPage = new ProductListingPage(driver);
-cartPage = new CartPage(driver);
-checkoutPage = new CheckoutPage(driver);
+java.util.Properties;
 ```
+### Advantages of Property file in Java
+If any information is changed from the properties file, you don’t need to recompile the java class.
+In other words, the advantage of using properties file is we can configure things which are prone to change
+over a period of time without need of changing anything in code.
+## Step 1: Create a Property file
+1) Create a New Folder and name it 'configs', by right click on the root Project and select New >> Folder.
+2) Create a New File by right click on the above created folder and select New >> File and name it 'Configuration.properties'
+3) Write Hard Coded Values in the Property File.
 
-But there is a problem here. So far we have just one single Cucumber Step Definition file.
-But in the case of multiple step definition files, we will be creating object of Pages again and again.
-This is against the coding principle.
-
-To avoid this situation, we can create a **Page Object Manager**.
-
-The purpose of the Page Object Manger is to create the page’s object and also to make sure that the object
-is only created once and it can be used across all step definition files.
-
-## Step 1: Design Page Object Manager Class
-1) Create a New Package file and name it 'managers', by right click on the src/main/java and select New >> Package.
-
-2) Create a New Class file and name it PageObjectManager by right click on the above created Package and select New >> Class.
-3) Add the following code to the class
-### PageObjectManager.java
+So far there are three hard coded values we will move to our **Configuration.properties** file like so:
 ```
-package managers;
+driverPath=src/drivers/chromedriver
+url=http://shop.demoqa.com
+implicitWait=5
+```
+## Step 2: Create a Config File Reader
+1) Create a New Package under src/main/java/ and name it 'dataProviders'.
+We will keep all the data readers files here in this package.
 
-import org.openqa.selenium.WebDriver;
-import pageObjects.CartPage;
-import pageObjects.CheckoutPage;
-import pageObjects.ConfirmationPage;
-import pageObjects.HomePage;
-import pageObjects.ProductListingPage;
+2) Create a New Class file and name it 'ConfigFileReader', by right click on the above created package and select New >> Class.
+3) Add the following code to ConfigFileReader
+### ConfigFileReader.java
+```
+package dataProviders;
 
-public class PageObjectManager {
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Properties;
 
-    private WebDriver driver;
-    private ProductListingPage productListingPage;
-    private CartPage cartPage;
-    private HomePage homePage;
-    private CheckoutPage checkoutPage;
-    private ConfirmationPage confirmationPage;
+public class ConfigFileReader {
 
-    // Constructor
-    public PageObjectManager(WebDriver driver) {
-        this.driver = driver;
+    private Properties properties;
+    private final String propertyFilePath= "configs//Configuration.properties";
+
+
+    public ConfigFileReader(){
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new FileReader(propertyFilePath));
+            properties = new Properties();
+            try {
+                properties.load(reader);
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Configuration.properties not found at " + propertyFilePath);
+        }
     }
 
-    //Creating an Object of Page Class only if the object is null,
-    //Supplying the already created object if it is not null:
-
-    public HomePage getHomePage(){
-        return (homePage == null) ? homePage = new HomePage(driver) : homePage;
+    public String getDriverPath(){
+        String driverPath = properties.getProperty("driverPath");
+        if(driverPath!= null) return driverPath;
+        else throw new RuntimeException("driverPath not specified in the Configuration.properties file.");
     }
 
-    public ProductListingPage getProductListingPage() {
-        return (productListingPage == null) ? productListingPage = new ProductListingPage(driver) : productListingPage;
+    public long getImplicitlyWait() {
+        String implicitWait = properties.getProperty("implicitWait");
+        if(implicitWait != null) return Long.parseLong(implicitWait);
+        else throw new RuntimeException("implicitlyWait not specified in the Configuration.properties file.");
     }
 
-    public CartPage getCartPage() {
-       return (cartPage == null) ? cartPage = new CartPage(driver) : cartPage;
-    }
-
-    public CheckoutPage getCheckoutPage() {
-        return (checkoutPage == null) ? checkoutPage = new CheckoutPage(driver) : checkoutPage;
+    public String getApplicationUrl() {
+        String url = properties.getProperty("url");
+        if(url != null) return url;
+        else throw new RuntimeException("url not specified in the Configuration.properties file.");
     }
 
 }
 ```
 ## Explanation
- **Constructor:**
+### How to Load Property File
 ```
-public PageObjectManager(WebDriver driver) {
-     this.driver = driver;
-}
+BufferedReader reader = new BufferedReader(new FileReader(propertyFilePath));
+Properties properties = new Properties();
+properties.load(reader);
 ```
-This constructor is asking for parameter of type WebDriver.
-As to create an object of the Pages, this class requires a driver.
 
-In oder to create an object of PageObjectManager class, driver needs to be provided:
-```
-PageObjectManager pageObjectManager = new PageObjectManager(driver);
-```
-**Page Object Creation Method:**
-```
-public HomePage getHomePage() {
-     return (homePage == null) ? new HomePage(driver) : homePage;
-}
-```
-This method has two responsibilities:
+**propertyFilePath :**
+This is just a String variable which holds the information of the config file path.
 
-- To create an Object of Page Class only if the object is null.
-- To supply the already created object if it is not null
+**new FileReader(propertyFilePath) :**
+Creates a new FileReader, given the name of the file to read from.
 
-## Step 2: Modify Step Definition File
-Implementation of PageObjectManager requires change in our step definition file as well
-Now the duty of the creation of all the pages assigned to only one class which is Page Object Manager.
+**new BufferedReader(new FileReader(propertyFilePath)) :**
+Reads text from a character-input stream, buffering characters so as to provide for the efficient reading of characters,
+arrays, and lines.
+
+**new Properties() :**
+The Properties class represents a persistent set of properties. The Properties can be saved to a stream or loaded
+from a stream. Each key and its corresponding value in the property list is a string.
+
+**properties.load(reader) :**
+Reads a property list (key and value) from the input character stream in a simple line-oriented format.
+
+### ConfigFileReader Method
+```
+	public String getDriverPath(){
+		String driverPath = properties.getProperty("driverPath");
+		if(driverPath!= null) return driverPath;
+		else throw new RuntimeException("driverPath not specified in the Configuration.properties file.");
+	}
+  ```
+
+**properties.getProperty(“driverPath”) :**
+Properties object gives us a *getProperty()* method which takes the Key of the property as a parameter and return
+the Value of the matched key from the .properties file.
+If the properties file does not have the specified key, it returns the null.
+This is why we have put the null check and in case of null we like to throw an exception to stop the test
+with the stack trace information.
+
+## Step 3: Use ConfigFileReader object in the Steps.java file and HomePage.java file
+To use the **ConfigFileReader object** in the test, we need to fist create an object of the class.
+```
+ConfigFileReader configFileReader= new ConfigFileReader();
+```
+
+
+Then we can replace the below statement
+```
+System.setProperty(“webdriver.chrome.driver”,“scr/drivers”);
+```
+
+with
+```
+System.setProperty(“webdriver.chrome.driver”, configFileReader.getDriverPath());
+```
+Complete Steps file will look like this now:
+
 ### Steps.java
 ```
 package stepDefinitions;
 
 import cucumber.api.java.en.Then;
+import dataProviders.ConfigFileReader;
 import managers.PageObjectManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -111,6 +160,9 @@ import pageObjects.CheckoutPage;
 import pageObjects.HomePage;
 import pageObjects.ProductListingPage;
 
+import java.util.concurrent.TimeUnit;
+
+
 public class Steps {
     WebDriver driver;
     HomePage homePage;
@@ -118,14 +170,17 @@ public class Steps {
     CartPage cartPage;
     CheckoutPage checkoutPage;
     PageObjectManager pageObjectManager;
+    ConfigFileReader configFileReader;
 
 
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
-        System.setProperty("webdriver.chrome.driver","src/drivers/chromedriver");
+        configFileReader= new ConfigFileReader();
+        System.setProperty("webdriver.chrome.driver", configFileReader.getDriverPath());
         driver = new ChromeDriver();
         pageObjectManager = new PageObjectManager(driver);
         driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(configFileReader.getImplicitWait(), TimeUnit.SECONDS);
         homePage = pageObjectManager.getHomePage();
         homePage.navigateTo_HomePage();
     }
@@ -180,6 +235,55 @@ public class Steps {
     }
 
 }
+```
+And our Home Page object class file will look like this:
+
+### HomePage.java
+```
+package pageObjects;
+
+import dataProviders.ConfigFileReader;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+public class HomePage {
+
+    WebDriver driver;
+    ConfigFileReader configFileReader;
+
+    public HomePage(WebDriver driver) {
+        this.driver = driver;
+        PageFactory.initElements(driver, this);
+        configFileReader= new ConfigFileReader();
+    }
+
+    @FindBy(css=".noo-search")
+    public WebElement btn_Search;
+
+    @FindBy(css=".form-control")
+    public WebElement input_Search;
+
+    public void navigateTo_HomePage() {
+        driver.get(configFileReader.getApplicationUrl());
+    }
+
+    public void perform_Search(String search) {
+        btn_Search.click();
+        input_Search.sendKeys(search);
+        input_Search.sendKeys(Keys.RETURN);
+    }
+}
 
 ```
+
+
+Note: Generally, it is bad practice to create object of property file in every class.
+We have created the object of the Property Class in Steps file and another object of Properties Class again
+in the HomePage class.
+
+We will cover how to overcome this issue in the next section.
+
 Run TestRunner and the test should be executed successfully
