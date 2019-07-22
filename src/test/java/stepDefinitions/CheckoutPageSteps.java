@@ -25,7 +25,6 @@ public class CheckoutPageSteps {
         Thread.sleep(1000);
         checkoutPage.check_TermsAndCondition();
         checkoutPage.clickOn_PlaceOrder();
-        testContext.getWebDriverManager().closeDriver();
-    }
 
+    }
 }
