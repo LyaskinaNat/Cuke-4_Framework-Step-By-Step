@@ -3,6 +3,8 @@ package stepDefinitions;
 import cucumber.TestContext;
 import cucumber.api.java.en.When;
 import pageObjects.CheckoutPage;
+import testDataTypes.CustomerDataType;
+import java.util.List;
 
 public class CheckoutPageSteps {
     TestContext testContext;
@@ -13,10 +15,10 @@ public class CheckoutPageSteps {
         checkoutPage = testContext.getPageObjectManager().getCheckoutPage();
     }
 
-    @When("I enter my personal details")
-    public void i_enter_my_personal_details() throws InterruptedException {
+    @When("I enter my personal details as follows")
+    public void i_enter_my_personal_details_as_follows(List<CustomerDataType> inputs) throws InterruptedException {
         Thread.sleep(1000);
-        checkoutPage.fill_PersonalDetails();
+        checkoutPage.CustomerPersonalDetailsFromDataTable(inputs);
 
     }
 
