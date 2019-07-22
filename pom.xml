@@ -10,6 +10,7 @@
 
     <properties>
         <cucumber.version>4.2.0</cucumber.version>
+        <cucumber-picocontainer.version>4.2.0</cucumber-picocontainer.version>
     </properties>
 
     <dependencies>
@@ -32,6 +33,12 @@
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-junit</artifactId>
             <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-picocontainer</artifactId>
+            <version>${cucumber-picocontainer.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
