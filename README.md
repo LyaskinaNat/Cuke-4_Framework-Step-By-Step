@@ -1,11 +1,11 @@
 # Hooks in Cucumber Framework
-Unlike **TestNG Annotaions**, Cucumber supports only two hooks (**@Before** and  **@After**).
+Unlike **TestNG Annotations**, Cucumber supports only two hooks (**@Before** and  **@After**).
 They work at the start and the end of the test scenario. As the name suggests, @Before hook gets executed well before
 any other test scenario, and @After hook gets executed after executing the scenario.
 
-Implementation of Cucumber Hooks will allow us to to move manipulations with Webdriver (initialisation / closing down)
+Implementation of Cucumber Hooks will allow us to to move manipulations with WebDriver (initialisation / closing down)
 from Page Objects and Step definitions to Hooks Class.
-In order to achive the above, we will be performing below steps:
+In order to achieve the above, we will be performing below steps:
 
 - Create a Hook Class
 - Add goToUrl() method to Web Driver Manager Class
@@ -47,8 +47,8 @@ public class Hooks {
 ```
 ## Step 2: Add goToUrl() method to Web Driver Manager Class
 Add a new method to WebDriverManager.java. The method will take
-App URL as a parameter and execute Selenium driver.get("Url") metod.
-It will be called from HomePageSteps definition file where CongigReader will read App URL from our
+App URL as a parameter and execute Selenium driver.get("Url") method.
+It will be called from HomePageSteps definition file where ConfigReader will read App URL from our
 Configuration.properties file
 ```
     public void goToUrl(String url) {
