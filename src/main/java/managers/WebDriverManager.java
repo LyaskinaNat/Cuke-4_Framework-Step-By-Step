@@ -23,6 +23,10 @@ public class WebDriverManager {
         return driver;
     }
 
+    public void goToUrl(String url) {
+        driver.get(url);
+    }
+
     private WebDriver createDriver() {
         switch (environmentType) {
             case LOCAL : driver = createLocalDriver();

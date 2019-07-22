@@ -21,8 +21,7 @@ public class HomePageSteps {
 
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
-        System.setProperty("webdriver.chrome.driver", FileReaderManager.getInstance().getConfigReader().getDriverPath());
-        homePage.navigateTo_HomePage();
+        testContext.getWebDriverManager().goToUrl(FileReaderManager.getInstance().getConfigReader().getApplicationUrl());
 
     }
 
