@@ -1,10 +1,14 @@
 package pageObjects;
 
+import org.junit.Assert;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
+import testDataTypes.CustomerDataType;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CheckoutPage {
 
@@ -43,36 +47,6 @@ public class CheckoutPage {
     public WebElement btn_PlaceOrder;
 
 
-    public void enter_Name(String name) {
-        txtbx_FirstName.sendKeys(name);
-    }
-
-    public void enter_LastName(String lastName) {
-        txtbx_LastName.sendKeys(lastName);
-    }
-
-    public void enter_Email(String email) {
-        txtbx_Email.sendKeys(email);
-    }
-
-    public void enter_Phone(String phone) {
-        txtbx_Phone.sendKeys(phone);
-    }
-
-    public void enter_City(String city) {
-        txtbx_City.sendKeys(city);
-    }
-
-    public void enter_Address(String address) {
-        txtbx_Address.sendKeys(address);
-    }
-
-    public void enter_PostCode(String postCode) {
-        txtbx_PostCode.sendKeys(postCode);
-
-    }
-
-
     public void select_Country(String countryName) {
         Select country = new Select(select_Country);
         country.selectByVisibleText(countryName);
@@ -86,15 +60,56 @@ public class CheckoutPage {
         btn_PlaceOrder.submit();
     }
 
-    public void fill_PersonalDetails() throws InterruptedException {
-        enter_Name("TestAutomation");
-        enter_LastName("Opencast");
-        select_Country("United Kingdom (UK)");
-        enter_Address("Hoults Yard, Walker Road");
-        enter_City("Newcastle upon Tyne");
-        enter_PostCode("NE6 3PE");
-        Thread.sleep(2000);
-        enter_Phone("07438862327");
-        enter_Email("test@test.com");
+    public void CustomerPersonalDetailsFromDataTable(List<CustomerDataType> inputs) {
+        try {
+            //Creating arrays for each table column header
+            List<String> firstNameArr = new ArrayList<>();
+            List<String> lastNameArr = new ArrayList<>();
+            List<String> countryArr = new ArrayList<>();
+            List<String> streetAddressArr = new ArrayList<>();
+            List<String> cityArr = new ArrayList<>();
+            List<String> postcodeArr = new ArrayList<>();
+            List<String> phoneNumberArr = new ArrayList<>();
+            List<String> emailAddressArr = new ArrayList<>();
+            Integer size = inputs.size();
+            //Recording data from table rows into corresponding data arrays
+            for (CustomerDataType input : inputs) {
+                firstNameArr.add(input.getFirstName());
+                lastNameArr.add(input.getLastName());
+                countryArr.add(input.getCountry());
+                streetAddressArr.add(input.getStreetAddress());
+                cityArr.add(input.getCity());
+                postcodeArr.add(input.getPostCode());
+                phoneNumberArr.add(input.getPhoneNumber());
+                emailAddressArr.add(input.getEmailAddress());
+            }
+            //Assigning DataTable data to corresponding variables. We use these values in .sendKey() method
+            for (int i = 0; i < size; i++) {
+                String firstNameKey = firstNameArr.get(i);
+                String lastNameKey = lastNameArr.get(i);
+                String countryKey = countryArr.get(i);
+                String streetAddressKey = streetAddressArr.get(i);
+                String cityKey = cityArr.get(i);
+                String postcodeKey = postcodeArr.get(i);
+                String phoneNumberKey = phoneNumberArr.get(i);
+                String emailAddressKey = emailAddressArr.get(i);
+
+                txtbx_FirstName.sendKeys(firstNameKey);
+                txtbx_LastName.sendKeys(lastNameKey);
+                select_Country(countryKey);
+                txtbx_Address.sendKeys(streetAddressKey);
+                txtbx_City.sendKeys(cityKey);
+                txtbx_PostCode.sendKeys(postcodeKey);
+                Thread.sleep(2000);
+                txtbx_Phone.sendKeys(phoneNumberKey);
+                txtbx_Email.sendKeys(emailAddressKey);
+
+
+            }
+        } catch (Exception e) {
+            Assert.fail("Unable to to locate WebElement or/and send keys to it, Exception: " + e.getMessage());
+        }
+
+
     }
 }
