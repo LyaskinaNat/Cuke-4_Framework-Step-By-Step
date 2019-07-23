@@ -2,6 +2,7 @@ package stepDefinitions;
 
 import cucumber.TestContext;
 import cucumber.api.java.en.When;
+import managers.FileReaderManager;
 import pageObjects.CheckoutPage;
 import testDataTypes.CustomerDataType;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
 public class CheckoutPageSteps {
     TestContext testContext;
     CheckoutPage checkoutPage;
+    long customTimeout = FileReaderManager.getInstance().getConfigReader().getCustomWait("explicitWait");
 
     public CheckoutPageSteps(TestContext context) {
         testContext = context;
@@ -16,17 +18,15 @@ public class CheckoutPageSteps {
     }
 
     @When("I enter my personal details as follows")
-    public void i_enter_my_personal_details_as_follows(List<CustomerDataType> inputs) throws InterruptedException {
-        Thread.sleep(1000);
-        checkoutPage.CustomerPersonalDetailsFromDataTable(inputs);
+    public void i_enter_my_personal_details_as_follows(List<CustomerDataType> inputs) {
+        checkoutPage.CustomerPersonalDetailsFromDataTable(inputs, customTimeout);
 
     }
 
     @When("I place the order")
-    public void i_place_the_order() throws InterruptedException {
-        Thread.sleep(1000);
-        checkoutPage.check_TermsAndCondition();
-        checkoutPage.clickOn_PlaceOrder();
+    public void i_place_the_order() {
+        checkoutPage.check_TermsAndCondition(customTimeout);
+        checkoutPage.clickOn_PlaceOrder(customTimeout);
 
     }
 }

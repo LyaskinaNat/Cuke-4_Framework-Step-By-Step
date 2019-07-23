@@ -1,146 +1,346 @@
-# Data tables in Cucumber 3 +
-Version 3 and above of Cucumber brings a new implementation of Data tables.
-From a Gherkin perspective, nothing has changed. Data tables are supported as earlier. However, implementation needs some
-adaptation.
-In our project we will be converting **N-column data table into a custom type**
+# Implicit and Explicit Wait in Selenium WebDriver
 
-Note: For more information about different DataTables data structures and conversions please follow the below links:
-- https://github.com/cucumber/cucumber/tree/master/datatable
-- http://www.thinkcode.se/blog/2018/06/30/data-tables-in-cucumber-3
-- https://github.com/grasshopper7/cuke3-migrate-datatabletype/blob/master/cuke3-migrate-datatabletype/src/test/java/dataobject/Lecture.java
+In selenium "Waits" play an important role in executing tests.
+## Why Do We Need Waits In Selenium?
+Most of the web applications are developed using Ajax and Javascript.
+When a page is loaded by the browser the elements which we want to interact with may load at different time intervals.
+Not only it makes this difficult to identify the element but also if the element is not located it will throw an
+**"ElementNotVisibleException"** exception. Using Waits, we can resolve this problem.
+### Selenium Web Driver Waits
+- Implicit Wait
+- Explicit Wait
 
-In order to implement DataTable we will be performing the below steps:
-- Change End2End_Test.feature file so Customer details are specified in a DataTable
-- Implement new (custom) type which represents DataTable data
-- Register a newly created customer type so Cucumber can convert the data table to it
-- In CheckoutPage Class, replace fill_PersonalDetails() method with a new method which reads data from DataTable
-- Modify Step definition file to reflect DataTable implementation
+### Implicit Wait
+Selenium Web Driver has borrowed the idea of implicit waits from **Watir**.
 
-## Step 1: Change End2End_Test.feature file so Customer details are specified in a DataTable
-Our feature file should now look like this:
+The implicit wait will tell to the web driver to wait for certain amount of time before it throws a
+**"No Such Element Exception"**.
+The default setting is 0. Once we set the time,
+web driver will wait for that time before throwing an exception.
+We have **Implicit Wait** implementation in our project inside WebDriver Manager class when we are waiting for the App URL to load:
 ```
-Feature: Automated End2End Tests
-  Description: The purpose of this feature is to test End 2 End integration.
-
-  Scenario: Customer place an order by purchasing an item from search
-    Given I am on Home Page
-    When I search for product in dress category
-    And I choose to buy the first item
-    And I move to checkout from mini cart
-    And I enter my personal details as follows
-      |  first_name  |last_name|     country        |     street_address     |          city     |postcode|phone_number|email_address|
-      |TestAutomation| Opencast| United Kingdom (UK)|Hoults Yard, Walker Road|Newcastle upon Tyne|NE6 3PE |07438862327 |test@test.com|
-    And place the order
-    Then Order details are successfully verified
+driver.manage().timeouts().implicitlyWait(FileReaderManager.getInstance().getConfigReader().getImplicitWait(), TimeUnit.SECONDS);
 ```
-## Step 2: Implement new (custom) type which represents DataTable data
-1) Create a new package in src/main/java and name it 'testDataTypes'
-2) Create a New Class file in src/main/java inside testDataTypes package and name it 'CustomerDataType'.
-3) The new type CustomerDataType has to be implemented. This is one possible implementation:
-### CustomerDataType.java
+
+### Explicit Wait
+The explicit wait is used to tell the Web Driver to wait for certain conditions (Expected Conditions) or the maximum time
+exceeded before throwing an "ElementNotVisibleException" exception.
+The explicit wait is an intelligent kind of wait, but it can be applied **only for specified elements**.
+Explicit wait gives better options than that of an implicit wait as it will wait for dynamically loaded Ajax elements.
+Once we declare explicit wait we have to use **"ExpectedConditions"**.
+
+So far in our project we are using **Thread.Sleep()**. This generally is not recommended to use as it significantly
+slows down test execution. Execution will just stops for specified in Thread.sleep()statement time before continue with
+the next statement.
+In order to make our test execution more time efficient, we are going to implement a couple of
+**Explicit Wait** and custom specified timeout time.
+In order to implement Explicit Wait we will be performing the below steps:
+- Create New utility class where all Wait methods will be placed
+- Add explicitWait variable into Configuration.properties file
+- Modify getImplicitWait method so it reads both custom Explicit and Implicit Wait value by taken a 'Key' as a parameter
+- Include Wait methods inside our project's PageObject classes
+- Modify Step definition files to reflect the changes
+- Modify createLocalDriver() method inside WebDriver Manager to add implicitWait parameter to it
+
+## Step 1: Create New utility class where all Wait methods will be placed
+1) Create a new package in src/main/java and name it 'utils'
+2) Create a New Class file in src/main/java inside 'utils' package and name it 'Waits'.
+We will add two Explicit Wait methods to our Wait Class:
+- ExpectedConditions.elementToBeClickable(element))
+- ExpectedConditions.visibilityOf(element)
+New Waits Class should look like this:
+### Waits.java
 ```
-package testDataTypes;
+package utils;
 
-import java.util.Map;
+import org.junit.Assert;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
-public class CustomerDataType {
+public class Waits {
 
-    private String firstName;
-    private String lastName;
-    private String emailAddress;
-    private String streetAddress;
-    private String city;
-    private String postCode;
-    private String country;
-    private String phoneNumber;
+    public boolean WaitForClickableWithCustomTimeout(WebDriver driver, WebElement element, long customTimeout) {
 
-    public String getFirstName() { return firstName; }
-    public void setFirstName(String firstName) { this.firstName = firstName; }
-    public String getLastName() { return lastName; }
-    public void setLastName(String lastName) { this.lastName = lastName; }
-    public String getEmailAddress() { return emailAddress; }
-    public void setEmailAddress(String emailAddress) { this.emailAddress = emailAddress; }
-    public String getStreetAddress() { return streetAddress; }
-    public void setStreetAddress(String streetAddress) { this.streetAddress = streetAddress; }
-    public String getCity() { return city; }
-    public void setCity(String city) { this.city = city; }
-    public String getPostCode() { return postCode; }
-    public void setPostCode(String postCode) { this.postCode = postCode; }
-    public String getCountry() { return country; }
-    public void setCountry(String country) { this.country = country; }
-    public String getPhoneNumber() { return phoneNumber; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+        try {
 
-    public static CustomerDataType customerDetails (Map<String, String> entry) {
-        CustomerDataType input = new CustomerDataType();
-        input.setFirstName(entry.get("first_name"));
-        input.setLastName(entry.get("last_name"));
-        input.setCountry(entry.get("country"));
-        input.setStreetAddress(entry.get("street_address"));
-        input.setCity(entry.get("city"));
-        input.setPostCode(entry.get("postcode"));
-        input.setPhoneNumber(entry.get("phone_number"));
-        input.setEmailAddress(entry.get("email_address"));
+            final WebDriverWait customWait;
+            customWait= new WebDriverWait(driver, 10);
+            customWait.until(ExpectedConditions.elementToBeClickable(element));
+            System.out.println("Element is clickable, locator: " + "<" + element + ">" + ", custom Timeout: " + customTimeout);
+            return true;
 
-        return input;
+        } catch (Exception e) {
+            System.out.println("Unable to click on WebElement, locator: " + "<" + element.getClass() + ">" + ", custom Timeout: " + customTimeout);
+            Assert.fail("Unable to click on WebElement, Exception: " + e.getMessage());
+            return false;
+        }
     }
+    public boolean WaitForVisibleWithCustomTimeout(WebDriver driver, WebElement element, long customTimeout) {
 
-    @Override
-    public String toString() {
-        return "CustomerDataType [" +
-                "first_name: " + firstName +
-                ", last_name: " + lastName +
-                ", country: " + country +
-                ", street_address:" + streetAddress +
-                ", city: " + city +
-                ", postcode: " + postCode +
-                ", phone_number: " + phoneNumber +
-                ", email_address: " + emailAddress +
-                "]";
+        try {
+
+            final WebDriverWait customWait;
+            customWait= new WebDriverWait(driver, customTimeout);
+            customWait.until(ExpectedConditions.visibilityOf(element));
+            System.out.println("Successfully found WebElement, locator: " + "<" + element + ">" + ", custom Timeout: " + customTimeout);
+            return true;
+
+        } catch (Exception e) {
+            System.out.println("Unable to find WebElement, locator: " + "<" + element + ">" + ", custom Timeout: " + customTimeout);
+            Assert.fail("Unable to find WebElement, Exception: " + e.getMessage());
+            return false;
+        }
     }
-}
+ }
+
 ```
-It is an immutable type with the same number of fields as columns in our DataTable and
-hhe fields match the table headers. The fields and headers doesn't have to match. But as they describe the same thing
-it feels natural that they have the same name in this case.
-The next step is new for Cucumber 3 +. The type has to registered before it can be used in a data table:
-## Step 3: Register a newly created customer type so Cucumber can convert the data table to it
-1) Create a new class in src/test/java inside stepDefinitions package and name it 'Configurer'
-2) Place the following code inside it:
+## Step 2: Add explicitWait variable into Configuration.properties file
+Our **Configuration.properties** file should look like this:
 ```
-package stepDefinitions;
+environment=local
+browser=chrome
+windowMaximize=true
+driverPath=src/drivers/chromedriver
+url=http://shop.demoqa.com
+implicitWait=10
+explicitWait=5
+```
+## Step 3: Modify getImplicitWait method
+Inside scr/main/java/dataProviders/ConfigFileReader we will modify our getImplicitWait() method so it can read both custom Implicit and Explicit Wait values.
+We give it a more meaningful name too:
+```
+    public long getCustomWait(String waitTypeKey) {
+        String customWait = properties.getProperty(waitTypeKey);
+        if(customWait != null) return Long.parseLong(customWait);
+        else throw new RuntimeException("Custom Wait not specified in the Configuration.properties file.");
+    }
+```
+### ConfigFileReader.java
+```
+package dataProviders;
 
-import cucumber.api.TypeRegistry;
-import cucumber.api.TypeRegistryConfigurer;
-import io.cucumber.datatable.DataTableType;
-import io.cucumber.datatable.TableEntryTransformer;
-import java.util.Locale;
-import java.util.Map;
-import testDataTypes.*;
+import enums.DriverType;
+import enums.EnvironmentType;
 
-public class Configurer implements TypeRegistryConfigurer {
-    @Override
-    public void configureTypeRegistry(TypeRegistry registry) {
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Properties;
 
-        registry.defineDataTableType(new DataTableType(CustomerDataType.class, new TableEntryTransformer<CustomerDataType>() {
-            @Override
-            public CustomerDataType transform(Map<String, String> entry) {
-                return CustomerDataType.customerDetails(entry);
+public class ConfigFileReader {
+
+    private Properties properties;
+    private final String propertyFilePath= "configs/Configuration.properties";
+
+
+    public ConfigFileReader(){
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new FileReader(propertyFilePath));
+            //Configuration properties can be easily read from .properties file using object of type Properties provided by java.utils
+            properties = new Properties();
+            try {
+                properties.load(reader);
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        }));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Configuration.properties not found at " + propertyFilePath);
+        }
     }
 
-    @Override
-    public Locale locale() {
-        return Locale.ENGLISH;
+    public String getDriverPath(){
+        String driverPath = properties.getProperty("driverPath");
+        if(driverPath!= null) return driverPath;
+        else throw new RuntimeException("driverPath not specified in the Configuration.properties file.");
     }
+
+    public long getCustomWait(String waitTypeKey) {
+        String customWait = properties.getProperty(waitTypeKey);
+        if(customWait != null) return Long.parseLong(customWait);
+        else throw new RuntimeException("Custom Wait not specified in the Configuration.properties file.");
+    }
+
+    public String getApplicationUrl() {
+        String url = properties.getProperty("url");
+        if(url != null) return url;
+        else throw new RuntimeException("url not specified in the Configuration.properties file.");
+    }
+
+    public DriverType getBrowser() {
+        String browserName = properties.getProperty("browser");
+        if(browserName == null || browserName.equals("chrome")) return DriverType.CHROME;
+        else if(browserName.equalsIgnoreCase("firefox")) return DriverType.FIREFOX;
+        else throw new RuntimeException("Browser Name Key value in Configuration.properties is not matched : " + browserName);
+    }
+
+    public EnvironmentType getEnvironment() {
+        String environmentName = properties.getProperty("environment");
+        if(environmentName == null || environmentName.equalsIgnoreCase("local")) return EnvironmentType.LOCAL;
+        else if(environmentName.equals("remote")) return EnvironmentType.REMOTE;
+        else throw new RuntimeException("Environment Type Key value in Configuration.properties is not matched : " + environmentName);
+    }
+
+    public Boolean getBrowserWindowSize() {
+        String windowSize = properties.getProperty("windowMaximize");
+        if(windowSize != null) return Boolean.valueOf(windowSize);
+        return true;
+    }
+
 }
 ```
-With this infrastructure prepared, it is time to do the actual implementation of the steps that uses this data table:
-## Step 4: In CheckoutPage Class, replace fill_PersonalDetails() method with a new method which reads data from DataTable
-CheckoutPage should look like this:
+## Step 4: Include Wait methods inside our project's PageObject classes
+### HomePage.java
 ```
 package pageObjects;
+
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import utils.Waits;
+
+
+public class HomePage {
+    WebDriver driver;
+    Waits wait;
+
+    public HomePage(WebDriver driver) {
+        this.driver = driver;
+        wait = new Waits();
+        PageFactory.initElements(driver, this);
+
+    }
+
+    @FindBy(css=".noo-search")
+    public WebElement btn_Search;
+
+    @FindBy(css=".form-control")
+    public WebElement input_Search;
+
+    public void perform_Search(String search, long customTimeout) {
+        if(wait.WaitForVisibleWithCustomTimeout(driver,btn_Search, customTimeout)) {
+            btn_Search.click();
+            input_Search.sendKeys(search);
+            input_Search.sendKeys(Keys.RETURN);
+        }
+
+    }
+}
+```
+### ProductListingPage.java
+```
+package pageObjects;
+
+import java.util.List;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindAll;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.Select;
+import utils.Waits;
+
+public class ProductListingPage {
+    WebDriver driver;
+    Waits wait;
+
+    public ProductListingPage(WebDriver driver) {
+        this.driver = driver;
+        wait = new Waits();
+        PageFactory.initElements(driver, this);
+    }
+
+    @FindBy(css = "button.single_add_to_cart_button")
+    public WebElement btn_AddToCart;
+
+    @FindAll(@FindBy(css = ".noo-product-inner"))
+    public List<WebElement> prd_List;
+
+    @FindBy(id="pa_color")
+    public WebElement selectColour;
+
+    @FindBy(id="pa_size")
+    public WebElement selectSize;
+
+
+    public void select_Product(int productNumber, long customTimeout) {
+
+        if (wait.WaitForVisibleWithCustomTimeout(driver,prd_List.get(productNumber), customTimeout)) {
+            prd_List.get(productNumber).click();
+        }
+    }
+
+    public void makeSelection(int index, long customTimeout) {
+        if (wait.WaitForVisibleWithCustomTimeout(driver,selectColour, customTimeout)) {
+            Select colour = new Select(selectColour);
+            colour.selectByIndex(index);
+            Select size = new Select(selectSize);
+            size.selectByIndex(index);
+        }
+    }
+
+    public void clickOn_AddToCart(long customTimeout) {
+
+        if (wait.WaitForClickableWithCustomTimeout(driver,btn_AddToCart, customTimeout)) {
+            btn_AddToCart.click();
+        }
+    }
+
+}
+```
+### CartPage.java
+```
+package pageObjects;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import utils.Waits;
+
+public class CartPage {
+
+    WebDriver driver;
+    Waits wait;
+
+    public CartPage(WebDriver driver) {
+        this.driver = driver;
+        wait = new Waits();
+        PageFactory.initElements(driver, this);
+    }
+
+    @FindBy(css = ".cart-button")
+    public WebElement btn_Cart;
+
+    @FindBy(css = ".checkout-button.alt")
+    public WebElement btn_ContinueToCheckout;
+
+
+    public void clickOn_Cart(long customTimeout) {
+        if(wait.WaitForVisibleWithCustomTimeout(driver,btn_Cart, customTimeout)) {
+            btn_Cart.click();
+        }
+    }
+
+    public void clickOn_ContinueToCheckout(long customTimeout){
+        if(wait.WaitForVisibleWithCustomTimeout(driver,btn_ContinueToCheckout, customTimeout)) {
+            btn_ContinueToCheckout.click();
+        }
+    }
+
+}
+```
+### CheckoutPage.java
+```
+package pageObjects;
+
 
 import org.junit.Assert;
 import org.openqa.selenium.WebDriver;
@@ -149,12 +349,18 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
 import testDataTypes.CustomerDataType;
+import utils.Waits;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class CheckoutPage {
+    WebDriver driver;
+    Waits wait;
 
     public CheckoutPage(WebDriver driver) {
+        this.driver = driver;
+        wait = new Waits();
         PageFactory.initElements(driver, this);
     }
 
@@ -188,20 +394,28 @@ public class CheckoutPage {
     @FindBy(id = "place_order")
     public WebElement btn_PlaceOrder;
 
+    @FindBy(id = "order_review")
+    public WebElement test;
+
+
     public void select_Country(String countryName) {
-        Select country = new Select(select_Country);
-        country.selectByVisibleText(countryName);
+            Select country = new Select(select_Country);
+            country.selectByVisibleText(countryName);
+     }
+
+    public void check_TermsAndCondition(long customTimeout) {
+        if(wait.WaitForClickableWithCustomTimeout(driver,chkbx_AcceptTermsAndCondition, customTimeout)) {
+            chkbx_AcceptTermsAndCondition.click();
+        }
     }
 
-    public void check_TermsAndCondition() {
-        chkbx_AcceptTermsAndCondition.click();
+    public void clickOn_PlaceOrder(long customTimeout) {
+        if(wait.WaitForClickableWithCustomTimeout(driver,chkbx_AcceptTermsAndCondition, customTimeout)) {
+            btn_PlaceOrder.submit();
+        }
     }
 
-    public void clickOn_PlaceOrder() {
-        btn_PlaceOrder.submit();
-    }
-
-    public void CustomerPersonalDetailsFromDataTable(List<CustomerDataType> inputs) {
+    public void CustomerPersonalDetailsFromDataTable(List<CustomerDataType> inputs, long customTimeout) {
         try {
             //Creating arrays for each table column header
             List<String> firstNameArr = new ArrayList<>();
@@ -235,45 +449,131 @@ public class CheckoutPage {
                 String phoneNumberKey = phoneNumberArr.get(i);
                 String emailAddressKey = emailAddressArr.get(i);
 
-                txtbx_FirstName.sendKeys(firstNameKey);
-                txtbx_LastName.sendKeys(lastNameKey);
-                select_Country(countryKey);
-                txtbx_Address.sendKeys(streetAddressKey);
-                txtbx_City.sendKeys(cityKey);
-                txtbx_PostCode.sendKeys(postcodeKey);
-                Thread.sleep(2000);
-                txtbx_Phone.sendKeys(phoneNumberKey);
-                txtbx_Email.sendKeys(emailAddressKey);
+                if(wait.WaitForVisibleWithCustomTimeout(driver,test, customTimeout)) {
+
+                    txtbx_FirstName.sendKeys(firstNameKey);
+                    txtbx_LastName.sendKeys(lastNameKey);
+                    select_Country(countryKey);
+                    txtbx_Address.sendKeys(streetAddressKey);
+                    txtbx_City.sendKeys(cityKey);
+                    txtbx_PostCode.sendKeys(postcodeKey);
+                    Thread.sleep(2000);
+                    txtbx_Phone.sendKeys(phoneNumberKey);
+                    txtbx_Email.sendKeys(emailAddressKey);
+                }
             }
+
         } catch (Exception e) {
             Assert.fail("Unable to to locate WebElement or/and send keys to it, Exception: " + e.getMessage());
         }
+
+
     }
 }
 ```
+##  Step 5: Modify Step definition files to reflect the changes
+### HomePageSteps.java
+```
+package stepDefinitions;
 
-## Step 5: Modify Step definition file to use new method
-1) Run TestRunner to get our modified step code snippet:
-```
-@When("I enter my personal details as follows")
-public void i_enter_my_personal_details_as_follows(io.cucumber.datatable.DataTable dataTable) {
-    // Write code here that turns the phrase above into concrete actions
-    // For automatic transformation, change DataTable to one of
-    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-    // Double, Byte, Short, Long, BigInteger or BigDecimal.
-    //
-    // For other transformations you can register a DataTableType.
-    throw new cucumber.api.PendingException();
+import cucumber.api.java.en.Given;
+import cucumber.api.java.en.When;
+import managers.FileReaderManager;
+import cucumber.TestContext;
+import pageObjects.HomePage;
+
+
+public class HomePageSteps {
+
+    HomePage homePage;
+    TestContext testContext;
+    String url = FileReaderManager.getInstance().getConfigReader().getApplicationUrl();
+    long customTimeout = FileReaderManager.getInstance().getConfigReader().getCustomWait("explicitWait");
+
+    //constructor
+    public HomePageSteps(TestContext context) {
+        testContext = context;
+        homePage = testContext.getPageObjectManager().getHomePage();
+    }
+
+
+    @Given("I am on Home Page")
+    public void i_am_on_Home_Page() {
+        testContext.getWebDriverManager().goToUrl(url);
+
+    }
+
+    @When("I search for product in dress category")
+    public void i_search_for_product_in_dress_category() {
+        homePage.perform_Search("dress", customTimeout);
+
+    }
 }
+
 ```
-2) Inside the step body include **CustomerPersonalDetailsFromDataTable(List<CustomerDataType> inputs)** method invocation.
-CheckoutPageSteps should look look this:
+### ProductPageSteps.java
 ```
 package stepDefinitions;
 
 import cucumber.TestContext;
 import cucumber.api.java.en.When;
+import managers.FileReaderManager;
+import pageObjects.ProductListingPage;
+
+public class ProductPageSteps {
+
+    TestContext testContext;
+    ProductListingPage productListingPage;
+    long customTimeout = FileReaderManager.getInstance().getConfigReader().getCustomWait("explicitWait");
+
+    public ProductPageSteps(TestContext context) {
+        testContext = context;
+        productListingPage = testContext.getPageObjectManager().getProductListingPage();
+    }
+
+    @When("I choose to buy the first item")
+    public void i_choose_to_buy_the_first_item() throws InterruptedException {
+        productListingPage.select_Product(0, customTimeout);
+        productListingPage.makeSelection(1, customTimeout);
+        productListingPage.clickOn_AddToCart(customTimeout);
+    }
+}
+
+```
+### CartPageSteps.java
+```
+package stepDefinitions;
+
+import cucumber.TestContext;
+import cucumber.api.java.en.When;
+import managers.FileReaderManager;
+import pageObjects.CartPage;
+
+public class CartPageSteps {
+
+    TestContext testContext;
+    CartPage cartPage;
+    long customTimeout = FileReaderManager.getInstance().getConfigReader().getCustomWait("explicitWait");
+
+    public CartPageSteps(TestContext context) {
+        testContext = context;
+        cartPage = testContext.getPageObjectManager().getCartPage();
+    }
+    @When("I move to checkout from mini cart")
+    public void i_move_to_checkout_from_mini_cart() throws InterruptedException{
+        Thread.sleep(1000);
+        cartPage.clickOn_Cart(customTimeout);
+        cartPage.clickOn_ContinueToCheckout(customTimeout);
+    }
+}
+```
+### CheckoutPageSteps.java
+```
+package stepDefinitions;
+
+import cucumber.TestContext;
+import cucumber.api.java.en.When;
+import managers.FileReaderManager;
 import pageObjects.CheckoutPage;
 import testDataTypes.CustomerDataType;
 import java.util.List;
@@ -281,6 +581,7 @@ import java.util.List;
 public class CheckoutPageSteps {
     TestContext testContext;
     CheckoutPage checkoutPage;
+    long customTimeout = FileReaderManager.getInstance().getConfigReader().getCustomWait("explicitWait");
 
     public CheckoutPageSteps(TestContext context) {
         testContext = context;
@@ -288,19 +589,35 @@ public class CheckoutPageSteps {
     }
 
     @When("I enter my personal details as follows")
-    public void i_enter_my_personal_details_as_follows(List<CustomerDataType> inputs) throws InterruptedException {
-        Thread.sleep(1000);
-        checkoutPage.CustomerPersonalDetailsFromDataTable(inputs);
+    public void i_enter_my_personal_details_as_follows(List<CustomerDataType> inputs) {
+        checkoutPage.CustomerPersonalDetailsFromDataTable(inputs, customTimeout);
 
     }
 
     @When("I place the order")
-    public void i_place_the_order() throws InterruptedException {
-        Thread.sleep(1000);
-        checkoutPage.check_TermsAndCondition();
-        checkoutPage.clickOn_PlaceOrder();
+    public void i_place_the_order() {
+        checkoutPage.check_TermsAndCondition(customTimeout);
+        checkoutPage.clickOn_PlaceOrder(customTimeout);
 
     }
 }
 ```
+## Step 6: Modify createLocalDriver() method inside WebDriver Manager class to add implicitWait parameter to it
+```
+private WebDriver createLocalDriver() {
+        switch (driverType) {
+            case FIREFOX : driver = new FirefoxDriver();
+                break;
+            case CHROME :
+                System.setProperty(CHROME_DRIVER_PROPERTY, FileReaderManager.getInstance().getConfigReader().getDriverPath());
+                driver = new ChromeDriver();
+                break;
 
+        }
+
+        if(FileReaderManager.getInstance().getConfigReader().getBrowserWindowSize()) driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(FileReaderManager.getInstance().getConfigReader().getCustomWait("implicitWait"), TimeUnit.SECONDS);
+        return driver;
+    }
+```
+Run TestRunner and test should be executed successfully

@@ -1,5 +1,6 @@
 package pageObjects;
 
+
 import org.junit.Assert;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -7,12 +8,18 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
 import testDataTypes.CustomerDataType;
+import utils.Waits;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class CheckoutPage {
+    WebDriver driver;
+    Waits wait;
 
     public CheckoutPage(WebDriver driver) {
+        this.driver = driver;
+        wait = new Waits();
         PageFactory.initElements(driver, this);
     }
 
@@ -46,21 +53,28 @@ public class CheckoutPage {
     @FindBy(id = "place_order")
     public WebElement btn_PlaceOrder;
 
+    @FindBy(id = "order_review")
+    public WebElement test;
+
 
     public void select_Country(String countryName) {
-        Select country = new Select(select_Country);
-        country.selectByVisibleText(countryName);
+            Select country = new Select(select_Country);
+            country.selectByVisibleText(countryName);
+     }
+
+    public void check_TermsAndCondition(long customTimeout) {
+        if(wait.WaitForClickableWithCustomTimeout(driver,chkbx_AcceptTermsAndCondition, customTimeout)) {
+            chkbx_AcceptTermsAndCondition.click();
+        }
     }
 
-    public void check_TermsAndCondition() {
-        chkbx_AcceptTermsAndCondition.click();
+    public void clickOn_PlaceOrder(long customTimeout) {
+        if(wait.WaitForClickableWithCustomTimeout(driver,chkbx_AcceptTermsAndCondition, customTimeout)) {
+            btn_PlaceOrder.submit();
+        }
     }
 
-    public void clickOn_PlaceOrder() {
-        btn_PlaceOrder.submit();
-    }
-
-    public void CustomerPersonalDetailsFromDataTable(List<CustomerDataType> inputs) {
+    public void CustomerPersonalDetailsFromDataTable(List<CustomerDataType> inputs, long customTimeout) {
         try {
             //Creating arrays for each table column header
             List<String> firstNameArr = new ArrayList<>();
@@ -94,18 +108,20 @@ public class CheckoutPage {
                 String phoneNumberKey = phoneNumberArr.get(i);
                 String emailAddressKey = emailAddressArr.get(i);
 
-                txtbx_FirstName.sendKeys(firstNameKey);
-                txtbx_LastName.sendKeys(lastNameKey);
-                select_Country(countryKey);
-                txtbx_Address.sendKeys(streetAddressKey);
-                txtbx_City.sendKeys(cityKey);
-                txtbx_PostCode.sendKeys(postcodeKey);
-                Thread.sleep(2000);
-                txtbx_Phone.sendKeys(phoneNumberKey);
-                txtbx_Email.sendKeys(emailAddressKey);
+                if(wait.WaitForVisibleWithCustomTimeout(driver,test, customTimeout)) {
 
-
+                    txtbx_FirstName.sendKeys(firstNameKey);
+                    txtbx_LastName.sendKeys(lastNameKey);
+                    select_Country(countryKey);
+                    txtbx_Address.sendKeys(streetAddressKey);
+                    txtbx_City.sendKeys(cityKey);
+                    txtbx_PostCode.sendKeys(postcodeKey);
+                    Thread.sleep(2000);
+                    txtbx_Phone.sendKeys(phoneNumberKey);
+                    txtbx_Email.sendKeys(emailAddressKey);
+                }
             }
+
         } catch (Exception e) {
             Assert.fail("Unable to to locate WebElement or/and send keys to it, Exception: " + e.getMessage());
         }
