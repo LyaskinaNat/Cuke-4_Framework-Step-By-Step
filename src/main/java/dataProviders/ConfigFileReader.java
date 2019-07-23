@@ -39,10 +39,10 @@ public class ConfigFileReader {
         else throw new RuntimeException("driverPath not specified in the Configuration.properties file.");
     }
 
-    public long getImplicitWait() {
-        String implicitWait = properties.getProperty("implicitWait");
-        if(implicitWait != null) return Long.parseLong(implicitWait);
-        else throw new RuntimeException("implicitlyWait not specified in the Configuration.properties file.");
+    public long getCustomWait(String waitTypeKey) {
+        String customWait = properties.getProperty(waitTypeKey);
+        if(customWait != null) return Long.parseLong(customWait);
+        else throw new RuntimeException("Custom Wait not specified in the Configuration.properties file.");
     }
 
     public String getApplicationUrl() {
