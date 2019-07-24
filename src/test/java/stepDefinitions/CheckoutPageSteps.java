@@ -4,6 +4,7 @@ import cucumber.TestContext;
 import cucumber.api.java.en.When;
 import managers.FileReaderManager;
 import pageObjects.CheckoutPage;
+import testDataTypes.Customer;
 import testDataTypes.CustomerDataType;
 import java.util.List;
 
@@ -21,6 +22,13 @@ public class CheckoutPageSteps {
     public void i_enter_my_personal_details_as_follows(List<CustomerDataType> inputs) {
         checkoutPage.CustomerPersonalDetailsFromDataTable(inputs, customTimeout);
 
+    }
+
+    @When("I enter (.+) personal details")
+    public void enter_personal_details_on_checkout_page(String customerName) throws InterruptedException {
+
+        Customer customer = FileReaderManager.getInstance().getJsonReader().getCustomerByName(customerName);
+        checkoutPage.CustomerPersonalDetailsFromJSON(customer, customTimeout);
     }
 
     @When("I place the order")

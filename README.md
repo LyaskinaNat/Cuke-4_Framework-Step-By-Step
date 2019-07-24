@@ -1,373 +1,533 @@
-# Share data between steps in Cucumber using Scenario Context
-This section is about how we can share Test Context between the Cucumber Steps.
+# Data Driven Testing using Json with Cucumber
+## What is Data Driven Testing?
+Data that is external to functional tests is loaded and used to extend automated test cases.
+In order to demonstrate DDT in practice we will use entering customer personal details step.
+We currently use data table to read the data from. This is also a part of DDT, however the data is specified directly in our
+feature file. This is perfectly fine, but what if in real word project we need to use large data sample or apply different data sets to the same test scenario?
+To be sure that the application works as expected with different sets of input data and for more effective management of test
+data DDT comes into play.
 
-During test scenario execution there might be situations where we need to carry a data or a state from one step to another.
+### How Data Driven Testing can be done with Cucumber?
+There a few different ways of doing Data Driven Testing with Cucumber:
 
-This data or state can be within these two levels:
+- Parameterization in Cucumber
+- reading data from external file using Examples Keyword
+- Data Tables in Cucumber
 
-- Test Context
-- Scenario Context
-So what is Test Context and Scenario Context and what is the difference between two.
+Out of above, we will use the Data Driven Technique using Example Keywords in our below example.
+And we will be using JSON to provide Data to our test.
 
-### Test Context
-TestContext is the parent class and the medium to share the information between the different steps in a test.
+## What is JSON?
+JSON is short for JavaScript Object Notation, and is a way to store information in an organized, easy-to-access manner.
+It gives us a human-readable collection of data that we can access in a really logical manner.
 
-It can have many class objects in it. If we go back to our previous tutorial of Test Context, we can see
-that it already has **PageObjectManager** and **WebDriverManager** object in it.
-### Scenario Context
-Scenario Context is a class which holds the test data information specifically.
-It actually use the Test Context to travel the information between various steps.
-With in this ScenarioContext class, we can create any number of fields to store any form of data.
-It stores the information in the key value pair and again, value can be of any type.
-It can store String, Boolean, Integer or may be a Class. Also the important point here is that the information
-which we store in Scenario Context is generated at the run time. This means that during the execution, if you wish
-to store some information, you will use Scenario Context.
+### Why JSON over Excel?
+Excel is good to manage data and to use but it comes with its own limitations. Like MS Office needs to be installed
+on the system where the tests are being executed. This is a big limitation on its own, as the test servers has never
+bound to have have such dependencies. If test are meant to run on Mac, then it is also a problem.
 
-Structure of the TestContext class will be like this:
+We have to do lot of amendments in our project in this chapter to implement Data Driven Technique using JSON files:
+
+- Add another senario which will be using JSON file as a data source
+- Create JSON Data set
+- Write a Java POJO class to represent JSON data
+- Pass JSON data file location to Properties file and Write a method to read the same
+- Create a JSON Data Reader class
+- Modify FileReaderManager to accommodate JSON Data Reader
+- Modify Checkout Page object to use Test Data object
+- Modify Checkout Steps file to pass Test Data to Checkout Page Objects
+
+## Step 1 : Add another scenario which will be using JSON file as a data source
+For simplicity we will be using the same scenario we already have
+We will implement differently a step when customer details needs to be entered at the checkout point so it takes data
+from our JSON file and we make it **Scenario Outline** which will allow run the same test multiple time every time
+using different set of data.
+DDTOur Feature file should looks like this:
 ```
-public class TestContext {
- WebDriverManager webDriverManager;
- PageObjectManager pageObjectManager;
- ScenarioContext scenarioContext;
-}
-```
-## Share data between steps in Cucumber using Scenario Context
-Let’s get back to our Test Scenario and implement a validation.
-Lets say we want to validate that the Name of the Product displayed on the order confirmation page
-is the same as for the Product we added to the cart.
-In that case we need to store the name of the product in Scenario Context object at the adding product to the cart step.
-We will retrieve the product from ScenarioContext and validate the name on the final confirmation page
-after the order placement is done.
+Feature: Automated End2End Tests
+  Description: The purpose of this feature is to test End 2 End integration.
 
-## Step 1 : Design a Scenario Context class
-1) Create a new enum in src/main/java inside 'enums' package and name it 'Context'.
-```
-package enums;
+  Scenario: Customer place an order by purchasing an item from search
+    Given I am on Home Page
+    When I search for product in dress category
+    And I choose to buy the first item
+    And I move to checkout from mini cart
+    And I enter my personal details as follows
+      |  first_name  |last_name|     country        |     street_address     |          city     |postcode|phone_number|email_address|
+      |TestAutomation| Opencast| United Kingdom (UK)|Hoults Yard, Walker Road|Newcastle upon Tyne|NE6 3PE |07438862327 |test@test.com|
+    And I place the order
+    Then Order details are successfully verified
 
-public enum Context {
-    PRODUCT_NAME;
-}
+  Scenario Outline: Customer place an order by purchasing an item from search - customer details are taken from JSON file
+    Given I am on Home Page
+    When I search for product in dress category
+    And I choose to buy the first item
+    And I move to checkout from mini cart
+    And I enter <customer> personal details
+    And I place the order
+    Then Order details are successfully verified
+    Examples:
+      | customer |
+      | Opencast |
+      | Testuser |
 ```
-2) Create a new class in src/main/java inside 'testDataTypes package and name it 'ScenarioContext'
-## ScenarioContext.java
+As we can see, we using same steps in our both scenarios apart from  **And I enter <customer> personal details**
+We already know that code duplication is not a good practice so it is a great opportunity to use Gherkin **Background**
+keyword here to make our Scenario look better:
+```
+Feature: Automated End2End Tests
+  Description: The purpose of this feature is to test End 2 End integration.
+
+  Background:
+    Given I am on Home Page
+    When I search for product in dress category
+    And I choose to buy the first item
+    And I move to checkout from mini cart
+
+  Scenario: Customer place an order by purchasing an item from search
+    And I enter my personal details as follows
+      |  first_name  |last_name|     country        |     street_address     |          city     |postcode|phone_number|email_address|
+      |TestAutomation| Opencast| United Kingdom (UK)|Hoults Yard, Walker Road|Newcastle upon Tyne|NE6 3PE |07438862327 |test@test.com|
+    And I place the order
+    Then Order details are successfully verified
+
+  Scenario Outline: Customer place an order by purchasing an item from search - customer details are taken from JSON file
+    And I enter <customer> personal details
+    And I place the order
+    Then Order details are successfully verified
+    Examples:
+      | customer |
+      | Opencast |
+      | Testuser |
+  ```
+
+## Step 2 : Create JSON data set for Customer data
+So far we just passed Customer name from feature file, but we need a complete customer details to pass to checkout
+page to complete the order. These details we will get from JSON file. We ask JSON file to give us the details of any
+particular Customer out of the all Customers Data. As we need multiple customer data we need to create JSON Data in Arrays.
+
+1) Create a New Package under src/test/resources and name it 'testDataResources.
+We need to keep all our test resources in the src/test/resources folder, it is better to create a package with in
+that to have all the JSON file in it.
+
+2) Create a New File and name it is 'Customer.json'
+### Customer.json
+```
+[
+  {
+    "firstName": "Opencast",
+    "lastName": "Software",
+    "age": 30,
+    "emailAddress": "opencast@mail.com",
+    "address": {
+      "streetAddress": "Hoults Yard, Walker Road",
+      "city": "Newcastle upon Tyne",
+      "postCode": "NE6 3PE",
+      "state": "n/a",
+      "country": "United Kingdom (UK)",
+      "county": "Tyne and Wear"
+    },
+    "phoneNumber": {
+      "home": "012345678",
+      "mob": "0987654321"
+    }
+  },
+  {
+    "firstName": "Testuser",
+    "lastName": "Automation",
+    "age": 35,
+    "emailAddress": "test@Gmail.com",
+    "address": {
+      "streetAddress": "1 Summer Gardens",
+      "city": "Sunderland",
+      "postCode": "SR12 7PE",
+      "state": "n/a",
+      "country": "United Kingdom (UK)",
+      "county": "Tyne and Wear"
+    },
+    "phoneNumber": {
+      "home": "056772211",
+      "mob": "0772244180"
+    }
+  }
+]
+```
+## Step 3 : Write a Java POJO class to represent JSON data
+To use this JSON data in the test we need to first deserializes the JSON into an object of the specified class.
+And to have the JSON deserialized, a java class object must be created that has the same fields names with the fields
+in the JSON string.
+
+1) Create a New Class in scr/main/java under 'testDataType package and name it is 'Customer'
+### Customer.java
 ```
 package testDataTypes;
 
-import java.util.HashMap;
-import java.util.Map;
-import enums.Context;
+// This is a Java POJO class to represent JSON data
+// To use this JSON data in the test we need to first deserializes the JSON into an object of the specified class
+// And to have the JSON deserialized, a java class object must be created that has the same fields names with the fields in the JSON string
 
-public class ScenarioContext {
+public class Customer {
+    public String firstName;
+    public String lastName;
+    public int age;
+    public String emailAddress;
+    public Address address;
+    public PhoneNumber phoneNumber;
 
-    private  Map<String, Object> scenarioContext;
-
-    public ScenarioContext(){
-        scenarioContext = new HashMap<>();
+    public class Address {
+        public String streetAddress;
+        public String city;
+        public String postCode;
+        public String state;
+        public String country;
+        public String county;
     }
 
-    public void setContext(Context key, Object value) {
-        scenarioContext.put(key.toString(), value);
+    public class PhoneNumber {
+        public String home;
+        public String mob;
+    }
+}
+```
+## Step 4: Prepare ConfigFileReader to read Json path location from Properties
+1) First just make an extra entry on the Configuration.properties file to specify the JSON file path
+```
+testDataResourcePath=src/test/resources/testDataResources/
+```
+with above complete Configuration file will become like this:
+
+### Configuration.properties
+```
+environment=local
+browser=chrome
+windowMaximize=true
+driverPath=src/drivers/chromedriver
+testDataResourcePath=src/test/resources/testDataResources/
+url=http://shop.demoqa.com
+implicitWait=10
+explicitWait=5
+```
+2) Create a read method in the Config File Reader class to read JSON file location:
+```
+public String getTestDataResourcePath(){
+        String testDataResourcePath = properties.getProperty("testDataResourcePath");
+        if(testDataResourcePath!= null) return testDataResourcePath;
+        else throw new RuntimeException("Test Data Resource Path not specified in the Configuration.properties file for the Key: testDataResourcePath");
+    }
+```
+### Explanation:
+
+In the above code, we just get the value saved in the config file for key testDataResourcePath. We throw the exception in case of null value returned from getProperty() method or return the value if it is found not null.
+
+Including above method, the complete Config Reader file will become like this:
+```
+package dataProviders;
+
+import enums.DriverType;
+import enums.EnvironmentType;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Properties;
+
+public class ConfigFileReader {
+
+    private Properties properties;
+    private final String propertyFilePath= "configs/Configuration.properties";
+
+
+    public ConfigFileReader(){
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new FileReader(propertyFilePath));
+            //Configuration properties can be easily read from .properties file using object of type Properties provided by java.utils
+            properties = new Properties();
+            try {
+                properties.load(reader);
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Configuration.properties not found at " + propertyFilePath);
+        }
     }
 
-    public Object getContext(Context key){
-        return scenarioContext.get(key.toString());
+    public String getDriverPath(){
+        String driverPath = properties.getProperty("driverPath");
+        if(driverPath!= null) return driverPath;
+        else throw new RuntimeException("driverPath not specified in the Configuration.properties file.");
     }
 
-    public Boolean isContains(Context key){
-        return scenarioContext.containsKey(key.toString());
+    public long getCustomWait(String waitTypeKey) {
+        String customWait = properties.getProperty(waitTypeKey);
+        if(customWait != null) return Long.parseLong(customWait);
+        else throw new RuntimeException("Custom Wait not specified in the Configuration.properties file.");
+    }
+
+    public String getApplicationUrl() {
+        String url = properties.getProperty("url");
+        if(url != null) return url;
+        else throw new RuntimeException("url not specified in the Configuration.properties file.");
+    }
+
+    public DriverType getBrowser() {
+        String browserName = properties.getProperty("browser");
+        if(browserName == null || browserName.equals("chrome")) return DriverType.CHROME;
+        else if(browserName.equalsIgnoreCase("firefox")) return DriverType.FIREFOX;
+        else throw new RuntimeException("Browser Name Key value in Configuration.properties is not matched : " + browserName);
+    }
+
+    public EnvironmentType getEnvironment() {
+        String environmentName = properties.getProperty("environment");
+        if(environmentName == null || environmentName.equalsIgnoreCase("local")) return EnvironmentType.LOCAL;
+        else if(environmentName.equals("remote")) return EnvironmentType.REMOTE;
+        else throw new RuntimeException("Environment Type Key value in Configuration.properties is not matched : " + environmentName);
+    }
+
+    public Boolean getBrowserWindowSize() {
+        String windowSize = properties.getProperty("windowMaximize");
+        if(windowSize != null) return Boolean.valueOf(windowSize);
+        return true;
+    }
+
+    public String getTestDataResourcePath(){
+        String testDataResourcePath = properties.getProperty("testDataResourcePath");
+        if(testDataResourcePath!= null) return testDataResourcePath;
+        else throw new RuntimeException("Test Data Resource Path not specified in the Configuration.properties file for the Key: testDataResourcePath");
     }
 
 }
 ```
-### Explanation
-
-**scenarioContext :**
-This is a HasMap object which store the information in the Key-Value pair.
-Key type is String and Value can be of any Object Type.
-
-**setContext() :**
-This method takes two parameters,  key as String and value as object. Key is nothing but a Context enum.
-
-**getContext() :** This method takes key as parameter and returned the object which match the key.
-
-**isContains() :** This method performs a check on the complete Map that if it contains the key or not.
-
-3) Include **ScenarioContext** in **TextContext**, so that it can be shared across all the Cucumber Steps
-using Pico-Container library. Also, we need to add a getter method as **getScenarioContext()** to get the
-scenarioContext object.
-### TestContext.java
+## Step 5 : Create a JSON Data Reader class
+### How to read JSON  and what is GSON?
+**GSON** is an open source code and it’s used a lot in working with JSON and Java.
+GSON uses Java Reflection to provide simple methods to convert JSON to java and vice versa.
+It can downloaded as GSON jar file from google code website or if used maven, added as a dependency.
+1) Add GSON Maven dependency to our pom.xml file:
 ```
-package cucumber;
-
-import managers.PageObjectManager;
-import managers.WebDriverManager;
-import testDataTypes.ScenarioContext;
-
-public class TestContext {
-    private WebDriverManager webDriverManager;
-    private PageObjectManager pageObjectManager;
-    public ScenarioContext scenarioContext;
-
-    public TestContext(){
-        webDriverManager = new WebDriverManager();
-        pageObjectManager = new PageObjectManager(webDriverManager.getDriver());
-        scenarioContext = new ScenarioContext();
-    }
-
-    public WebDriverManager getWebDriverManager() {
-        return webDriverManager;
-    }
-
-    public PageObjectManager getPageObjectManager() {
-        return pageObjectManager;
-    }
-
-    public ScenarioContext getScenarioContext() {
-        return scenarioContext;
-    }
-
-}
+     <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>2.8.5</version>
+     </dependency>
 ```
-## Step 2 : Save test information/data/state in the Scenario Context
-To use the value of the product name later in the test for validation, we need to save its Name as a part of
-**'I choose to buy the first item**' step.
-
-1) Add a new **getProductName()** method in the ProductListingPage class which will return the Name of the Product.
-### ProductListingPage.java
+GSON API also supports out of the box JSON to Java Object conversion if the object field names are same as in JSON.
+GSON is the main class that exposes the methods fromJson() and toJson() for conversion.
+For default implementation, we can create this object directly or we can use GsonBuilder class that provide useful
+options for conversion.
+2) Create a new class in src/main/java under 'dataProviders' package and name it 'JsonDataReader'
+### JsonDataReader.java
 ```
-package pageObjects;
-
+package dataProviders;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import com.google.gson.Gson;
+import managers.FileReaderManager;
+import testDataTypes.Customer;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindAll;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.Select;
-import utils.Waits;
+public class JsonDataReader {
+    private final String customerFilePath = FileReaderManager.getInstance().getConfigReader().getTestDataResourcePath() + "Customer.json";
+    private List<Customer> customerList;
 
-public class ProductListingPage {
-    WebDriver driver;
-    Waits wait;
-
-    public ProductListingPage(WebDriver driver) {
-        this.driver = driver;
-        wait = new Waits();
-        PageFactory.initElements(driver, this);
+    public JsonDataReader(){
+        customerList = getCustomerData();
     }
-
-    @FindBy(css = "button.single_add_to_cart_button")
-    public WebElement btn_AddToCart;
-
-    @FindAll(@FindBy(css = ".noo-product-inner"))
-    public List<WebElement> prd_List;
-
-    @FindBy(id="pa_color")
-    public WebElement selectColour;
-
-    @FindBy(id="pa_size")
-    public WebElement selectSize;
-
-    @FindBy(css= ".entry-summary")
-    public WebElement selectedProduct;
-
-
-    public void select_Product(int productNumber, long customTimeout) {
-
-        if (wait.WaitForVisibleWithCustomTimeout(driver,prd_List.get(productNumber), customTimeout)) {
-            prd_List.get(productNumber).click();
+    private List<Customer> getCustomerData() {
+        Gson gson = new Gson();
+        BufferedReader bufferReader = null;
+        try {
+            bufferReader = new BufferedReader(new FileReader(customerFilePath));
+            Customer[] customers = gson.fromJson(bufferReader, Customer[].class);
+            return Arrays.asList(customers);
+        }catch(FileNotFoundException e) {
+            throw new RuntimeException("Json file not found at path : " + customerFilePath);
+        }finally {
+            try { if(bufferReader != null) bufferReader.close();}
+            catch (IOException ignore) {}
         }
     }
-
-    public void makeSelection(int index, long customTimeout) {
-        if (wait.WaitForVisibleWithCustomTimeout(driver,selectColour, customTimeout)) {
-            Select colour = new Select(selectColour);
-            colour.selectByIndex(index);
-            Select size = new Select(selectSize);
-            size.selectByIndex(index);
+    public final Customer getCustomerByName(String customerName){
+        for(Customer customer : customerList) {
+            if(customer.firstName.equalsIgnoreCase(customerName)) return customer;
         }
+        return null;
     }
+}
+```
+### Explanation:
 
-    public void clickOn_AddToCart(long customTimeout) {
+**getCustomerData() :**
+This is a private method, which has the logic implemented to read the Customer Json and save it to the class instance variable. You should be creating more methods like this if you have more test data files like getPaymentOptions(), getProducts() etc.
 
-        if (wait.WaitForClickableWithCustomTimeout(driver,btn_AddToCart, customTimeout)) {
-            btn_AddToCart.click();
+**JsonDataReader() :**
+Here the responsibility of the constructor is to call getCustomerData() method only.
+
+**getCustomerByName() :** This just filter the information and return the specific customer to the test.
+## Step 6 : Modify FileReaderManager to return JSsonDataReader object
+As we have a FileReaderManager singleton class over all the readers, so we need to make an entry of JsonDataReader
+in that as well.
+
+### FileReaderManager.java
+```
+package managers;
+
+import dataProviders.ConfigFileReader;
+import dataProviders.JsonDataReader;
+
+public class FileReaderManager {
+
+    private static FileReaderManager fileReaderManager = new FileReaderManager();
+    private static ConfigFileReader configFileReader;
+    private static JsonDataReader jsonDataReader;
+
+    private FileReaderManager() {
+    }
+    public static FileReaderManager getInstance( ) {
+        return fileReaderManager;
+    }
+    public ConfigFileReader getConfigReader() {
+        return (configFileReader == null) ? new ConfigFileReader() : configFileReader;
+    }
+    public JsonDataReader getJsonReader(){
+        return (jsonDataReader == null) ? new JsonDataReader() : jsonDataReader;
+    }
+}
+```
+## Step 7: Modify Checkout Page object to use Test Data object
+All the setup work is done, it is the time to move closer to the test. First, we need to create a new method inside our
+CheckoutPage called **CustomerPersonalDetailsFromJSON**. This method will takes customer data stpred in Customer object
+and enter it into our form.
+
+```
+public void CustomerPersonalDetailsFromJSON(Customer customer, long customTimeout) throws InterruptedException {
+
+        if(wait.WaitForVisibleWithCustomTimeout(driver,txtbx_FirstName, customTimeout)) {
+            txtbx_FirstName.sendKeys(customer.firstName);
+            txtbx_LastName.sendKeys(customer.lastName);
+            select_Country(customer.address.country);
+            txtbx_City.sendKeys(customer.address.city);
+            txtbx_Address.sendKeys(customer.address.streetAddress);
+            txtbx_PostCode.sendKeys(customer.address.postCode);
+            Thread.sleep(2000);
+            txtbx_Phone.sendKeys(customer.phoneNumber.mob);
+            txtbx_Email.sendKeys(customer.emailAddress);
         }
-    }
 
-    public String getProductName(long customTimeout) {
-        String productName;
-        if (wait.WaitForVisibleWithCustomTimeout(driver,selectedProduct, customTimeout)) {
-            productName = selectedProduct.findElement(By.cssSelector("h1")).getText();
-        } else {
-            productName = "Unable to get Product Name";
-        }
-        return productName;
     }
-
+```
+## Step 8 : Modify CheckoutPage Steps file to pass Test Data to Checkout Page Objects
+As we already have modified our feature file in the first step, now we need to make necessary changes to the step file
+as well.
+We need to add a new step which comes from Senario Outline so we run our test first to get a code snippet for it.
+1) Run TestRunner and copy a code snippet from the console window to the CheckoutPageSteps definition file.
+```
+@When("I enter (.+) personal details")
+public void i_enter_Opencast_personal_details() {
+    // Write code here that turns the phrase above into concrete actions
+    throw new cucumber.api.PendingException();
 }
 
 ```
-2) Now, using the **getProductName()** method, get the name and save it into the scenarioContext object in
-ProductPageSteps class
-### ProductPageSteps.java
+2) Add the following code inside the step:
+```
+When("I enter (.+) personal details")
+    public void enter_personal_details_on_checkout_page(String customerName) throws InterruptedException {
+
+        Customer customer = FileReaderManager.getInstance().getJsonReader().getCustomerByName(customerName);
+        checkoutPage.CustomerPersonalDetailsFromJSON(customer, customTimeout);
+    }
+```
+### Explanation :
+Fetching the Customer data from json reader using **getCustomerByName()** by passing the Customer Name.
+Supplying the same data to the Checkout page objects **CustomerPersonalDetailsFromJSON()** method.
+The complete class would look like this:
+### CheckoutPageSteps.java
 ```
 package stepDefinitions;
 
 import cucumber.TestContext;
 import cucumber.api.java.en.When;
-import enums.Context;
 import managers.FileReaderManager;
-import pageObjects.ProductListingPage;
+import pageObjects.CheckoutPage;
+import testDataTypes.Customer;
+import testDataTypes.CustomerDataType;
+import java.util.List;
 
-public class ProductPageSteps {
-
+public class CheckoutPageSteps {
     TestContext testContext;
-    ProductListingPage productListingPage;
+    CheckoutPage checkoutPage;
     long customTimeout = FileReaderManager.getInstance().getConfigReader().getCustomWait("explicitWait");
 
-    public ProductPageSteps(TestContext context) {
+    public CheckoutPageSteps(TestContext context) {
         testContext = context;
-        productListingPage = testContext.getPageObjectManager().getProductListingPage();
+        checkoutPage = testContext.getPageObjectManager().getCheckoutPage();
     }
 
-    @When("I choose to buy the first item")
-    public void i_choose_to_buy_the_first_item() {
-        productListingPage.select_Product(0, customTimeout);
-        String productName = productListingPage.getProductName(customTimeout);
-        testContext.scenarioContext.setContext(Context.PRODUCT_NAME, productName);
-        productListingPage.makeSelection(1, customTimeout );
-        productListingPage.clickOn_AddToCart(customTimeout);
-    }
-}
-```
-## Step 3: Implement Product Name Validation (@Then step)
-1) Add the following code to ConfirmationPage Class:
-```
-package pageObjects;
+    @When("I enter my personal details as follows")
+    public void i_enter_my_personal_details_as_follows(List<CustomerDataType> inputs) {
+        checkoutPage.CustomerPersonalDetailsFromDataTable(inputs, customTimeout);
 
-import java.util.ArrayList;
-import java.util.List;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindAll;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-import utils.Waits;
-
-
-public class ConfirmationPage {
-    WebDriver driver;
-    Waits wait;
-
-    public ConfirmationPage(WebDriver driver) {
-        this.driver = driver;
-        wait = new Waits();
-        PageFactory.initElements(driver, this);
     }
 
-    @FindAll(@FindBy(css = ".order_item"))
-    public List<WebElement> prd_List;
+    @When("I enter (.+) personal details")
+    public void enter_personal_details_on_checkout_page(String customerName) throws InterruptedException {
 
-    @FindBy(css = ".woocommerce-order-details")
-    public WebElement orderDetails;
+        Customer customer = FileReaderManager.getInstance().getJsonReader().getCustomerByName(customerName);
+        checkoutPage.CustomerPersonalDetailsFromJSON(customer, customTimeout);
+    }
 
+    @When("I place the order")
+    public void i_place_the_order() {
+        checkoutPage.check_TermsAndCondition(customTimeout);
+        checkoutPage.clickOn_PlaceOrder(customTimeout);
 
-    public List<String> getProductNames(long customTimeout) {
-        List<String> productNames = new ArrayList<>();
-        if (wait.WaitForVisibleWithCustomTimeout(driver, orderDetails, customTimeout)) {
-            for (WebElement element : prd_List) {
-                productNames.add(element.findElement(By.cssSelector(".product-name")).getText());
-            }
-        }
-        return productNames;
     }
 }
 
 ```
-2) Add a new **getConfirmationPage()** method to get the Confirmation Page object in the PageObjectManager class.
+
+Run TestRunner and test. Now we have 3 tests to execute (one as a scenario and other two as scenario outline with two
+different customers). To save a bit of time when testing newly implemented Data Driven Test using JSON code, we can
+make a good use of Cucumber tags. Tags are used to filter the test we want to execute at a particular run.
+In order to do so, we need to make two small changes to feature file and our test runner class:
+1) Add @wip tag above Scenario Outline in our Feature file. (wip stands for Work In Progress and is used while test automation is
+in progress)
 ```
-package managers;
+@wip
+  Scenario Outline: Customer place an order by purchasing an item from search - customer details are taken from JSON file
+    And I enter <customer> personal details
+    And I place the order
+    Then Order details are successfully verified
+    Examples:
+      | customer |
+      | Opencast |
+      | Testuser |
+```
+2) Add tag property to our Test runner class, so only scenario with @wip tag will be executed:
+```
+package runners;
+import org.junit.runner.RunWith;
+import cucumber.api.CucumberOptions;
+import cucumber.api.junit.Cucumber;
 
-import org.openqa.selenium.WebDriver;
-import pageObjects.CartPage;
-import pageObjects.CheckoutPage;
-import pageObjects.ConfirmationPage;
-import pageObjects.HomePage;
-import pageObjects.ProductListingPage;
-
-public class PageObjectManager {
-
-    private WebDriver driver;
-    private ProductListingPage productListingPage;
-    private CartPage cartPage;
-    private HomePage homePage;
-    private CheckoutPage checkoutPage;
-    private ConfirmationPage confirmationPage;
-
-    // Constructor
-    public PageObjectManager(WebDriver driver) {
-        this.driver = driver;
-    }
-
-    public HomePage getHomePage(){
-        return (homePage == null) ? homePage = new HomePage(driver) : homePage;
-    }
-
-    public ProductListingPage getProductListingPage() {
-        return (productListingPage == null) ? productListingPage = new ProductListingPage(driver) : productListingPage;
-    }
-
-    public CartPage getCartPage() {
-       return (cartPage == null) ? cartPage = new CartPage(driver) : cartPage;
-    }
-
-    public CheckoutPage getCheckoutPage() {
-        return (checkoutPage == null) ? checkoutPage = new CheckoutPage(driver) : checkoutPage;
-    }
-    public ConfirmationPage getConfirmationPage() {
-        return (confirmationPage == null) ? confirmationPage = new ConfirmationPage(driver) : confirmationPage;
-    }
+@RunWith(Cucumber.class)
+@CucumberOptions(
+        features = "src/test/resources/features",
+        glue= {"stepDefinitions"},
+        tags={"@wip"}
+)
+public class TestRunner {
 }
 ```
-
-3) Now we can finally move our code for Confirmation page step from the old Steps class file to ConfirmationPageSteps class
-### ConfirmationPageSteps.java
-```
-package stepDefinitions;
-
-import managers.FileReaderManager;
-import org.junit.Assert;
-import cucumber.TestContext;
-import cucumber.api.java.en.Then;
-import enums.Context;
-import pageObjects.ConfirmationPage;
+Run test with Test Runner Class. Two tests should be executed successfully.
 
 
-public class ConfirmationPageSteps {
-    TestContext testContext;
-    ConfirmationPage confirmationPage;
-    public long customTimeout;
 
-    public ConfirmationPageSteps(TestContext context) {
-        testContext = context;
-        confirmationPage = testContext.getPageObjectManager().getConfirmationPage();
-        customTimeout = FileReaderManager.getInstance().getConfigReader().getCustomWait("explicitWait");
-
-    }
-
-    @Then("Order details are successfully verified")
-    public void order_details_are_successfully_verified() {
-
-        String productName = ((String) testContext.scenarioContext.getContext(Context.PRODUCT_NAME)).toLowerCase();
-        Assert.assertTrue(confirmationPage.getProductNames(customTimeout).stream().filter(x -> x.contains(productName)).findFirst().get().length() > 0);
-
-    }
-}
-```
-4) Delete Steps.java file from scr/test/java/stepDefinitions package
-
-Run TestRunner and test should be executed successfully
