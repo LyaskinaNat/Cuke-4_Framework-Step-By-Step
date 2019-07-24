@@ -21,9 +21,6 @@ public class PageObjectManager {
         this.driver = driver;
     }
 
-    //Creating an Object of Page Class only if the object is null,
-    //Supplying the already created object if it is not null:
-
     public HomePage getHomePage(){
         return (homePage == null) ? homePage = new HomePage(driver) : homePage;
     }
@@ -38,6 +35,9 @@ public class PageObjectManager {
 
     public CheckoutPage getCheckoutPage() {
         return (checkoutPage == null) ? checkoutPage = new CheckoutPage(driver) : checkoutPage;
+    }
+    public ConfirmationPage getConfirmationPage() {
+        return (confirmationPage == null) ? confirmationPage = new ConfirmationPage(driver) : confirmationPage;
     }
 
 }

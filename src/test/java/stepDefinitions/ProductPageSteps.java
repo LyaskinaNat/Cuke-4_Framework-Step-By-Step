@@ -2,6 +2,7 @@ package stepDefinitions;
 
 import cucumber.TestContext;
 import cucumber.api.java.en.When;
+import enums.Context;
 import managers.FileReaderManager;
 import pageObjects.ProductListingPage;
 
@@ -17,9 +18,11 @@ public class ProductPageSteps {
     }
 
     @When("I choose to buy the first item")
-    public void i_choose_to_buy_the_first_item() throws InterruptedException {
+    public void i_choose_to_buy_the_first_item() {
         productListingPage.select_Product(0, customTimeout);
-        productListingPage.makeSelection(1, customTimeout);
+        String productName = productListingPage.getProductName(customTimeout);
+        testContext.scenarioContext.setContext(Context.PRODUCT_NAME, productName);
+        productListingPage.makeSelection(1, customTimeout );
         productListingPage.clickOn_AddToCart(customTimeout);
     }
 }

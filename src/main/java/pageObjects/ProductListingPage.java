@@ -1,6 +1,8 @@
 package pageObjects;
 
 import java.util.List;
+
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindAll;
@@ -31,6 +33,9 @@ public class ProductListingPage {
     @FindBy(id="pa_size")
     public WebElement selectSize;
 
+    @FindBy(css= ".entry-summary")
+    public WebElement selectedProduct;
+
 
     public void select_Product(int productNumber, long customTimeout) {
 
@@ -53,6 +58,16 @@ public class ProductListingPage {
         if (wait.WaitForClickableWithCustomTimeout(driver,btn_AddToCart, customTimeout)) {
             btn_AddToCart.click();
         }
+    }
+
+    public String getProductName(long customTimeout) {
+        String productName;
+        if (wait.WaitForVisibleWithCustomTimeout(driver,selectedProduct, customTimeout)) {
+            productName = selectedProduct.findElement(By.cssSelector("h1")).getText();
+        } else {
+            productName = "Unable to get Product Name";
+        }
+        return productName;
     }
 
 }
