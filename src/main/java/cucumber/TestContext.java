@@ -2,14 +2,17 @@ package cucumber;
 
 import managers.PageObjectManager;
 import managers.WebDriverManager;
+import testDataTypes.ScenarioContext;
 
 public class TestContext {
     private WebDriverManager webDriverManager;
     private PageObjectManager pageObjectManager;
+    public ScenarioContext scenarioContext;
 
     public TestContext(){
         webDriverManager = new WebDriverManager();
         pageObjectManager = new PageObjectManager(webDriverManager.getDriver());
+        scenarioContext = new ScenarioContext();
     }
 
     public WebDriverManager getWebDriverManager() {
@@ -20,5 +23,10 @@ public class TestContext {
         return pageObjectManager;
     }
 
+    public ScenarioContext getScenarioContext() {
+        return scenarioContext;
+    }
+
 }
+
 
