@@ -7,6 +7,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
+import testDataTypes.Customer;
 import testDataTypes.CustomerDataType;
 import utils.Waits;
 
@@ -108,7 +109,7 @@ public class CheckoutPage {
                 String phoneNumberKey = phoneNumberArr.get(i);
                 String emailAddressKey = emailAddressArr.get(i);
 
-                if(wait.WaitForVisibleWithCustomTimeout(driver,test, customTimeout)) {
+                if(wait.WaitForVisibleWithCustomTimeout(driver,txtbx_FirstName, customTimeout)) {
 
                     txtbx_FirstName.sendKeys(firstNameKey);
                     txtbx_LastName.sendKeys(lastNameKey);
@@ -125,7 +126,21 @@ public class CheckoutPage {
         } catch (Exception e) {
             Assert.fail("Unable to to locate WebElement or/and send keys to it, Exception: " + e.getMessage());
         }
+    }
 
+    public void CustomerPersonalDetailsFromJSON(Customer customer, long customTimeout) throws InterruptedException {
+
+        if(wait.WaitForVisibleWithCustomTimeout(driver,txtbx_FirstName, customTimeout)) {
+            txtbx_FirstName.sendKeys(customer.firstName);
+            txtbx_LastName.sendKeys(customer.lastName);
+            select_Country(customer.address.country);
+            txtbx_City.sendKeys(customer.address.city);
+            txtbx_Address.sendKeys(customer.address.streetAddress);
+            txtbx_PostCode.sendKeys(customer.address.postCode);
+            Thread.sleep(2000);
+            txtbx_Phone.sendKeys(customer.phoneNumber.mob);
+            txtbx_Email.sendKeys(customer.emailAddress);
+        }
 
     }
 }

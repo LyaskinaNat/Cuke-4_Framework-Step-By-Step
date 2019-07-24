@@ -1,0 +1,38 @@
+[
+  {
+    "firstName": "Opencast",
+    "lastName": "Software",
+    "age": 30,
+    "emailAddress": "opencast@mail.com",
+    "address": {
+      "streetAddress": "Hoults Yard, Walker Road",
+      "city": "Newcastle upon Tyne",
+      "postCode": "NE6 3PE",
+      "state": "n/a",
+      "country": "United Kingdom (UK)",
+      "county": "Tyne and Wear"
+    },
+    "phoneNumber": {
+      "home": "012345678",
+      "mob": "0987654321"
+    }
+  },
+  {
+    "firstName": "Testuser",
+    "lastName": "Automation",
+    "age": 35,
+    "emailAddress": "test@Gmail.com",
+    "address": {
+      "streetAddress": "1 Summer Gardens",
+      "city": "Sunderland",
+      "postCode": "SR12 7PE",
+      "state": "n/a",
+      "country": "United Kingdom (UK)",
+      "county": "Tyne and Wear"
+    },
+    "phoneNumber": {
+      "home": "056772211",
+      "mob": "0772244180"
+    }
+  }
+]
