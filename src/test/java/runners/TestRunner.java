@@ -7,7 +7,11 @@ import cucumber.api.junit.Cucumber;
 @CucumberOptions(
         features = "src/test/resources/features",
         glue= {"stepDefinitions"},
-        tags={"@wip"}
+        tags={"@wip"},
+        plugin = { "pretty"
+                , "html:target/cucumber-reports"
+                , "json:target/cucumber-reports/Cucumber.json"
+                , "junit:target/cucumber-reports/Cucumber.xml"}
 )
 public class TestRunner {
 }
