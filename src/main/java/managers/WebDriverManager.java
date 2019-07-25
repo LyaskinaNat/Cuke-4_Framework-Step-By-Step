@@ -55,7 +55,7 @@ public class WebDriverManager {
         if(FileReaderManager.getInstance().getConfigReader().getBrowserWindowSize()) driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(FileReaderManager.getInstance().getConfigReader().getCustomWait("implicitWait"), TimeUnit.SECONDS);
         return driver;
-    }
+            }
 
     public void closeDriver() {
         driver.manage().deleteAllCookies();

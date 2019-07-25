@@ -12,6 +12,7 @@ public class ProductPageSteps {
     ProductListingPage productListingPage;
     long customTimeout = FileReaderManager.getInstance().getConfigReader().getCustomWait("explicitWait");
 
+
     public ProductPageSteps(TestContext context) {
         testContext = context;
         productListingPage = testContext.getPageObjectManager().getProductListingPage();

@@ -11,7 +11,8 @@ import cucumber.api.junit.Cucumber;
         plugin = { "pretty"
                 , "html:target/cucumber-reports"
                 , "json:target/cucumber-reports/Cucumber.json"
-                , "junit:target/cucumber-reports/Cucumber.xml"}
+                , "junit:target/cucumber-reports/Cucumber.xml"
+                , "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"}
 )
 public class TestRunner {
 }

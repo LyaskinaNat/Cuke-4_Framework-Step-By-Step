@@ -1,6 +1,7 @@
 package managers;
 
 import dataProviders.ConfigFileReader;
+import dataProviders.ExtentReportConfigReader;
 import dataProviders.JsonDataReader;
 
 public class FileReaderManager {
@@ -8,6 +9,7 @@ public class FileReaderManager {
     private static FileReaderManager fileReaderManager = new FileReaderManager();
     private static ConfigFileReader configFileReader;
     private static JsonDataReader jsonDataReader;
+    private static ExtentReportConfigReader extentReportConfigReader;
 
     private FileReaderManager() {
     }
@@ -22,5 +24,9 @@ public class FileReaderManager {
 
     public JsonDataReader getJsonReader(){
         return (jsonDataReader == null) ? new JsonDataReader() : jsonDataReader;
+    }
+
+    public ExtentReportConfigReader getExtentReportConfigReader() {
+        return (extentReportConfigReader == null) ? new ExtentReportConfigReader() : extentReportConfigReader;
     }
 }
