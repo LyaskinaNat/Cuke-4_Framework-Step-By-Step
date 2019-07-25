@@ -1,31 +1,75 @@
 # Cucumber end-to-end test
 ## Step 1: Create a resources folder
-1) Delete App.java and AppTest.java files as they are just sample project files created by default by Maven. 
-To delete the files, just right click on the package and select Delete. 
-2) Create a new resources folder under src/test/. As a standard we keep Cucumber feature files in resources folder. 
-Right click on the src/test/java and create a New Package and specify the name as resources. 
+1) Delete App.java and AppTest.java files if they are present as they are just sample project files created by default by Maven.
+To delete the files, just right click on the file and select Delete.
+2) Create a new 'resources' folder under **src/test/**. As a standard, we keep Cucumber feature files in resources folder.
+Right click on the src/test/ and create a New Package and specify the name as 'resources'.
  -  For Eclipse IDE - right click on the root project and select Maven >> Update Project.
  
- (Note: In Eclipse, if any changes are made to Maven POM or any folder structure,  always update project Maven >> Update Project
+ (Note: In Eclipse, if any changes are made to Maven POM or to any folder structure,  always update project: Maven >> Update Project
  to reflect the latest changes)
- -   For IntelliJ IDE  -  right click on the resource folder and choose Mark directory as >> Test resources root.
- (Note: In IntelliJ, enable autoupdate  - prompt should pop up on the bottom-right corner)
-## Step 2: Add Selenium and JUnit to project
+ -   For IntelliJ IDE  -  right click on the resource folder and choose Mark directory as >> 'Test resources root'.
+ (Note: In IntelliJ, enable autoupdate  - prompt should pop up on the bottom-right corner and we do not need to refresh the project every time)
+## Step 2: Add Selenium and JUnit dependencies to the project.
+Search in Maven repository (https://mvnrepository.com) for:
 1) Selenium: selenium-java; version 3.141.59
 2) JUnit: junit; version 4.12
+```
+    <dependency>
+         <groupId>org.seleniumhq.selenium</groupId>
+         <artifactId>selenium-java</artifactId>
+         <version>3.141.59</version>
+    </dependency>
+    <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <version>4.12</version>
+     </dependency>
+```
 ## Step 3: Add Cucumber Dependencies to the Project
 1) cucumber-java, version 4.2.0
 2) cucumber-junit, version 4.2.0
-(Note: Cucmber-java and cucumber-junit dependencies required to be of the same version. 
-Properties tag can be used in pom.xml to create a variable for cucumber related dependencies for easier upgrading)
+```
+    <properties>
+            <cucumber.version>4.2.0</cucumber.version>
+    </properties>
+
+    <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>${cucumber.version}</version>
+    </dependency>
+    <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+    </dependency>
+
+```
+Note: Cucumber-java and cucumber-junit dependencies required to be of the same version.
+
+Properties tag can be used in pom.xml to create a variable for cucumber related dependencies for easier upgrading
 ## Step 4: Set up Maven Compiler Plugin
 The Compiler Plugin is used to compile the sources of your project. 
-Also note that at present the default source setting is 1.5 and the default target setting is 1.5, independently of the JDK 
+Also note that at present, the default source setting is 1.5 and the default target setting is 1.5, independently of the JDK
 you run Maven with. If you want to change these defaults, you should set source and target as described 
 in Setting the –source and –target of the Java Compiler.
-maven-compiler-plugin; version 3.7.0
+maven-compiler-plugin: version 3.7.0
+```
+     <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.7.0</version>
+              <configuration>
+                <encoding>UTF-8</encoding>
+                <source>1.8</source>
+                <target>1.8</target>
+                <compilerArgument>-Werror</compilerArgument>
+              </configuration>
+     </plugin>
 
-
+```
 Pom.xml should look like this:
 ```
 <?xml version="1.0" encoding="UTF-8"?>
@@ -86,48 +130,63 @@ Pom.xml should look like this:
 
 ## Step 5: Add Chrome driver to the project
 1) Download Chrome driver from http://chromedriver.chromium.org/downloads
-(Note: make sure the version of Chrome driver matches the Chrome browser version on you PC)
+
+Note: make sure the version of Chrome driver matches the Chrome browser version on you PC!
+
 2) Create a New Package and name it 'drivers' by right click on the src and select New >> Package
 3) Place Chrome driver from your Download folder to project's src/drivers folder
 ## Step 6: Write End 2 End test in a Feature file
-For the purpose of this tutorial, we use the test longer than the usual. This is to demonstrate right examples of framework
-components.  Cucumber Framework requires to have complex page objects, various configurations and challenges.
+For the purpose of this tutorial, we use the test longer than usual. This is to demonstrate right example of framework
+components.  Cucumber Framework requires to have complex page objects, various configurations and other challenges.
 This end-to-end scenario could be viewed as a business scenario to automate and it will help us 
-demonstrate Cucumber framework implementation
-1) Test to Automate
-User visits Demo Website and searches for a Dress. User selects the first product and goes to product page. 
-User successfully adds it to the bag. User continues to Cart Page from mini cart icon at the top right corner. 
-Then user moves forward to Checkout page and order details. User fills in required information, accepts Terms and conditions 
-and proceeds with the order. User is presented with order confirmation including details on the purchased dress.
-2) Create Feature File:
-2.1) Create a New Package and name it 'features', by right click on the src/test/resources and select New >> Package. 
+demonstrate Cucumber framework implementation.
+1) Test to Automate:
+
+User visits Demo Website and searches a 'Dress'.
+
+User selects the first product from the search results and goes to product page.
+
+User successfully adds the product to the cart. User continues to Cart Page from mini cart icon at the top right corner.
+
+Then user moves forward to Checkout page and order details.
+
+User fills in required information, accepts Terms and conditions and proceeds with the order.
+
+User is presented with order confirmation including details on the purchased dress.
+
+2) Create a Feature File:
+2.1) Create a New Package and name it 'features' by right click on the src/test/resources and select New >> Package.
 (Note: It is always recommended to put all the feature files in the resources folder).
-2.2) Create a Feature file and name it as End2End_Test.feature by right click on the above created package 
-and select New >> File. 
-(Note: all feature files must have .feature extension)
+2.2) Create a Feature file and name it 'End2End_Test.feature' by right click on the above created package
+and select New >> File.
+
+Note: all feature files must have .feature extension
+
 3) Add the test steps to the feature file as follows:
+### End2End_Test.feature
 ```
 Feature: Automated End2End Tests
   Description: The purpose of this feature is to test End 2 End integration.
 
   Scenario: Customer place an order by purchasing an item from search
-    Given user is on Home Page
-    When he search for "dress"
-    And choose to buy the first item
-    And moves to checkout from mini cart
-    And enter customer personal details
-    And place the order
-    Then verify the order details
+    Given I am on Home Page
+    When I search for product in dress category
+    And I choose to buy the first item
+    And I move to checkout from mini cart
+    And I enter my personal details
+    And I place the order
+    Then Order details are successfully verified
 ```
     
 ##  Step 7: Create a JUnit Test Runner
- 1) Create a New Package and name it as runners by right click on the src/test/java and select New >> Package. 
- 2) Create a New Java Class file and name it as TestRunner by right click on the above created package and select New >> Class.
+ 1) Create a New Package and name it 'runners' by right click on the src/test/java and select New >> Package.
+ 2) Create a New Java Class file and name it 'TestRunner' by right click on the above created package and select New >> Class.
 
-(Note: It is important to have a key word 'Test' as a part of a runner class name, so test(s) can be run from the command line using Maven)
+Note: It is important to have a key word 'Test' as a part of a runner class name so test(s) can be run from the command line using Maven
+
 ## Step 8: Write test code to Step file
 To get the steps automatically generated, we need to execute TestRunner class. 
-Right click on the TestRunner file and select 
+Right click on the TestRunner file and select:
 
 ```
 Eclipse: Run As >> JUnit Test
@@ -195,7 +254,7 @@ Process finished with exit code 0
 
 ```
 2) Create a New Package and name it 'stepDefinitions' by right click on the src/test/java and select New >> Package.
-3) Create a New Java Class and name it is 'Steps' by right click on the above created package and select New >> Class.
+3) Create a New Java Class and name it 'Steps' by right click on the above created package and select New >> Class.
 4) Now copy all the steps created by IDE to this Steps file and start filling up these steps with Selenium Code.  
 Steps test file will look like this:
 
@@ -270,7 +329,7 @@ public class Steps {
         WebElement cart = driver.findElement(By.cssSelector(".cart-button"));
         cart.click();
         Thread.sleep(2000);
-        //And click on chekout button
+        //And click on checkout button
         WebElement continueToCheckout = driver.findElement(By.cssSelector(".checkout-button.alt"));
         continueToCheckout.click();
     }
@@ -333,9 +392,12 @@ public class Steps {
 5) Update TestRunner class
 
 We also need to make sure that the TestRunner would able to find the steps files.
-To achieve that we need to mention the path of the StepDefinition package in CucumberOptions.
-(Note: By default Junit/Cucumber finds the test code in the src/test/java folder, 
-this is why we just need to specify the package name for the cucumber glue).
+
+To achieve that we need to mention the path of the StepDefinition package in @CucumberOptions.
+
+Note: By default Junit/Cucumber finds the test code in the src/test/java folder,
+this is why we just need to specify the package name for the cucumber glue.
+
 Updated TestRunner class should look like this:
 
 ```
@@ -364,5 +426,5 @@ public class TestRunner {
  mvn clean compile test
  ```
  
-Out end-to-end test should be executed sucessfully
+Out end-to-end test should be executed successfully
 

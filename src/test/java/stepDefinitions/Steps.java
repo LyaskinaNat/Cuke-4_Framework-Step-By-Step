@@ -69,7 +69,7 @@ public class Steps {
         WebElement cart = driver.findElement(By.cssSelector(".cart-button"));
         cart.click();
         Thread.sleep(2000);
-        //And click on chekout button
+        //And click on checkout button
         WebElement continueToCheckout = driver.findElement(By.cssSelector(".checkout-button.alt"));
         continueToCheckout.click();
     }
