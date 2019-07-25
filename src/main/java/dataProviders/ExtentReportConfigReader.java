@@ -25,7 +25,7 @@ public class ExtentReportConfigReader {
         }
     }
 
-    public String getSaveScreentShotsTo(){
+    public String getSaveScreenShotsTo(){
         String saveScreenShotsTo = properties.getProperty("saveScreenshotsTo");
         if(saveScreenShotsTo!= null) return saveScreenShotsTo;
         else throw new RuntimeException("Screenshots path not specified in the Configuration.properties file for the Key: saveScreenshotsTo");

@@ -30,7 +30,7 @@ public class ExtentReportBuilder {
     public ExtentReportBuilder (TestContext context) {
         testContext = context;
         driverManager = testContext.getWebDriverManager();
-        saveScreenshotsTo = FileReaderManager.getInstance().getExtentReportConfigReader().getSaveScreentShotsTo();
+        saveScreenshotsTo = FileReaderManager.getInstance().getExtentReportConfigReader().getSaveScreenShotsTo();
         saveArchiveReportsTo = FileReaderManager.getInstance().getExtentReportConfigReader().getSaveArchiveReportsTo();
         latestReportPath = FileReaderManager.getInstance().getExtentReportConfigReader().getCurrentReportPath();
 
