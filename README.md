@@ -140,23 +140,22 @@ For the purpose of this tutorial, we use the test longer than usual. This is to 
 components.  Cucumber Framework requires to have complex page objects, various configurations and other challenges.
 This end-to-end scenario could be viewed as a business scenario to automate and it will help us 
 demonstrate Cucumber framework implementation.
+
 1) Test to Automate:
+```
 
 User visits Demo Website and searches a 'Dress'.
-
 User selects the first product from the search results and goes to product page.
-
 User successfully adds the product to the cart. User continues to Cart Page from mini cart icon at the top right corner.
-
 Then user moves forward to Checkout page and order details.
-
 User fills in required information, accepts Terms and conditions and proceeds with the order.
-
 User is presented with order confirmation including details on the purchased dress.
-
+```
 2) Create a Feature File:
+
 2.1) Create a New Package and name it 'features' by right click on the src/test/resources and select New >> Package.
 (Note: It is always recommended to put all the feature files in the resources folder).
+
 2.2) Create a Feature file and name it 'End2End_Test.feature' by right click on the above created package
 and select New >> File.
 
@@ -257,6 +256,7 @@ Process finished with exit code 0
 3) Create a New Java Class and name it 'Steps' by right click on the above created package and select New >> Class.
 4) Now copy all the steps created by IDE to this Steps file and start filling up these steps with Selenium Code.  
 Steps test file will look like this:
+### Steps.java
 
 ```
 package stepDefinitions;
@@ -399,6 +399,7 @@ Note: By default Junit/Cucumber finds the test code in the src/test/java folder,
 this is why we just need to specify the package name for the cucumber glue.
 
 Updated TestRunner class should look like this:
+### TestRunner.java
 
 ```
 package runners;
