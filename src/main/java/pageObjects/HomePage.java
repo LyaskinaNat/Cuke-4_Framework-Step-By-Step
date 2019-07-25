@@ -30,6 +30,7 @@ public class HomePage {
             btn_Search.click();
             input_Search.sendKeys(search);
             input_Search.sendKeys(Keys.RETURN);
+
         }
 
     }
