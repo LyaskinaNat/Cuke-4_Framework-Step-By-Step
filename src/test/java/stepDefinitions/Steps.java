@@ -15,7 +15,7 @@ import pageObjects.ProductListingPage;
 
 public class Steps {
     WebDriver driver;
-    HomePage home;
+    HomePage homePage;
     ProductListingPage productListingPage;
     CartPage cartPage;
     CheckoutPage checkoutPage;
@@ -26,14 +26,14 @@ public class Steps {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        driver.get("http://www.shop.demoqa.com");
+        homePage = new HomePage(driver);
+        homePage.navigateTo_HomePage();
     }
 
     @When("I search for product in dress category")
     public void i_search_for_product_in_dress_category() throws InterruptedException {
-        home = new HomePage(driver);
         Thread.sleep(1000);
-        home.perform_Search("dress");
+        homePage.perform_Search("dress");
         Thread.sleep(1000);
 
     }

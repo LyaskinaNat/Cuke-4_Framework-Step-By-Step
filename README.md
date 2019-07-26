@@ -1,5 +1,5 @@
 # Page Object Design Pattern with Selenium PageFactory
-This section is about Page Object Model Framework which is also known as Page Object Design Pattern or Page Objects.
+This section is about Page Object Model Framework which is also known as Page Object Design Pattern or Page Object.
 The main advantage of Page Object Model is that if the UI or any HTML object changes for any page,
 the test does not need any fix. Only the code within the page objects will be affected but it does not have any impact
 on the test code.
@@ -12,24 +12,24 @@ to Selenium driver.
 
 The Page Object Pattern technique provides a solution for working with multiple web pages. It will help prevent unwanted
 code duplication and enable an effective solution for a code maintenance. In general, every page of the application involved
-in our end-to-end testing will be represented by a unique class of its own. Such class will inlcude both page element inspection
+in our end-to-end testing will be represented by a unique class of its own. Such class will include both page element inspection
 and associated actions performed by Selenium on the corresponding page.
 
 In order to implement the Page Object Model we will be using **Selenium PageFactory**
 
 Selenium PageFactory is an inbuilt Page Object Model concept for Selenium WebDriver and it is very optimized.
-PageFactory is used to Initialise Elements of a Page class without having to use ‘FindElement‘ or ‘FindElements‘.
+PageFactory is used to Initialise Elements of a Page class without having to use ‘FindElement()‘ or ‘FindElements()‘ methods.
 Annotations can be used to supply descriptive names of target objects to improve code readability.
 
 **@FindBy Annotation:**
 
 As the name suggest, it helps to find the elements in the page using By strategy.
-@FindBy can accept TagName, PartialLinkText, Name, LinkText, Id, Css, ClassName, XPath as attributes.
+@FindBy can accept TagName, PartialLinkText, Name, LinkText, Id, Css, ClassName and XPath as an attribute.
 ```
 @FindBy(id = “idname“)]
 public WebElement element;
 ```
-The above code will create a PageObject and name it as 'element' by finding it using its 'id' locator.
+The above code will create a PageObject and name it 'element' by finding it using its 'id' locator.
 
 **InitElements:**
 
@@ -43,16 +43,16 @@ PageFactory.initElements(WebDriver, PageObject.Class);
 
 - WebDriver – The driver that will be used to look up the elements
 
-- PageObjects  – A class which will be initialised
+- PageObject  – A class which will be initialised
 
 **Returns:**
-An instantiated instance of the class with WebElement and List<WebElement> fields proxied
+An instantiated instance of the class with WebElement and List<WebElement> fields proxies
 
 **PageFactory NameSpace:**
 
 In order to use PageFactory, *org.openqa.selenium.support.PageFactory* needs to be imported to the associated Class.
 
-## Step 1: Create Checkout Page Object Class
+## Step 1: Create Page Object Classes
 The flow of our test spreads across the following pages:
 - Home Page
 - Product Listing Page
@@ -60,16 +60,17 @@ The flow of our test spreads across the following pages:
 - Checkout Page
 - Confirmation Page
 
-Therefore, we will be creating corresponding Java Classes in our Project like so
-- Personal Details Page
-- Shipping Details Page
-- Payment Details Page
-- Confirmation Details Page
+Therefore, we will be creating corresponding Java Classes in our Project like so:
+- HomePage.java
+- ProductListingPage.java
+- CartPage.java
+- CheckoutPage.java
+-ConfirmationPage.java
 
-1) Create a New Package file and name it pageObjects, by right click on the src/main/java and select New >> Package.
+1) Create a New Package file and name it 'pageObjects', by right click on the src/main/java and select New >> Package.
 
-2) Create five New Class file and name them as was mentioned above
-3) Initiate the Page Object for each Class using Constructor
+2) Create five New Class files and name them as was mentioned above
+3) Initiate the Page Object for each Class using Constructor. Example of CheckoutPage initiation:
 ```
 public CheckoutPage(WebDriver driver) {
      PageFactory.initElements(driver, this);
@@ -79,7 +80,7 @@ public CheckoutPage(WebDriver driver) {
 and replace 'findElement(s) (By by)' method with @FindBy annotation.
 5) Wrap Selenium actions performed on each page into re-usable methods and again, place them into corresponding Page Object Class.
 
-(Note: ConfirmationPage.java is the only Class which we leave blank as we have no implementation of @Then Step yet)
+Note: ConfirmationPage.java is the only Class which we leave blank as we have no implementation of @Then Step yet
 
 Newly created **Page Object** Classes should looks like this:
 
@@ -118,6 +119,7 @@ public class HomePage {
         input_Search.sendKeys(Keys.RETURN);
     }
 }
+
 ```
 ### ProductListingPage.java
 ```
@@ -149,7 +151,6 @@ public class ProductListingPage {
     @FindBy(id="pa_size")
     public WebElement selectSize;
 
-
     public void select_Product(int productNumber) {
         prd_List.get(productNumber).click();
     }
@@ -164,7 +165,6 @@ public class ProductListingPage {
     public void clickOn_AddToCart() {
         btn_AddToCart.click();
     }
-
 }
 
 ```
@@ -189,7 +189,6 @@ public class CartPage {
     @FindBy(css = ".checkout-button.alt")
     public WebElement btn_ContinueToCheckout;
 
-
     public void clickOn_Cart() {
         btn_Cart.click();
     }
@@ -197,7 +196,6 @@ public class CartPage {
     public void clickOn_ContinueToCheckout(){
         btn_ContinueToCheckout.click();
     }
-
 }
 ```
 ### CheckoutPage.java
@@ -246,7 +244,6 @@ public class CheckoutPage {
     @FindBy(id = "place_order")
     public WebElement btn_PlaceOrder;
 
-
     public void enter_Name(String name) {
         txtbx_FirstName.sendKeys(name);
     }
@@ -273,9 +270,7 @@ public class CheckoutPage {
 
     public void enter_PostCode(String postCode) {
         txtbx_PostCode.sendKeys(postCode);
-
     }
-
 
     public void select_Country(String countryName) {
         Select country = new Select(select_Country);
@@ -317,7 +312,6 @@ It should look like this:
 ```
 package stepDefinitions;
 
-
 import java.util.concurrent.TimeUnit;
 import cucumber.api.java.en.Then;
 import org.openqa.selenium.WebDriver;
@@ -329,10 +323,9 @@ import pageObjects.CheckoutPage;
 import pageObjects.HomePage;
 import pageObjects.ProductListingPage;
 
-
 public class Steps {
     WebDriver driver;
-    HomePage home;
+    HomePage homePage;
     ProductListingPage productListingPage;
     CartPage cartPage;
     CheckoutPage checkoutPage;
@@ -343,16 +336,15 @@ public class Steps {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        driver.get("http://www.shop.demoqa.com");
+        homePage = new HomePage(driver);
+        homePage.navigateTo_HomePage();
     }
 
     @When("I search for product in dress category")
     public void i_search_for_product_in_dress_category() throws InterruptedException {
-        home = new HomePage(driver);
         Thread.sleep(1000);
-        home.perform_Search("dress");
+        homePage.perform_Search("dress");
         Thread.sleep(1000);
-
     }
 
     @When("I choose to buy the first item")
@@ -377,7 +369,6 @@ public class Steps {
         checkoutPage = new CheckoutPage(driver);
         Thread.sleep(1000);
         checkoutPage.fill_PersonalDetails();
-
     }
 
     @When("I place the order")
@@ -395,7 +386,6 @@ public class Steps {
         driver.close();
         driver.quit();
     }
-
 }
 
 ```
