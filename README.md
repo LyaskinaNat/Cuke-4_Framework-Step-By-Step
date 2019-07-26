@@ -14,13 +14,13 @@ This is against the coding principle.
 
 To avoid this situation, we can create a **Page Object Manager**.
 
-The purpose of the Page Object Manger is to create the page’s object and also to make sure that the object
+The purpose of the Page Object Manger is to create a page object and also to make sure that the object
 is only created once and it can be used across all step definition files.
 
 ## Step 1: Design Page Object Manager Class
-1) Create a New Package file and name it 'managers', by right click on the src/main/java and select New >> Package.
+1) Create a New Package in src/main/java and name it 'managers'.
 
-2) Create a New Class file and name it PageObjectManager by right click on the above created Package and select New >> Class.
+2) Create a New Class inside 'managers' package and name it 'PageObjectManager'.
 3) Add the following code to the class
 ### PageObjectManager.java
 ```
@@ -75,10 +75,9 @@ public PageObjectManager(WebDriver driver) {
      this.driver = driver;
 }
 ```
-This constructor is asking for parameter of type WebDriver.
-As to create an object of the Pages, this class requires a driver.
+This constructor is asking for parameter of type WebDriver: to create an object of the Pages, this class requires a driver.
 
-In oder to create an object of PageObjectManager class, driver needs to be provided:
+Therefore to create an object of PageObjectManager class, driver also needs to be provided:
 ```
 PageObjectManager pageObjectManager = new PageObjectManager(driver);
 ```
@@ -94,12 +93,13 @@ This method has two responsibilities:
 - To supply the already created object if it is not null
 
 ## Step 2: Modify Step Definition File
-Implementation of PageObjectManager requires change in our step definition file as well
+Implementation of PageObjectManager requires change in our step definition file as well.
 Now the duty of the creation of all the pages assigned to only one class which is Page Object Manager.
 ### Steps.java
 ```
 package stepDefinitions;
 
+import java.util.concurrent.TimeUnit;
 import cucumber.api.java.en.Then;
 import managers.PageObjectManager;
 import org.openqa.selenium.WebDriver;
@@ -110,6 +110,7 @@ import pageObjects.CartPage;
 import pageObjects.CheckoutPage;
 import pageObjects.HomePage;
 import pageObjects.ProductListingPage;
+
 
 public class Steps {
     WebDriver driver;
@@ -126,6 +127,7 @@ public class Steps {
         driver = new ChromeDriver();
         pageObjectManager = new PageObjectManager(driver);
         driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         homePage = pageObjectManager.getHomePage();
         homePage.navigateTo_HomePage();
     }
@@ -169,14 +171,14 @@ public class Steps {
         Thread.sleep(1000);
         checkoutPage.check_TermsAndCondition();
         checkoutPage.clickOn_PlaceOrder();
+        driver.manage().deleteAllCookies();
+        driver.close();
+        driver.quit();
     }
 
     @Then("Order details are successfully verified")
     public void order_details_are_successfully_verified() {
         System.out.println("Not implemented");
-        driver.manage().deleteAllCookies();
-        driver.close();
-        driver.quit();
     }
 
 }
