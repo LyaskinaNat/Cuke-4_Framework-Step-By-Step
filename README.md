@@ -1,42 +1,42 @@
 # Sharing Test Context between steps and Step Definition files
 ## Why do we need to share Test Context?
 Dividing Cucumber Steps between many classes may be a good idea. It is, however, probably not needed early in a project.
-When you write your first scenario, you will most likely only have just a few steps. The first class with steps is probably
-small and you can easily find your way around in it.
+When we write our first scenario, we will most likely only have just a few steps. The first class with steps is probably
+small and we can easily find our way around it.
 
-But a scenario in Cucumber is a series of steps which gets executed one after one. Each step in scenario may have some state
-which can be required by other step in the scenario. In other way you can also say that some steps may depend on
+But a scenario in Cucumber is a series of steps which gets executed one after another. Each step may have some state
+which can be required by other step in the scenario. In other words, some steps may depend on
 previous steps. This means that we must be able to share state/collected data between steps.
 
-Also when number of tests grows as project matures, keeping all the steps in a single Step Definition class quickly becomes
-impractical, so you use many classes.
+Also when a number of tests grows as project matures, keeping all the steps in a single Step Definition class quickly becomes
+difficult to manage. To overcome this,  different classes for different features / scenarios / steps are used instead.
 
-Now you have a new problem – objects you create in one step class may be needed in the other step classes as well.
+Now we have a new problem – objects we create in one step class may be needed in the other step classes as well.
 
-In our case as well, till now we just had one scenario which had few steps and we kept all the steps in the same
-Step definition file. In a real life project there are tens or even hundreds of scenarios and step defenition files.
+Back to our case, till now we just had one scenario which had few steps and we kept all the steps in the same
+Step definition file. In a real life project there are tens or even hundreds of scenarios and step definition files.
 And often there is a need to share the Test Context (including Scenario Context, Test State,
-data collected during test step execution) with all the Step Definitions files.
+data collected during test step execution) with all the Step Definition classes.
 Cucumber supports several Dependency Injection (DI) Containers – it simply tells a DI container to instantiate
-your step definition classes and wire them up correctly. One of the supported DI containers is **PicoContainer**.
+step definition classes and wire them up correctly. One of the supported DI containers is **PicoContainer**.
 
 ## What is PicoContainer?
-**PicoContainer** is a small library which doesn’t require sey up of any configuration and
+**PicoContainer** is a small library which doesn’t require set up of any configuration and
 use of any APIs such as @Inject. It uses constructors instead.
 
 **PicoContainer** really only has a one functionality – it instantiates objects.
-Simply hand it some classes and it will instantiate each one, correctly wired together via their constructors.
+Simply hand it some classes and it will instantiate each one, correctly wiring together via their constructors.
 Cucumber scans your classes with step definitions in them, passes them to PicoContainer,
 then asks it to create new instances for every scenario.
 
-We will be performing below steps to share data state across steps:
+We will be performing below steps to implement data sharing across steps:
 
-- Add PicoContainer to the Project
+- Add PicoContainer dependency to the Project
 - Create a Test Context class which will hold all the objects state
 - Divide the Steps class into multiple steps classes with logical separation
 - Write Constructor to share Test Context
 
-## Step 1: Add PicoContainer Library to the Maven Project
+## Step 1: Add PicoContainer Dependency to the Maven Project
 ```
        <dependency>
             <groupId>io.cucumber</groupId>
@@ -46,8 +46,9 @@ We will be performing below steps to share data state across steps:
         </dependency>
 ```
 
-Note: It is suggested to use cucumber-picocontainer version same as cucumber. In our case it is 4.2.0
-
+Note: It is suggested to use the same cucumber-picocontainer version as cucumber version. In our case it is 4.2.0
+We also need to create a new property **cucumber-picocontainer.version** inside <properties> tag of pom.xml where we specify
+picocontainer version:
 ```
     <properties>
         <cucumber.version>4.2.0</cucumber.version>
@@ -55,11 +56,9 @@ Note: It is suggested to use cucumber-picocontainer version same as cucumber. In
     </properties>
 
 ```
-
-
 ## Step 2 : Create a Test Context class
 We should create this class logically: identify all information our Step definition file is using
-and put that information in to this class. In our case our Step definition file is using the following information:
+and put that information into this class. In our case our Steps.java is using the following information:
 
 - PageObjects : Provided by PageObjectManager
 - WebDriver : Provided by WebDriverManager
@@ -67,7 +66,7 @@ and put that information in to this class. In our case our Step definition file 
 
 So, we need the above objects in our Test Context class.
 Next, if we look at the objects, we see that our FileReaderManager is already a Singleton Class and to use it we don’t need
-to create an instance of it. It creates its instance by itself. So no need to add FileReaderManager to TestContext class,
+to create an instance of it. It creates it by itself. So no need to add FileReaderManager to TestContext class,
 as this class can be referred directly statically like
 ```
 FileReaderManager.getInstance()
@@ -106,7 +105,7 @@ public class TestContext {
 }
 ```
 ### Explanation
-We kept the initialisation in the constructor and created getMethods() for both the objects.
+We kept the initialisation in the constructor and created getMethods() for both objects.
 ## Step 3 : Divide the Steps file
 We will divide the steps file as we did the separations between the Page Objects - for every different page
 we have a separate PageObject class. So it makes sense to have a separate step definition class for every page as well.
@@ -122,7 +121,8 @@ Then we start copying-pasting information from steps class into above created cl
 
 (Note: We will create ConfirmationPageSteps Class in the following section and for now leave the code for **@Then** Step in our old
 step definition file **Steps.java**)
-### HomePageSteps.java
+### HomePageSteps.java (after copying step definitions related to HomePage to its own HomePage step definition class and before implementing
+TextContext)
 ```
 package stepDefinitions;
 
@@ -134,17 +134,14 @@ import managers.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import pageObjects.HomePage;
 
-
 public class HomePageSteps {
     WebDriver driver;
     HomePage homePage;
     PageObjectManager pageObjectManager;
     WebDriverManager webDriverManager;
 
-
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
-        System.setProperty("webdriver.chrome.driver", FileReaderManager.getInstance().getConfigReader().getDriverPath());
         webDriverManager = new WebDriverManager();
         driver = webDriverManager.getDriver();
         pageObjectManager = new PageObjectManager(driver);
@@ -167,7 +164,7 @@ Code for other Step definition Classes will follow the same principle
 First, lets look at our HomePageSteps file. We need **WebDriverManager** and **PageObjectManager**
 in every step file. Therefore we need to create objects for both classes using new operator again and again.
 
-Now with just adding Constructor to HomePageSteps file and passing **TestContext** as a Parameter to constructor
+Now with just adding Constructor to HomePageSteps class and passing **TestContext** as a Parameter to constructor
 would take all the pain. Within the TestContext object we have everything available which is required for the test.
 The new HomePageSteps class should look like this now:
 ### HomePageSteps.java (after adding step class constructor with TextContext as a parameter)
@@ -179,7 +176,6 @@ import cucumber.api.java.en.When;
 import managers.FileReaderManager;
 import cucumber.TestContext;
 import pageObjects.HomePage;
-
 
 public class HomePageSteps {
 
@@ -194,7 +190,6 @@ public class HomePageSteps {
 
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
-        System.setProperty("webdriver.chrome.driver", FileReaderManager.getInstance().getConfigReader().getDriverPath());
         homePage.navigateTo_HomePage();
     }
     @When("I search for product in dress category")
@@ -284,7 +279,6 @@ public class CheckoutPageSteps {
     public void i_enter_my_personal_details() throws InterruptedException {
         Thread.sleep(1000);
         checkoutPage.fill_PersonalDetails();
-
     }
 
     @When("I place the order")
