@@ -121,8 +121,7 @@ Then we start copying-pasting information from steps class into above created cl
 
 (Note: We will create ConfirmationPageSteps Class in the following section and for now leave the code for **@Then** Step in our old
 step definition file **Steps.java**)
-### HomePageSteps.java (after copying step definitions related to HomePage to its own HomePage step definition class and before implementing
-TextContext)
+### HomePageSteps.java (after copying step definitions related to HomePage to its own HomePage step definition class and before implementing TextContext)
 ```
 package stepDefinitions;
 
