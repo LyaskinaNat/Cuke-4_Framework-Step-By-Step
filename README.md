@@ -10,13 +10,13 @@ should only be responsible for test execution
 The only responsibility of the WebDriver Manager is to provide the WebDriver, when we ask for it.
 To achieve this we will do the following:
 
-- Specify new WebDriver Properties to the Configuration File
+- Specify new WebDriver Properties in the Configuration File
 - Create Enums for DriverType and EnvironmentType
 - Write new Methods to read the above properties
 - Design a WebDriver Manager
 - Modify the Steps file to use the new WebDriver Manager in the script
 
-## Step 1 : Add WebDriver Properties to the Configuration file
+## Step 1 : Add WebDriver Properties to the Configuration.properties file
 Configuration file should look like this:
 ### Configuration.properties
 ```
@@ -44,7 +44,7 @@ public enum DriverType {
     CHROME
 }
 ```
-4) Create another Enum class 'EnvironmentType' and add Local & Remote environmental variables to it.
+4) Create another Enum class 'EnvironmentType' and add Local and Remote environmental variables to it.
 ### EnvironmentType.java
 ```
 package enums;
@@ -55,7 +55,7 @@ public enum EnvironmentType {
 ```
 ## Step 3 : Write new Method to Read new properties
 In ConfigFileReader create **getBrowser(), getEnvironment()** and **getBrowserWindowSize()** methods to read newly added properties
-
+ConfigFileReader should look like this:
 ### ConfigFileReader.java
 ```
 package dataProviders;
@@ -138,8 +138,8 @@ public class ConfigFileReader {
 Null check is performed and in case of null by default value is returned as true. In case of not null,
 String value is parsed to Boolean.
 
-**getEnvironment() :** EnvironmentType.Local is returned in case of Null and if the value  is equal to Local.
-Which means that in case of missing environment property, execution will be carried on local machine.
+**getEnvironment() :** EnvironmentType.Local is returned in case of Null and if the value is equal to Local.
+It means that in case of missing environment property, execution will be carried on local machine.
 
 **getBrowser() :** Default value is returned as DriverType.Chrome in case of Null. Exception is thrown if
 the value does not match with anything.
@@ -153,14 +153,14 @@ The only thing which we need to keep in mind is that the manager would expose on
 **GetDriver()** method further call the method
 
 **createDriver()**, which will decide that
-the remote driver is needed or local driver for the execution.
+the remote or local driver is needed for execution.
 
-Accordingly **CreateDriver()** method would make a call let’s say to **createLocalDriver()**.
+Accordingly, **CreateDriver()** method would make a call let’s say to **createLocalDriver()**.
 
 **CreateLocalDriver()** method will further decide which type of driver needs to be created.
 
 **closeDriver()** method is responsible for closing the browser and will be called after execution of all tests / test steps is completed
-1) Create a new file in src/main/java/managers and call it WebDriverManager
+1) Create a new file in src/main/java/managers and call it 'WebDriverManager'
 2) Add the following code to it:
 ### WebDriverManager.java
 ```
@@ -235,7 +235,6 @@ package stepDefinitions;
 
 import cucumber.api.java.en.Then;
 import managers.PageObjectManager;
-import managers.FileReaderManager;
 import managers.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import cucumber.api.java.en.Given;
@@ -244,7 +243,6 @@ import pageObjects.CartPage;
 import pageObjects.CheckoutPage;
 import pageObjects.HomePage;
 import pageObjects.ProductListingPage;
-
 
 public class Steps {
     WebDriver driver;
@@ -255,11 +253,8 @@ public class Steps {
     PageObjectManager pageObjectManager;
     WebDriverManager webDriverManager;
 
-
-
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
-        System.setProperty("webdriver.chrome.driver", FileReaderManager.getInstance().getConfigReader().getDriverPath());
         webDriverManager = new WebDriverManager();
         driver = webDriverManager.getDriver();
         pageObjectManager = new PageObjectManager(driver);
@@ -273,7 +268,6 @@ public class Steps {
         Thread.sleep(1000);
         homePage.perform_Search("dress");
         Thread.sleep(1000);
-
     }
 
     @When("I choose to buy the first item")
@@ -298,7 +292,6 @@ public class Steps {
         Thread.sleep(1000);
         checkoutPage = pageObjectManager.getCheckoutPage();
         checkoutPage.fill_PersonalDetails();
-
     }
 
     @When("I place the order")
@@ -306,14 +299,13 @@ public class Steps {
         Thread.sleep(1000);
         checkoutPage.check_TermsAndCondition();
         checkoutPage.clickOn_PlaceOrder();
+        webDriverManager.closeDriver();
     }
 
     @Then("Order details are successfully verified")
     public void order_details_are_successfully_verified() {
         System.out.println("Not implemented");
-        webDriverManager.closeDriver();
-    }
-
+     }
 }
 ```
 Run TestRunner and the test should be executed successfully
