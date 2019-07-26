@@ -1,7 +1,7 @@
 # File Reader Manager as a Singleton Design Pattern
-In the previous section, we run into a problem of having multiple instances of Property Class in our project.
+In the previous section, we run into a problem of having multiple instances of Properties Class in our project.
 In this section we will use File Reader Manager as Singleton Design Pattern to eliminate the issue.
-Singleton Design Pattern helps in achieving having only one instance of a class which can be accessed globally.
+Singleton Design Pattern helps in achieving that we only have one instance of a class which can be accessed globally.
 
 ### What is a Singleton Design Pattern?
 The Singleton’s purpose is to control object creation, limiting the number of objects to only one.
@@ -17,7 +17,7 @@ To implement Singleton pattern, we have to implement the following concept:
 to get the instance of the singleton class.
 
 ## Step 1: Create File Reader Manager as Singleton Design Pattern
-1) Create a New Class and name it as FileReaderManager, by right click on the managers package and select New >> Class.
+1) Create a New Class in src/main/java inside 'managers' package and name it 'FileReaderManager'.
 2) Add the following code so **File Reader Manager** looks like this:
 ### FileReaderManager.java
 ```
@@ -60,7 +60,6 @@ FileReaderManager.getInstance().getConfigReader()
 package stepDefinitions;
 
 import cucumber.api.java.en.Then;
-import dataProviders.ConfigFileReader;
 import managers.PageObjectManager;
 import managers.FileReaderManager;
 import org.openqa.selenium.WebDriver;
@@ -71,7 +70,6 @@ import pageObjects.CartPage;
 import pageObjects.CheckoutPage;
 import pageObjects.HomePage;
 import pageObjects.ProductListingPage;
-
 import java.util.concurrent.TimeUnit;
 
 
@@ -82,8 +80,6 @@ public class Steps {
     CartPage cartPage;
     CheckoutPage checkoutPage;
     PageObjectManager pageObjectManager;
-
-
 
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
@@ -102,7 +98,6 @@ public class Steps {
         Thread.sleep(1000);
         homePage.perform_Search("dress");
         Thread.sleep(1000);
-
     }
 
     @When("I choose to buy the first item")
@@ -127,7 +122,6 @@ public class Steps {
         Thread.sleep(1000);
         checkoutPage = pageObjectManager.getCheckoutPage();
         checkoutPage.fill_PersonalDetails();
-
     }
 
     @When("I place the order")
@@ -135,23 +129,21 @@ public class Steps {
         Thread.sleep(1000);
         checkoutPage.check_TermsAndCondition();
         checkoutPage.clickOn_PlaceOrder();
-    }
-
-    @Then("Order details are successfully verified")
-    public void order_details_are_successfully_verified() {
-        System.out.println("Not implemented");
         driver.manage().deleteAllCookies();
         driver.close();
         driver.quit();
     }
 
+    @Then("Order details are successfully verified")
+    public void order_details_are_successfully_verified() {
+        System.out.println("Not implemented");
+    }
 }
 ```
 ### HomePage.java
 ```
 package pageObjects;
 
-import dataProviders.ConfigFileReader;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -162,12 +154,10 @@ import managers.FileReaderManager;
 public class HomePage {
 
     WebDriver driver;
-    ConfigFileReader configFileReader;
 
     public HomePage(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
-        configFileReader= new ConfigFileReader();
     }
 
     @FindBy(css=".noo-search")
@@ -186,6 +176,7 @@ public class HomePage {
         input_Search.sendKeys(Keys.RETURN);
     }
 }
+
 ```
 Run TestRunner and the test should be executed successfully
 

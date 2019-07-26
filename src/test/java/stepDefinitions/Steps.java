@@ -1,7 +1,6 @@
 package stepDefinitions;
 
 import cucumber.api.java.en.Then;
-import dataProviders.ConfigFileReader;
 import managers.PageObjectManager;
 import managers.FileReaderManager;
 import org.openqa.selenium.WebDriver;
@@ -12,7 +11,6 @@ import pageObjects.CartPage;
 import pageObjects.CheckoutPage;
 import pageObjects.HomePage;
 import pageObjects.ProductListingPage;
-
 import java.util.concurrent.TimeUnit;
 
 
@@ -23,8 +21,6 @@ public class Steps {
     CartPage cartPage;
     CheckoutPage checkoutPage;
     PageObjectManager pageObjectManager;
-
-
 
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
@@ -43,7 +39,6 @@ public class Steps {
         Thread.sleep(1000);
         homePage.perform_Search("dress");
         Thread.sleep(1000);
-
     }
 
     @When("I choose to buy the first item")
@@ -68,7 +63,6 @@ public class Steps {
         Thread.sleep(1000);
         checkoutPage = pageObjectManager.getCheckoutPage();
         checkoutPage.fill_PersonalDetails();
-
     }
 
     @When("I place the order")
@@ -76,14 +70,13 @@ public class Steps {
         Thread.sleep(1000);
         checkoutPage.check_TermsAndCondition();
         checkoutPage.clickOn_PlaceOrder();
-    }
-
-    @Then("Order details are successfully verified")
-    public void order_details_are_successfully_verified() {
-        System.out.println("Not implemented");
         driver.manage().deleteAllCookies();
         driver.close();
         driver.quit();
     }
 
+    @Then("Order details are successfully verified")
+    public void order_details_are_successfully_verified() {
+        System.out.println("Not implemented");
+    }
 }
