@@ -345,6 +345,7 @@ public class Steps {
         Thread.sleep(1000);
         homePage.perform_Search("dress");
         Thread.sleep(1000);
+
     }
 
     @When("I choose to buy the first item")
@@ -369,6 +370,7 @@ public class Steps {
         checkoutPage = new CheckoutPage(driver);
         Thread.sleep(1000);
         checkoutPage.fill_PersonalDetails();
+
     }
 
     @When("I place the order")
@@ -377,16 +379,18 @@ public class Steps {
         Thread.sleep(1000);
         checkoutPage.check_TermsAndCondition();
         checkoutPage.clickOn_PlaceOrder();
+        driver.manage().deleteAllCookies();
+        driver.close();
+        driver.quit();
     }
 
     @Then("Order details are successfully verified")
     public void order_details_are_successfully_verified() {
         System.out.println("Not implemented");
-        driver.manage().deleteAllCookies();
-        driver.close();
-        driver.quit();
+
     }
 }
+
 
 ```
 Run TestRunner and the test should be executed successfully

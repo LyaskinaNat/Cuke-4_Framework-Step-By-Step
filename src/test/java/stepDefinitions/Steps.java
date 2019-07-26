@@ -1,6 +1,5 @@
 package stepDefinitions;
 
-
 import java.util.concurrent.TimeUnit;
 import cucumber.api.java.en.Then;
 import org.openqa.selenium.WebDriver;
@@ -11,7 +10,6 @@ import pageObjects.CartPage;
 import pageObjects.CheckoutPage;
 import pageObjects.HomePage;
 import pageObjects.ProductListingPage;
-
 
 public class Steps {
     WebDriver driver;
@@ -69,14 +67,14 @@ public class Steps {
         Thread.sleep(1000);
         checkoutPage.check_TermsAndCondition();
         checkoutPage.clickOn_PlaceOrder();
-    }
-
-    @Then("Order details are successfully verified")
-    public void order_details_are_successfully_verified() {
-        System.out.println("Not implemented");
         driver.manage().deleteAllCookies();
         driver.close();
         driver.quit();
     }
 
+    @Then("Order details are successfully verified")
+    public void order_details_are_successfully_verified() {
+        System.out.println("Not implemented");
+
+    }
 }
