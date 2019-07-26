@@ -1,5 +1,5 @@
 # File Reader Manager as a Singleton Design Pattern
-In the previous section, we run into a problem of having multiple instances of Properties Class in our project.
+In the previous section, we run into a problem of having multiple instances of ConfigFileReader Class in our project.
 In this section we will use File Reader Manager as Singleton Design Pattern to eliminate the issue.
 Singleton Design Pattern helps in achieving that we only have one instance of a class which can be accessed globally.
 
