@@ -113,6 +113,9 @@ public class Steps {
         WebElement btn_PlaceOrder = driver.findElement(By.id("place_order"));
         btn_PlaceOrder.submit();
         Thread.sleep(2000);
+        driver.manage().deleteAllCookies();
+        driver.close();
+        driver.quit();
     }
 
     @Then("Order details are successfully verified")
@@ -120,9 +123,7 @@ public class Steps {
        //User is automatically re-directed to the Order confirmation page. Validation step will be implemented later on this course
         System.out.println("Not implemented");
         //Closing the browser
-        driver.manage().deleteAllCookies();
-        driver.close();
-        driver.quit();
+
     }
 
 }
