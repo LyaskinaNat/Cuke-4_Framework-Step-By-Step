@@ -276,8 +276,8 @@ public class HomePage {
 ```
 
 
-Note: Generally, it is bad practice to create object of property class in every class which requires it.
-We have created the object of the Properties Class in Steps file and another object of Properties Class again
+Note: Generally, it is bad practice to create object of ConfigFileReader class in every class which requires it.
+We have created the object of the ConfigFileReader Class in Steps file and another object of this Class again
 in the HomePage class.
 
 We will cover how to overcome this issue in the next section.
