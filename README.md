@@ -1,26 +1,27 @@
 # Read Project Configurations from Property File
 So far in our project we have been storing hard coded values inside the project code.
-It is against the coding principles to do so as it makes our test be less manageable and maintainable.
-Therefore with the help of properties file we will be focusing on eliminating these hard coded values.
+It is against the coding principles to do so as it makes our test less manageable and maintainable.
+Therefore with the help of 'properties' file we will be focusing on eliminating these hard coded values.
 
-### What is a Property file in Java
-**.properties** files are mainly used in Java programs to maintain project **configuration data, database config or
-project settings**, etc.
-Each parameter in properties file is stored as a pair of strings, in key-value pair format.
-You can easily read properties from this file using object of type Properties. This is a utility provided by Java itself.
+### What is a Properties file in Java
+**.properties** files are mainly used in Java programs to maintain project **configuration data, database config,
+project settings, etc**.
+Each parameter in .properties file is stored as a pair of strings, in key-value pair format.
+You can easily read properties from this file using **object of type Properties**. This is a utility provided by Java itself:
 ```
 java.util.Properties;
 ```
-### Advantages of Property file in Java
+### Advantages of .properties file in Java
 If any information is changed from the properties file, you don’t need to recompile the java class.
 In other words, the advantage of using properties file is we can configure things which are prone to change
-over a period of time without need of changing anything in code.
-## Step 1: Create a Property file
+over a period of time without a need of changing test code.
+## Step 1: Create a .properties file
 1) Create a New Folder and name it 'configs', by right click on the root Project and select New >> Folder.
-2) Create a New File by right click on the above created folder and select New >> File and name it 'Configuration.properties'
-3) Write Hard Coded Values in the Property File.
+2) Create a New File by right click on the above created folder and name it 'Configuration.properties'
+3) Write Hard Coded Values in the Configuration.properties File.
 
-So far there are three hard coded values we will move to our **Configuration.properties** file like so:
+So far there are three hard coded values we will move to our **Configuration.properties**:
+### Configuration.properties
 ```
 driverPath=src/drivers/chromedriver
 url=http://shop.demoqa.com
@@ -28,9 +29,9 @@ implicitWait=5
 ```
 ## Step 2: Create a Config File Reader
 1) Create a New Package under src/main/java/ and name it 'dataProviders'.
-We will keep all the data readers files here in this package.
+We will keep all the data reader files here in this package.
 
-2) Create a New Class file and name it 'ConfigFileReader', by right click on the above created package and select New >> Class.
+2) Create a New Class file inside 'dataProviders' package and name it 'ConfigFileReader'.
 3) Add the following code to ConfigFileReader
 ### ConfigFileReader.java
 ```
@@ -45,13 +46,13 @@ import java.util.Properties;
 public class ConfigFileReader {
 
     private Properties properties;
-    private final String propertyFilePath= "configs//Configuration.properties";
-
+    private final String propertyFilePath= "configs/Configuration.properties";
 
     public ConfigFileReader(){
         BufferedReader reader;
         try {
             reader = new BufferedReader(new FileReader(propertyFilePath));
+            //Configuration properties can be easily read from .properties file using object of type Properties provided by java.utils
             properties = new Properties();
             try {
                 properties.load(reader);
@@ -71,7 +72,7 @@ public class ConfigFileReader {
         else throw new RuntimeException("driverPath not specified in the Configuration.properties file.");
     }
 
-    public long getImplicitlyWait() {
+    public long getImplicitWait() {
         String implicitWait = properties.getProperty("implicitWait");
         if(implicitWait != null) return Long.parseLong(implicitWait);
         else throw new RuntimeException("implicitlyWait not specified in the Configuration.properties file.");
@@ -82,11 +83,11 @@ public class ConfigFileReader {
         if(url != null) return url;
         else throw new RuntimeException("url not specified in the Configuration.properties file.");
     }
-
 }
+
 ```
 ## Explanation
-### How to Load Property File
+### How to Load Properties File
 ```
 BufferedReader reader = new BufferedReader(new FileReader(propertyFilePath));
 Properties properties = new Properties();
@@ -121,10 +122,10 @@ Reads a property list (key and value) from the input character stream in a simpl
 
 **properties.getProperty(“driverPath”) :**
 Properties object gives us a *getProperty()* method which takes the Key of the property as a parameter and return
-the Value of the matched key from the .properties file.
-If the properties file does not have the specified key, it returns the null.
-This is why we have put the null check and in case of null we like to throw an exception to stop the test
-with the stack trace information.
+the Value of the matching key from the .properties file.
+If the properties file does not have the specified key, it returns null.
+This is why we have put the null check and in case of null we like to throw an exception with the stack trace information
+and stop the test.
 
 ## Step 3: Use ConfigFileReader object in the Steps.java file and HomePage.java file
 To use the **ConfigFileReader object** in the test, we need to fist create an object of the class.
@@ -135,7 +136,7 @@ ConfigFileReader configFileReader= new ConfigFileReader();
 
 Then we can replace the below statement
 ```
-System.setProperty(“webdriver.chrome.driver”,“scr/drivers”);
+System.setProperty(“webdriver.chrome.driver”,“src/drivers/chromedriver”);
 ```
 
 with
@@ -159,9 +160,7 @@ import pageObjects.CartPage;
 import pageObjects.CheckoutPage;
 import pageObjects.HomePage;
 import pageObjects.ProductListingPage;
-
 import java.util.concurrent.TimeUnit;
-
 
 public class Steps {
     WebDriver driver;
@@ -171,7 +170,6 @@ public class Steps {
     CheckoutPage checkoutPage;
     PageObjectManager pageObjectManager;
     ConfigFileReader configFileReader;
-
 
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
@@ -191,7 +189,6 @@ public class Steps {
         Thread.sleep(1000);
         homePage.perform_Search("dress");
         Thread.sleep(1000);
-
     }
 
     @When("I choose to buy the first item")
@@ -216,7 +213,6 @@ public class Steps {
         Thread.sleep(1000);
         checkoutPage = pageObjectManager.getCheckoutPage();
         checkoutPage.fill_PersonalDetails();
-
     }
 
     @When("I place the order")
@@ -224,17 +220,17 @@ public class Steps {
         Thread.sleep(1000);
         checkoutPage.check_TermsAndCondition();
         checkoutPage.clickOn_PlaceOrder();
-    }
-
-    @Then("Order details are successfully verified")
-    public void order_details_are_successfully_verified() {
-        System.out.println("Not implemented");
         driver.manage().deleteAllCookies();
         driver.close();
         driver.quit();
     }
 
+    @Then("Order details are successfully verified")
+    public void order_details_are_successfully_verified() {
+        System.out.println("Not implemented");
+    }
 }
+
 ```
 And our Home Page object class file will look like this:
 
@@ -280,8 +276,8 @@ public class HomePage {
 ```
 
 
-Note: Generally, it is bad practice to create object of property file in every class.
-We have created the object of the Property Class in Steps file and another object of Properties Class again
+Note: Generally, it is bad practice to create object of property class in every class which requires it.
+We have created the object of the Properties Class in Steps file and another object of Properties Class again
 in the HomePage class.
 
 We will cover how to overcome this issue in the next section.
