@@ -7,11 +7,12 @@ Implementation of Cucumber Hooks will allow us to to move manipulations with Web
 from Page Objects and Step definitions to Hooks Class.
 In order to achieve the above, we will be performing below steps:
 
-- Create a Hook Class
-- Add goToUrl() method to Web Driver Manager Class
-- Remove WebDriverManager and FileReaderManager related code from HopePage Class
-- Modify HomePageSteps definition file to reflect the changes
+- Create a Hook Class and include GetDriver() and ClosingDriver() methods
 - Remove closeDriver() method from CheckoutPageSteps definition file
+
+Note: Currently WebDriver is being initialised when we called navigateTo_HomePage() from our @Given Step. This means that technically we may not need to add
+**getDriver()** to @Before Hooks. But for the purpose of keeping correct structure of the framework and following separation of concern principle, we make sure that
+the first initialisation of a WebDriver happens in the @Before Hook and not during actual test execution
 
 
 ## Step 1: Create a Hooks Class
@@ -45,84 +46,14 @@ public class Hooks {
 
 }
 ```
-## Step 2: Add goToUrl() method to Web Driver Manager Class
-Add a new method to WebDriverManager.java. The method will take
-App URL as a parameter and execute Selenium driver.get("Url") method.
-It will be called from HomePageSteps definition file where ConfigReader will read App URL from our
-Configuration.properties file
+### Explanation
+@Before Hook is now responsible for Webdriver initialisation and every other Webriver requests by any other
+classes during the test execution will receive this instance of a driver
+
+@After Hook is responsible for closing the browser after all test have been executed.
+
 ```
-    public void goToUrl(String url) {
-        driver.get(url);
-    }
-```
-## Step 3: Remove WebDriverManager and FileReaderManager related code from HopePage Class
-HopePage Class should look like this:
-### HomePage.java
-```
-package pageObjects;
-
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-
-
-public class HomePage {
-
-    public HomePage(WebDriver driver) {
-        PageFactory.initElements(driver, this);
-    }
-
-    @FindBy(css=".noo-search")
-    public WebElement btn_Search;
-
-    @FindBy(css=".form-control")
-    public WebElement input_Search;
-
-    public void perform_Search(String search) {
-        btn_Search.click();
-        input_Search.sendKeys(search);
-        input_Search.sendKeys(Keys.RETURN);
-    }
-}
-```
-## Step 4: Modify HomePageSteps definition file to reflect the changes
-HopePageSteps definition file should look like this:
-### HopePageSteps.java
-```
-package stepDefinitions;
-
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.When;
-import managers.FileReaderManager;
-import cucumber.TestContext;
-import pageObjects.HomePage;
-
-public class HomePageSteps {
-    HomePage homePage;
-    TestContext testContext;
-
-    //constructor
-    public HomePageSteps(TestContext context) {
-        testContext = context;
-        homePage = testContext.getPageObjectManager().getHomePage();
-    }
-
-    @Given("I am on Home Page")
-    public void i_am_on_Home_Page() {
-        testContext.getWebDriverManager().goToUrl(FileReaderManager.getInstance().getConfigReader().getApplicationUrl());
-    }
-
-    @When("I search for product in dress category")
-    public void i_search_for_product_in_dress_category() throws InterruptedException {
-        homePage.perform_Search("dress");
-        Thread.sleep(1000);
-
-    }
-}
-```
-## Step 5: Remove closeDriver() method from CheckoutPageSteps definition file
+## Step 2: Remove closeDriver() method from CheckoutPageSteps definition file
 CheckoutPageSteps definition file should look like this;
 ```
 package stepDefinitions;
