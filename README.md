@@ -1,27 +1,23 @@
 # Cucumber Extent Report
 In the last section of Cucumber Reports  we got to know about the Plugins which are provided by Cucumber itself to generate
-various kind of reports like HTML, JSON, XML etc. Generally, those reports are enough to give us the overall execution results
-with detailed time logs and other things. But there are many third party plugins also available which helps to produce
+various kind of reports like HTML, JSON, XML, etc. Generally, those reports are enough to give us the overall execution results
+with detailed time logs and other things. But there are many third party plugins also available which help to produce
 reports with improved test logs capacity and better visual graphics.
 ## Extend Report
-One of such plugin is Extent Report by Anshoo Arora. This is considered one of the best reporting plugin.
-This reports fits fine with any test framework you use. With Cucumber as well it works fine but it requires to
-have some hacks to produce reports which even provide you details around the test steps as well.
-It would have been easy if, Cucumber would also have annotations like @beforeScenario & @beforeFeature.
+One of such plugins is 'Extent Report' by Anshoo Arora. This is currently considered one of the best reporting plugin on the market.
+This report fits fine with any test framework you use. With Cucumber as well it works fine but it requires to
+have some hacks to produce reports.
+It would have been easy if Cucumber also had annotations like @beforeScenario and @beforeFeature.
 These annotations are available in SpecFLow which is Cucumber in C#.
-But there is another alternative called Cucumber Extent Reporter.
+But there is an alternative for Cucumber called 'Cucumber Extent Report'.
 
 ## Cucumber Extent Report
-This plugin is build on Extent Report specially for Cucumber by Vimal Selvam. This is why it is named
+This plugin is build on Extent Report specifically for Cucumber by Vimal Selvam. This is why it is named
 **Cucumber Extent Report**. This one is actually made to ease the implementation of Extent Report in Cucumber Framework.
 Let’s start with implementing the same in our Selenium Cucumber Framework.
 
 ## Step 1 : Add Cucumber Extent Report dependencies to the Project
 The latest version of the extentreports-cucumber4-adapter jar is 1.0.7 which will be primarily used here.
-The extentreports-cucumber4-adapter version 1.0.7 POM includes version 4.0.1 of cucumber-core and cucumber-java jars
-which need to be excluded from this dependency using the exclusion tag.
-
-Note: The extentreports-cucumber4-adapter jar needs to be modified for running with Cucumber version greater than 4.2.0.
 
 ### Cucumber version 4.0.0 to 4.2.0
 The extentreports-cucumber4-adapter version 1.0.7 jar from maven repository works by default for the following Cucumber
@@ -35,9 +31,11 @@ The reason is that the adapter requires the class URLOutputStream, which was mov
 and access changed to package protected in version 4.2.1.
 In the previous version it was a public class in cucumber.runtime.io package.
 Though this class exists in the github source of extentreports-cucumber4-adapter, it has not been included in the jar.
+Therefore, the extentreports-cucumber4-adapter jar needs to be modified for running with Cucumber version greater than 4.2.0
 
-As we are using cucmber version 4.2.0, so extentreports-cucumber4-adapter will work by default, however, we need to be mindfull
-if/when upgrading cucumber version in our project as it may break our reporting functionality.
+As we are using cucumber version 4.2.0, so extentreports-cucumber4-adapter will work for us by default, however, we need to be mindful
+if/when upgrading cucumber to a higher version as it may break our reporting functionality if extentreports-cucumber4-adapter modification
+is not addressed as a part of the upgrade process.
 
 1) Add Extent Report Adapter to pom.xml
 ```
@@ -55,11 +53,11 @@ if/when upgrading cucumber version in our project as it may break our reporting 
          <version>4.0.9</version>
      </dependency>
 ```
-## Step 2: Create Extent Report  Configuration file
+## Step 2: Create Extent Report Configuration file
 Extent Config is required by the Cucumber Extent Report plugin to read the report configuration.
 It gives us the capability to set many useful setting to the report from the XML configuration file.
 By default, it is read from the resources folder in scr/test so
-we need to place our Extent Report  Configuration file into this specific location.
+we need to place our Extent Report Configuration file into this specific location.
 
 1) Create a New File in src/test/ inside resources folder and name it 'extent-config.xml'
 ### extent-config.xml
@@ -120,7 +118,7 @@ to be picked up by the adapter.
 1) Create a New File in src/test/ inside resources folder and name it 'extent.properties'
 Note: We will only be activating HTML Report in this tutorial:
  - set flag to true for **extent.reporter.html.start** key
- - specify the location for the report file: html report needs to be mentioned as value for the key
+ - specify the location for the report file: html report needs to be mentioned as a value for the key
  **extent.reporter.html.config**
  - specify the location for the report path for **extent.reporter.html.out** key
 ### extent.properties
@@ -179,14 +177,14 @@ The above setup will generate the report in test-output/HtmlReport/ directory wi
 Run Test Runner and check that the report has been generated.
 
 # Cucumber Extent Report Features
-As I mentioned above, this report provides nice features to make report very useful. We will look at them one by one.
+As it was mentioned above, Cucumber Extent Report provides nice features to make  a report very useful. We will look at them one by one.
 
 ## Set System Information in the Report
 This gives us a nice feature to set multiple System properties to the report, so that we know under which
 system configurations our test suite was executed, when, and by whom.
-In order to implement this, lets do the following:
+In order to implement this, we do the following:
 1) Create a new Class in src/main/java under utils package and name it 'ExtentReportBuilder'
-2) Inside ExtentReportBuilder we will make a use of  Webdirver's getCapabilities()method. I provides information
+2) Inside ExtentReportBuilder class we will make use of  WebDriver's getCapabilities()method. I provides information
 regarding the current instance of a driver. We will use it for getting browser name and version. We also make use of
 System.getProperty() method to get information about Platform and OC version alongside with the details of a user
 who executed the test.
@@ -247,7 +245,7 @@ public class Hooks {
     }
 
     @After
-    public void tearDownAndScreenShotOnFailure(Scenario scenario) {
+    public void AfterSteps(Scenario scenario) {
         try {
             reportBuilder.additionalReportInfo(scenario);
             testContext.getWebDriverManager().closeDriver();
@@ -259,20 +257,20 @@ public class Hooks {
 }
 
 ```
-Run Test Runner and check ExtentHtml.html by open it in a browser. It should now have System Information in it;
+Run Test Runner and check ExtentHtml.html by opening it in a browser. It should now have System Information in it inside 'Hooks.AfterStep' step;
 ```
-Hooks.tearDownAndScreenShotOnFailure(Scenario)
+Hooks.AfterSteps(Scenario)
 Executed by: testowner
 Platform: Mac OS X (x86_64) v.10.14.3
 Browser: CHROME v. 75.0.3770.142
 ```
 ## Add Screenshot for a Failed Scenario
 This feature gives us the capability to embed a screenshot in the report.
-Below we will step by step capture a screenshot and attach it to the report, only if the scenario is Fail.
+Below we will step by step capture a screenshot and attach it to the report, only if the scenario is Failed.
 In case of Pass, no screenshot will be taken.
 1) Add 'commons-io' library to our pom.xml file
 
-The **Apache Commons-io** library contains utility classes, stream implementations, file filtersand other features related to
+The **Apache Commons-io** library contains utility classes, stream implementations, file filters and other features related to
 file manipulations.
 ```
     <dependency>
@@ -378,8 +376,7 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.apache.commons.io.FileUtils;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -390,11 +387,16 @@ public class ExtentReportBuilder {
     WebDriverManager driverManager;
     private  String screenshotName;
     private String saveScreenshotsTo;
+    private  String archivedReportName;
+    private String saveArchiveReportsTo;
+    private String latestReportPath;
 
     public ExtentReportBuilder (TestContext context) {
         testContext = context;
         driverManager = testContext.getWebDriverManager();
         saveScreenshotsTo = FileReaderManager.getInstance().getExtentReportConfigReader().getSaveScreenShotsTo();
+        saveArchiveReportsTo = FileReaderManager.getInstance().getExtentReportConfigReader().getSaveArchiveReportsTo();
+        latestReportPath = FileReaderManager.getInstance().getExtentReportConfigReader().getCurrentReportPath();
     }
 
     public void additionalReportInfo(Scenario scenario)  {
@@ -405,43 +407,60 @@ public class ExtentReportBuilder {
         scenario.write("Platform: " + System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ") v." + System.getProperty("os.version"));
         scenario.write("Browser: " + browserName + " v. " + browserVersion);
     }
-    public String returnDateStamp(String fileExtension) {
+
+    public String dateAdjustment(int number) {
+        return (number < 10) ? ("0" + number) : Integer.toString(number);
+    }
+
+    public String returnDateStamp() {
         Date d = new Date();
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(d);
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH) + 1;
-        int dates = calendar.get(Calendar.DATE);
-        int hours = calendar.get(Calendar.HOUR_OF_DAY);
-        int min = calendar.get(Calendar.MINUTE);
-        String date = (dates + "_" + month + "_" + year + "_" + hours + "_" + min + fileExtension);
+        int yr = calendar.get(Calendar.YEAR);
+        String year = dateAdjustment(yr);
+        int mo = calendar.get(Calendar.MONTH) + 1;
+        String month = dateAdjustment(mo);
+        int dt = calendar.get(Calendar.DATE);
+        String dates = dateAdjustment(dt);
+        int hr = calendar.get(Calendar.HOUR_OF_DAY);
+        String hours = dateAdjustment(hr);
+        int mn = calendar.get(Calendar.MINUTE);
+        String min = dateAdjustment(mn);
+        int sc = calendar.get(Calendar.SECOND);
+        String sec = dateAdjustment(sc);
+        String date = (dates + "_" + month + "_" + year + "_" + hours + "_" + min + "_" + sec);
         return date;
     }
-    public String returnScreenshotName() {
+
+    public String returnScreenshotPath() {
         return (System.getProperty("user.dir") + "/"+ saveScreenshotsTo + screenshotName);
     }
-    public void captureScreenshot(Scenario scenario) throws IOException {
-        if (scenario.isFailed()) {
-            File srcFile = ((TakesScreenshot) driverManager.getDriver()).getScreenshotAs(OutputType.FILE);
-            screenshotName = returnDateStamp(".png");
-            FileUtils.copyFile(srcFile, new File(System.getProperty("user.dir") +"/"+ saveScreenshotsTo + screenshotName));
-            scenario.write("Taking a screenshot for a failing step");
-            scenario.write("<br>");
-            scenario.write("<a target=\"_blank\", href=" + returnScreenshotName() + ">" + screenshotName);
-            scenario.write("<a target=\"_blank\", href=" + returnScreenshotName() + "><img src=" + returnScreenshotName() + " height=200 width=300></img></a>");
-        }
-    }
+
+   public void captureScreenshot(Scenario scenario) throws IOException {
+           if (scenario.isFailed()) {
+               File srcFile = ((TakesScreenshot) driverManager.getDriver()).getScreenshotAs(OutputType.FILE);
+               screenshotName = returnDateStamp() + ".png";
+               FileUtils.copyFile(srcFile, new File(returnScreenshotPath()));
+               scenario.write("<br>");
+               scenario.write("Taking a screenshot for a failing step");
+               scenario.write("<a target=\"_blank\", href=" + returnScreenshotPath() + ">" + screenshotName);
+               scenario.write("<a target=\"_blank\", href=" + returnScreenshotPath() + "><img src=" + returnScreenshotPath() + " height=200 width=300></img></a>");
+           }
+       }
 }
+
 ```
 ### Explanation
 **returnDateStamp() :**
 is a helper method aiding in constructing screenshot filename which is a date stamp
 **returnScreenshotName() :**
-Uses returnDateStamp() and a file extension and returns screenshot file name
+Uses returnScreenshotPath() returns file path where screenshot should be saved
 **captureScreenshot(Scenario scenario) :**
-This method does all the main work - captures screenshot, saves it to a file and inserts it into the report
+This method does all the main work - captures screenshot, saves it to a file, constructs file name and assign it to the file and place it into the report
 
-7) Invoke **captureScreenshot()** method from cucumber @After hook
+7) Invoke **captureScreenshot()** method from cucumber @after hook
+
+Note: We will give a more meaningful name to our AfterSteps() method. It will be called tearDownAndScreenShotOnFailure()
 
 ### Hooks.java
 ```
@@ -481,16 +500,16 @@ public class Hooks {
     }
 }
 ```
-Now we all set to test our screenshot taken feature. Make a change in your test code so intentionally make the test fail.
-(e.g. change one of the @FindBy locators to non-existing). Run the Test Runer and check the report
+Now we all set to test our screenshot taken feature. Let's make a change in your test code so we intentionally failing it.
+(e.g. change one of the @FindBy locators to non-existing). Run the TestRunner and check that screenshot is saved at the specified location and is added to the report.
 
-## Achieving previous Reports
-When dealing with a real life project, business requirement might be to keep track of all previous test execution reports.
-In this case we need to find a way how we preserve a previous report before overwriting it with a new report data.
+## Archiving previous Reports
+When dealing with a real life project, business requirement might be to keep track of all previous test execution results.
+In this case we need to find a way how we preserve a previous report before it is overwritten with a new report data.
 
 To achieve the above, we will add a new variable into our extent.properties file to specify previous reports storage
 location and write some methods which will be responsible for copying a previous report before its being updated after
-new test is run. We will make a use of our returnDateStamp() method again so we can capture the date,
+new test is run. We will make use of our returnDateStamp() method again so we can capture the date,
 previous report was archived. We will be following the below steps:
 
 1) Add a new variable to **src/test/resources/extent.properties** file: a path where we save our previous reports:
@@ -501,7 +520,7 @@ previous report was archived. We will be following the below steps:
  2) Create a new empty folder inside test-output folder and name it 'ArchivedReports'
 
 
- 3) Add two methods to our ExtentReportConfigReader Class which will read current report file name and a path for previous report to be stored;
+ 3) Add two methods to our ExtentReportConfigReader Class which will read current report path from "extent.reporter.html.out" key and a path for previous report to be stored;
  ### ExtentReportConfigReader.java
  ```
  package dataProviders;
@@ -551,78 +570,10 @@ public class ExtentReportConfigReader {
 
 }
 ```
-4) Add two new methods to ExtentReportBuilder Class for renaming and copying previous report file
-### ExtentReportBuilder.java
+4) Add two new methods to ExtentReportBuilder Class for renaming and copying previous report file:
+
 ```
-package utils;
-
-import cucumber.TestContext;
-import cucumber.api.Scenario;
-import managers.FileReaderManager;
-import managers.WebDriverManager;
-import org.openqa.selenium.Capabilities;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.remote.RemoteWebDriver;
-import org.apache.commons.io.FileUtils;
-
-import java.io.*;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-
-public class ExtentReportBuilder {
-
-    TestContext testContext;
-    WebDriverManager driverManager;
-    private  String screenshotName;
-    private String saveScreenshotsTo;
-    private  String archivedReportName;
-    private String saveArchiveReportsTo;
-    private String latestReportPath;
-
-    public ExtentReportBuilder (TestContext context) {
-        testContext = context;
-        driverManager = testContext.getWebDriverManager();
-        saveScreenshotsTo = FileReaderManager.getInstance().getExtentReportConfigReader().getSaveScreenShotsTo();
-        saveArchiveReportsTo = FileReaderManager.getInstance().getExtentReportConfigReader().getSaveArchiveReportsTo();
-        latestReportPath = FileReaderManager.getInstance().getExtentReportConfigReader().getCurrentReportPath();
-    }
-    public void additionalReportInfo(Scenario scenario)  {
-        Capabilities cap = ((RemoteWebDriver) driverManager.getDriver()).getCapabilities();
-        String browserName = cap.getBrowserName().toUpperCase();
-        String browserVersion = cap.getVersion();
-        scenario.write("Executed by: " + System.getProperty("user.name"));
-        scenario.write("Platform: " + System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ") v." + System.getProperty("os.version"));
-        scenario.write("Browser: " + browserName + " v. " + browserVersion);
-    }
-    public String returnDateStamp(String fileExtension) {
-        Date d = new Date();
-        Calendar calendar = new GregorianCalendar();
-        calendar.setTime(d);
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH) + 1;
-        int dates = calendar.get(Calendar.DATE);
-        int hours = calendar.get(Calendar.HOUR_OF_DAY);
-        int min = calendar.get(Calendar.MINUTE);
-        String date = (dates + "_" + month + "_" + year + "_" + hours + "_" + min + fileExtension);
-        return date;
-    }
-    public String returnScreenshotName() {
-        return (System.getProperty("user.dir") + "/"+ saveScreenshotsTo + screenshotName);
-    }
-    public void captureScreenshot(Scenario scenario) throws IOException {
-        if (scenario.isFailed()) {
-            File srcFile = ((TakesScreenshot) driverManager.getDriver()).getScreenshotAs(OutputType.FILE);
-            screenshotName = returnDateStamp(".png");
-            FileUtils.copyFile(srcFile, new File(System.getProperty("user.dir") +"/"+ saveScreenshotsTo + screenshotName));
-            scenario.write("Taking a screenshot for a failing step");
-            scenario.write("<br>");
-            scenario.write("<a target=\"_blank\", href=" + returnScreenshotName() + ">" + screenshotName);
-            scenario.write("<a target=\"_blank\", href=" + returnScreenshotName() + "><img src=" + returnScreenshotName() + " height=200 width=300></img></a>");
-        }
-    }
-    public void copyFileUsingStream(File source, File dest) throws IOException {
+public void copyFileUsingStream(File source, File dest) throws IOException {
         InputStream is = null;
         OutputStream os = null;
         try {
@@ -648,16 +599,15 @@ public class ExtentReportBuilder {
         File dest = new File(System.getProperty("user.dir") +"/"+ saveArchiveReportsTo + archivedReportName);
         copyFileUsingStream(source, dest);
     }
-}
 ```
 ### Explanation
 **copyFileUsingStream() :**
 This is a standard Java method for copying files
 **copyLatestExtentReport() :**
 This method specifies what file needs to be copied and where to. We will invoke this method from our
-@After Hook in Hooks Class
+@after Hook in Hooks Class
 
-5) Invoke **copyLatestExtentReport()** method from cucumber @After hook
+5) Invoke **copyLatestExtentReport()** method from cucumber @after hook
 ### Hooks.java
 ```
 package stepDefinitions;
