@@ -1,8 +1,8 @@
 # Implicit and Explicit Wait in Selenium WebDriver
 
-In selenium "Waits" play an important role in executing tests.
+In Selenium "Waits" play an important role in executing tests.
 ## Why Do We Need Waits In Selenium?
-Most of the web applications are developed using Ajax and Javascript.
+Most of the Web applications are developed using Ajax and Javascript.
 When a page is loaded by the browser the elements which we want to interact with may load at different time intervals.
 Not only it makes this difficult to identify the element but also if the element is not located it will throw an
 **"ElementNotVisibleException"** exception. Using Waits, we can resolve this problem.
@@ -26,16 +26,17 @@ driver.manage().timeouts().implicitlyWait(FileReaderManager.getInstance().getCon
 The explicit wait is used to tell the Web Driver to wait for certain conditions (Expected Conditions) or the maximum time
 exceeded before throwing an "ElementNotVisibleException" exception.
 The explicit wait is an intelligent kind of wait, but it can be applied **only for specified elements**.
-Explicit wait gives better options than that of an implicit wait as it will wait for dynamically loaded Ajax elements.
+Explicit wait gives better options than an implicit wait as it will wait for dynamically loaded Ajax elements.
 Once we declare explicit wait we have to use **"ExpectedConditions"**.
 
-So far in our project we are using **Thread.Sleep()**. This generally is not recommended to use as it significantly
-slows down test execution. Execution will just stops for specified in Thread.sleep()statement time before continue with
+So far in our project we are using **Thread.Sleep()**. This generally is not recommended to use. Only in exeptional conditions, when there is no other options
+to work around a particular execution, we can use it.  Thread.Sleep() significantly slows down test execution.
+Execution will just stops for specified in Thread.sleep()statement time before continue with
 the next statement.
 In order to make our test execution more time efficient, we are going to implement a couple of
-**Explicit Wait** and custom specified timeout time.
+**Explicit Wait** methods and custom specified timeout time.
 In order to implement Explicit Wait we will be performing the below steps:
-- Create New utility class where all Wait methods will be placed
+- Create a New utility class where all Wait methods will be placed
 - Add explicitWait variable into Configuration.properties file
 - Modify getImplicitWait method so it reads both custom Explicit and Implicit Wait value by taken a 'Key' as a parameter
 - Include Wait methods inside our project's PageObject classes
@@ -206,7 +207,6 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import utils.Waits;
 
-
 public class HomePage {
     WebDriver driver;
     Waits wait;
@@ -215,7 +215,6 @@ public class HomePage {
         this.driver = driver;
         wait = new Waits();
         PageFactory.initElements(driver, this);
-
     }
 
     @FindBy(css=".noo-search")
@@ -223,6 +222,10 @@ public class HomePage {
 
     @FindBy(css=".form-control")
     public WebElement input_Search;
+
+    public void navigateTo_HomePage() {
+            driver.get(FileReaderManager.getInstance().getConfigReader().getApplicationUrl());
+        }
 
     public void perform_Search(String search, long customTimeout) {
         if(wait.WaitForVisibleWithCustomTimeout(driver,btn_Search, customTimeout)) {
@@ -268,7 +271,6 @@ public class ProductListingPage {
 
     @FindBy(id="pa_size")
     public WebElement selectSize;
-
 
     public void select_Product(int productNumber, long customTimeout) {
 
@@ -322,7 +324,6 @@ public class CartPage {
     @FindBy(css = ".checkout-button.alt")
     public WebElement btn_ContinueToCheckout;
 
-
     public void clickOn_Cart(long customTimeout) {
         if(wait.WaitForVisibleWithCustomTimeout(driver,btn_Cart, customTimeout)) {
             btn_Cart.click();
@@ -341,7 +342,6 @@ public class CartPage {
 ```
 package pageObjects;
 
-
 import org.junit.Assert;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -350,7 +350,6 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
 import testDataTypes.CustomerDataType;
 import utils.Waits;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -396,7 +395,6 @@ public class CheckoutPage {
 
     @FindBy(id = "order_review")
     public WebElement test;
-
 
     public void select_Country(String countryName) {
             Select country = new Select(select_Country);
@@ -466,8 +464,6 @@ public class CheckoutPage {
         } catch (Exception e) {
             Assert.fail("Unable to to locate WebElement or/and send keys to it, Exception: " + e.getMessage());
         }
-
-
     }
 }
 ```
@@ -482,7 +478,6 @@ import managers.FileReaderManager;
 import cucumber.TestContext;
 import pageObjects.HomePage;
 
-
 public class HomePageSteps {
 
     HomePage homePage;
@@ -496,11 +491,9 @@ public class HomePageSteps {
         homePage = testContext.getPageObjectManager().getHomePage();
     }
 
-
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
-        testContext.getWebDriverManager().goToUrl(url);
-
+        homePage.navigateTo_HomePage();
     }
 
     @When("I search for product in dress category")
@@ -612,7 +605,6 @@ private WebDriver createLocalDriver() {
                 System.setProperty(CHROME_DRIVER_PROPERTY, FileReaderManager.getInstance().getConfigReader().getDriverPath());
                 driver = new ChromeDriver();
                 break;
-
         }
 
         if(FileReaderManager.getInstance().getConfigReader().getBrowserWindowSize()) driver.manage().window().maximize();
