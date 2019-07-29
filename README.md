@@ -1,7 +1,7 @@
 # Hooks in Cucumber Framework
-Unlike **TestNG Annotations**, Cucumber supports only two hooks (**@Before** and  **@After**).
+Unlike **TestNG Annotations**, Cucumber supports only two hooks (**@before** and  **@after**).
 They work at the start and the end of the test scenario. As the name suggests, @Before hook gets executed well before
-any other test scenario, and @After hook gets executed after executing the scenario.
+any other test scenario, and @after hook gets executed after executing the scenario.
 
 Implementation of Cucumber Hooks will allow us to to move manipulations with WebDriver (initialisation / closing down)
 from Page Objects and Step definitions to Hooks Class.
@@ -10,9 +10,9 @@ In order to achieve the above, we will be performing below steps:
 - Create a Hook Class and include GetDriver() and ClosingDriver() methods
 - Remove closeDriver() method from CheckoutPageSteps definition file
 
-Note: Currently WebDriver is being initialised when we called navigateTo_HomePage() from our @Given Step. This means that technically we may not need to add
-**getDriver()** to @Before Hooks. But for the purpose of keeping correct structure of the framework and following separation of concern principle, we make sure that
-the first initialisation of a WebDriver happens in the @Before Hook and not during actual test execution
+Note: Currently WebDriver is being initialised when we called navigateTo_HomePage() from our @given Step. This means that technically we may not need to add
+**getDriver()** to @before Hooks. But for the purpose of keeping correct structure of the framework and following separation of concern principle, we make sure that
+the first initialisation of a WebDriver happens in the @before Hook and not during actual test execution
 
 
 ## Step 1: Create a Hooks Class
@@ -47,10 +47,10 @@ public class Hooks {
 }
 ```
 ### Explanation
-@Before Hook is now responsible for Webdriver initialisation and every other Webriver requests by any other
+@before Hook is now responsible for WebDriver initialisation and every other WebDriver requests by any other
 classes during the test execution will receive this instance of a driver
 
-@After Hook is responsible for closing the browser after all test have been executed.
+@after Hook is responsible for closing the browser after all test have been executed.
 
 ```
 ## Step 2: Remove closeDriver() method from CheckoutPageSteps definition file
