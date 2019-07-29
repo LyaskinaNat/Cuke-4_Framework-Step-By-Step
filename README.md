@@ -1,9 +1,9 @@
 # Cucumber Reports
-When ever we do test execution, it is also require to understand the out put of the execution.
+When ever we do test execution, it is also require to understand the output of the execution.
 ## Cucumber Reports
 When we executing Cucumber Scenarios, it automatically generates an output in the IDE console.
 There is a default behavior associated with that output and we can also configure that output as per our needs.
-So how do we modify the default behavior, let’s see this now.
+So let's see how we can modify the default behavior.
 ### Pretty Report
 The first plugin, we will talk about is **Pretty**.  It provides more verbose output.
 To implement this, just specify plugin = “pretty” in **CucumberOptions**.
@@ -12,13 +12,12 @@ To implement this, just specify plugin = “pretty” in **CucumberOptions**.
 ```
 ### Monochrome Mode Reporting
 If the monochrome option is set to false, then the console output is not as readable as it should be.
-The output when the monochrome option is set to false is shown in the above example.
-It is just because, if the monochrome is not defined in Cucumber Options, it takes it as false by default.
+It is just because, if the monochrome is not defined in Cucumber Options, it sets it to false by default.
 How to specify it:
 ```
 @CucumberOptions( monochrome = true );
 ```
-CucumberOption code should look like this:
+With new 'Pretty" plugin and monochrome option set to true, CucumberOption code should look like this:
 ### TestRunner.java
 ```
 package runners;
@@ -38,7 +37,7 @@ public class TestRunner {
 }
 ```
 
-Console outpul will now look like this:
+Console output will now look like this:
 ```
 Feature: Automated End2End Tests
   Description: The purpose of this feature is to test End 2 End integration.
@@ -113,12 +112,12 @@ Console output will now look like this:
   } ...
   ```
 ## Cucumber Report Output
-So far we have seen above is actually good for a test or for couple of tests. But if we run a full test suite,
-this report is not much useful in that case. On top of that it is difficult to keep these console output safe for future use.
+So far what we have seen above is actually good for a test or for couple of tests. But if we run a full test suite,
+this report becomes not very useful. On top of that it is difficult to keep these console output safe for future use.
 
-Cucumber gives us capability to generate reports as well in the form of HTML, XML, JSON & TXT.
-Cucumber frameworks generate very good and detailed reports, which can be shared with all stake holders.
-There are multiple options available for reports which can be used depending on the requirement.
+Cucumber gives us capability to generate reports in the form of HTML, XML, JSON & TXT.
+Cucumber framework generate very good and detailed reports, which can be shared with all stakeholders.
+There are multiple options available for reports which can be used depending on the business requirements.
 
 ### Cucumber HTML Reports
 For HTML reports, add **html:target/cucumber-reports**  to the @CucumberOptions plugin option.
@@ -131,9 +130,9 @@ For HTML reports, add **html:target/cucumber-reports**  to the @CucumberOptions 
 
 )
 ```
-Note: We have specified the path of the Cucumber report, which we want it to generate it under target folder.
+Note: We have specified the path for the Cucumber report, which we want to generate under the 'target' folder.
 
-Run Test Runner and check HTML report output in target/cucumber-reports folder
+Run Test Runner and check HTML report output inside target/cucumber-reports.
 
 ### Cucumber JSON Report
 For JSON reports, add **json:target/cucumber-reports/Cucumber.json**  to the @CucumberOptions plugin option.
@@ -193,7 +192,7 @@ For JUNIT reports, add **junit:target/cucumber-reports/Cucumber.xml** to the @Cu
                 , "junit:target/cucumber-reports/Cucumber.xml"}
 )
 ```
-Note : This report generates XML files just like Apache Ant’s junit report task.
+Note : This report generates XML file just like Apache Ant’s junit report task.
 This XML format is understood by most continuous integration servers, who will use it to generate visual reports.
 XML Report Output:
 ```

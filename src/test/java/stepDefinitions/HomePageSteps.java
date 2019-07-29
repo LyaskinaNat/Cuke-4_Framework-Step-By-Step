@@ -11,7 +11,6 @@ public class HomePageSteps {
 
     HomePage homePage;
     TestContext testContext;
-    String url = FileReaderManager.getInstance().getConfigReader().getApplicationUrl();
     long customTimeout = FileReaderManager.getInstance().getConfigReader().getCustomWait("explicitWait");
 
     //constructor
@@ -23,7 +22,7 @@ public class HomePageSteps {
 
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
-        testContext.getWebDriverManager().goToUrl(url);
+        homePage.navigateTo_HomePage();
 
     }
 
