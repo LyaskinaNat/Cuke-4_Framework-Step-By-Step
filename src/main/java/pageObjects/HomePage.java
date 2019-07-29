@@ -1,5 +1,6 @@
 package pageObjects;
 
+import managers.FileReaderManager;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -25,6 +26,9 @@ public class HomePage {
     @FindBy(css=".form-control")
     public WebElement input_Search;
 
+    public void navigateTo_HomePage() {
+        driver.get(FileReaderManager.getInstance().getConfigReader().getApplicationUrl());
+    }
     public void perform_Search(String search, long customTimeout) {
         if(wait.WaitForVisibleWithCustomTimeout(driver,btn_Search, customTimeout)) {
             btn_Search.click();

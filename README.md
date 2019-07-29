@@ -12,16 +12,16 @@ So what is Test Context and Scenario Context and what is the difference between 
 ### Test Context
 TestContext is the parent class and the medium to share the information between the different steps in a test.
 
-It can have many class objects in it. If we go back to our previous tutorial of Test Context, we can see
-that it already has **PageObjectManager** and **WebDriverManager** object in it.
+It can have many class objects in it. If we go back to the section 7 of this tutorial where Test Context was first introduced, we can see
+that it already has **PageObjectManager** and **WebDriverManager** objects in it.
 ### Scenario Context
-Scenario Context is a class which holds the test data information specifically.
-It actually use the Test Context to travel the information between various steps.
-With in this ScenarioContext class, we can create any number of fields to store any form of data.
-It stores the information in the key value pair and again, value can be of any type.
-It can store String, Boolean, Integer or may be a Class. Also the important point here is that the information
-which we store in Scenario Context is generated at the run time. This means that during the execution, if you wish
-to store some information, you will use Scenario Context.
+Scenario Context is a class which specifically designed to hold test data information.
+It actually uses the Test Context class to travel the information between various steps.
+Within this ScenarioContext class, we can create any number of fields to store any form of data.
+It stores the information in the key-value pair and again, value can be of any type.
+Also the important point here is that the information
+which we store in Scenario Context is generated at the run time. This means that during the execution, if we wish
+to store some information, we will use Scenario Context.
 
 Structure of the TestContext class will be like this:
 ```
@@ -82,7 +82,7 @@ public class ScenarioContext {
 ### Explanation
 
 **scenarioContext :**
-This is a HasMap object which store the information in the Key-Value pair.
+This is a HasMap object which stores the information in the Key-Value pair.
 Key type is String and Value can be of any Object Type.
 
 **setContext() :**
@@ -92,9 +92,10 @@ This method takes two parameters,  key as String and value as object. Key is not
 
 **isContains() :** This method performs a check on the complete Map that if it contains the key or not.
 
-3) Include **ScenarioContext** in **TextContext**, so that it can be shared across all the Cucumber Steps
-using Pico-Container library. Also, we need to add a getter method as **getScenarioContext()** to get the
+3) Include **ScenarioContext** in **TextContext** class, so that it can be shared across all the Cucumber Steps
+using Picocontainer library. Also, inside the TestContext class we need to add a 'getter' method **getScenarioContext()** to get the
 scenarioContext object.
+TestContext class will look like this:
 ### TestContext.java
 ```
 package cucumber;
@@ -125,14 +126,24 @@ public class TestContext {
     public ScenarioContext getScenarioContext() {
         return scenarioContext;
     }
-
 }
 ```
-## Step 2 : Save test information/data/state in the Scenario Context
-To use the value of the product name later in the test for validation, we need to save its Name as a part of
+## Step 2: Save test information/data/state in the Scenario Context
+To use the value of the product Name later in the test for validation, we need to save it as a part of
 **'I choose to buy the first item**' step.
 
-1) Add a new **getProductName()** method in the ProductListingPage class which will return the Name of the Product.
+1) Add a new **getProductName()** method in the ProductListingPage class which will return the Name of the Product:
+```
+    public String getProductName(long customTimeout) {
+        String productName;
+        if (wait.WaitForVisibleWithCustomTimeout(driver,selectedProduct, customTimeout)) {
+            productName = selectedProduct.findElement(By.cssSelector("h1")).getText();
+        } else {
+            productName = "Unable to get Product Name";
+        }
+        return productName;
+    }
+```
 ### ProductListingPage.java
 ```
 package pageObjects;
@@ -244,7 +255,8 @@ public class ProductPageSteps {
 }
 ```
 ## Step 3: Implement Product Name Validation (@Then step)
-1) Add the following code to ConfirmationPage Class:
+1) Add getProductNames() method to ConfirmationPage Class. This method will retrieve names of all products added to the cart:
+### ConfirmationPage.java
 ```
 package pageObjects;
 
@@ -288,6 +300,8 @@ public class ConfirmationPage {
 }
 
 ```
+We now finally ready to move @Then step code from the old Setps.java definition file to the class of its own: ConfirmationPageSteps.
+But first we need to initialise ConfirmationPage class inside PageObjectManager class:
 2) Add a new **getConfirmationPage()** method to get the Confirmation Page object in the PageObjectManager class.
 ```
 package managers;
@@ -334,7 +348,7 @@ public class PageObjectManager {
 }
 ```
 
-3) Now we can finally move our code for Confirmation page step from the old Steps class file to ConfirmationPageSteps class
+3) Now move our code for Confirmation page step from the old Steps class file to ConfirmationPageSteps class like so:
 ### ConfirmationPageSteps.java
 ```
 package stepDefinitions;
@@ -345,7 +359,6 @@ import cucumber.TestContext;
 import cucumber.api.java.en.Then;
 import enums.Context;
 import pageObjects.ConfirmationPage;
-
 
 public class ConfirmationPageSteps {
     TestContext testContext;
@@ -368,6 +381,6 @@ public class ConfirmationPageSteps {
     }
 }
 ```
-4) Delete Steps.java file from scr/test/java/stepDefinitions package
+4) Delete old Steps.java file from scr/test/java/stepDefinitions package
 
 Run TestRunner and test should be executed successfully

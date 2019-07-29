@@ -1,6 +1,5 @@
 package pageObjects;
 
-
 import org.junit.Assert;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -9,7 +8,6 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
 import testDataTypes.CustomerDataType;
 import utils.Waits;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,9 +50,6 @@ public class CheckoutPage {
 
     @FindBy(id = "place_order")
     public WebElement btn_PlaceOrder;
-
-    @FindBy(id = "order_review")
-    public WebElement test;
 
 
     public void select_Country(String countryName) {
@@ -108,7 +103,7 @@ public class CheckoutPage {
                 String phoneNumberKey = phoneNumberArr.get(i);
                 String emailAddressKey = emailAddressArr.get(i);
 
-                if(wait.WaitForVisibleWithCustomTimeout(driver,test, customTimeout)) {
+                if(wait.WaitForVisibleWithCustomTimeout(driver,txtbx_FirstName, customTimeout)) {
 
                     txtbx_FirstName.sendKeys(firstNameKey);
                     txtbx_LastName.sendKeys(lastNameKey);
