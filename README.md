@@ -1,8 +1,9 @@
 # Data tables in Cucumber 3 +
-Version 3 and above of Cucumber brings a new implementation of Data tables.
+
+Starting from Cucumber version 3 abd above brings a new implementation of Data tables.
 From a Gherkin perspective, nothing has changed. Data tables are supported as earlier. However, implementation needs some
 adaptation.
-In our project we will be converting **N-column data table into a custom type**
+In our project we will be converting **multi-column data table** into a **custom** type
 
 Note: For more information about different DataTables data structures and conversions please follow the below links:
 - https://github.com/cucumber/cucumber/tree/master/datatable
@@ -36,7 +37,7 @@ Feature: Automated End2End Tests
 ## Step 2: Implement new (custom) type which represents DataTable data
 1) Create a new package in src/main/java and name it 'testDataTypes'
 2) Create a New Class file in src/main/java inside testDataTypes package and name it 'CustomerDataType'.
-3) The new type CustomerDataType has to be implemented. This is one possible implementation:
+3) The new type CustomerDataType now needs to be implemented. This is one possible implementation:
 ### CustomerDataType.java
 ```
 package testDataTypes;
@@ -101,9 +102,9 @@ public class CustomerDataType {
 }
 ```
 It is an immutable type with the same number of fields as columns in our DataTable and
-hhe fields match the table headers. The fields and headers doesn't have to match. But as they describe the same thing
+the fields match the table headers. The fields and headers doesn't have to match. But as they describe the same thing
 it feels natural that they have the same name in this case.
-The next step is new for Cucumber 3 +. The type has to registered before it can be used in a data table:
+The next step is new for Cucumber version 3 and above. The type has to be registered before it can be used in a data table:
 ## Step 3: Register a newly created customer type so Cucumber can convert the data table to it
 1) Create a new class in src/test/java inside stepDefinitions package and name it 'Configurer'
 2) Place the following code inside it:
@@ -303,4 +304,4 @@ public class CheckoutPageSteps {
     }
 }
 ```
-
+Run TestRunner and the test should be executed successfully

@@ -1,5 +1,6 @@
 package pageObjects;
 
+import managers.FileReaderManager;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -9,9 +10,11 @@ import org.openqa.selenium.support.PageFactory;
 
 public class HomePage {
 
-    public HomePage(WebDriver driver) {
-        PageFactory.initElements(driver, this);
+    WebDriver driver;
 
+    public HomePage(WebDriver driver) {
+        this.driver = driver;
+        PageFactory.initElements(driver, this);
     }
 
     @FindBy(css=".noo-search")
@@ -19,6 +22,10 @@ public class HomePage {
 
     @FindBy(css=".form-control")
     public WebElement input_Search;
+
+    public void navigateTo_HomePage() {
+        driver.get(FileReaderManager.getInstance().getConfigReader().getApplicationUrl());
+    }
 
     public void perform_Search(String search) {
         btn_Search.click();
