@@ -9,12 +9,10 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.apache.commons.io.FileUtils;
-
 import java.io.*;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-
 
 public class ExtentReportBuilder {
 
@@ -26,15 +24,12 @@ public class ExtentReportBuilder {
     private String saveArchiveReportsTo;
     private String latestReportPath;
 
-
     public ExtentReportBuilder (TestContext context) {
         testContext = context;
         driverManager = testContext.getWebDriverManager();
         saveScreenshotsTo = FileReaderManager.getInstance().getExtentReportConfigReader().getSaveScreenShotsTo();
         saveArchiveReportsTo = FileReaderManager.getInstance().getExtentReportConfigReader().getSaveArchiveReportsTo();
         latestReportPath = FileReaderManager.getInstance().getExtentReportConfigReader().getCurrentReportPath();
-
-
     }
 
     public void additionalReportInfo(Scenario scenario)  {
@@ -44,36 +39,46 @@ public class ExtentReportBuilder {
         scenario.write("Executed by: " + System.getProperty("user.name"));
         scenario.write("Platform: " + System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ") v." + System.getProperty("os.version"));
         scenario.write("Browser: " + browserName + " v. " + browserVersion);
-
     }
-    public String returnDateStamp(String fileExtension) {
+
+    public String dateAdjustment(int number) {
+        return (number < 10) ? ("0" + number) : Integer.toString(number);
+    }
+
+    public String returnDateStamp() {
         Date d = new Date();
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(d);
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH) + 1;
-        int dates = calendar.get(Calendar.DATE);
-        int hours = calendar.get(Calendar.HOUR_OF_DAY);
-        int min = calendar.get(Calendar.MINUTE);
-        String date = (dates + "_" + month + "_" + year + "_" + hours + "_" + min + fileExtension);
+        int yr = calendar.get(Calendar.YEAR);
+        String year = dateAdjustment(yr);
+        int mo = calendar.get(Calendar.MONTH) + 1;
+        String month = dateAdjustment(mo);
+        int dt = calendar.get(Calendar.DATE);
+        String dates = dateAdjustment(dt);
+        int hr = calendar.get(Calendar.HOUR_OF_DAY);
+        String hours = dateAdjustment(hr);
+        int mn = calendar.get(Calendar.MINUTE);
+        String min = dateAdjustment(mn);
+        int sc = calendar.get(Calendar.SECOND);
+        String sec = dateAdjustment(sc);
+        String date = (dates + "_" + month + "_" + year + "_" + hours + "_" + min + "_" + sec);
         return date;
     }
 
-    public String returnScreenshotName() {
+    public String returnScreenshotPath() {
         return (System.getProperty("user.dir") + "/"+ saveScreenshotsTo + screenshotName);
     }
 
     public void captureScreenshot(Scenario scenario) throws IOException {
         if (scenario.isFailed()) {
             File srcFile = ((TakesScreenshot) driverManager.getDriver()).getScreenshotAs(OutputType.FILE);
-            screenshotName = returnDateStamp(".png");
-            FileUtils.copyFile(srcFile, new File(System.getProperty("user.dir") +"/"+ saveScreenshotsTo + screenshotName));
-            scenario.write("Taking a screenshot for a failing step");
+            screenshotName = returnDateStamp() + ".png";
+            FileUtils.copyFile(srcFile, new File(returnScreenshotPath()));
             scenario.write("<br>");
-            scenario.write("<a target=\"_blank\", href=" + returnScreenshotName() + ">" + screenshotName);
-            scenario.write("<a target=\"_blank\", href=" + returnScreenshotName() + "><img src=" + returnScreenshotName() + " height=200 width=300></img></a>");
+            scenario.write("Taking a screenshot for a failing step");
+            scenario.write("<a target=\"_blank\", href=" + returnScreenshotPath() + ">" + screenshotName);
+            scenario.write("<a target=\"_blank\", href=" + returnScreenshotPath() + "><img src=" + returnScreenshotPath() + " height=200 width=300></img></a>");
         }
-
     }
 
     public void copyFileUsingStream(File source, File dest) throws IOException {
@@ -99,7 +104,7 @@ public class ExtentReportBuilder {
     }
 
     public void copyLatestExtentReport() throws IOException {
-        archivedReportName = "ArchivedOn_" + returnDateStamp(".html");
+        archivedReportName = "ArchivedOn_" + returnDateStamp() + ".html";
         File source = new File(System.getProperty("user.dir") +"/"+ latestReportPath);
         File dest = new File(System.getProperty("user.dir") +"/"+ saveArchiveReportsTo + archivedReportName);
         copyFileUsingStream(source, dest);
