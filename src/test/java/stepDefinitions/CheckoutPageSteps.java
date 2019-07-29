@@ -25,7 +25,7 @@ public class CheckoutPageSteps {
     }
 
     @When("I enter (.+) personal details")
-    public void enter_personal_details_on_checkout_page(String customerName) throws InterruptedException {
+    public void i_enter_personal_details(String customerName) throws InterruptedException {
 
         Customer customer = FileReaderManager.getInstance().getJsonReader().getCustomerByName(customerName);
         checkoutPage.CustomerPersonalDetailsFromJSON(customer, customTimeout);

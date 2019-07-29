@@ -23,7 +23,7 @@ public class HomePageSteps {
 
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
-        testContext.getWebDriverManager().goToUrl(url);
+        homePage.navigateTo_HomePage();
 
     }
 

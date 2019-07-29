@@ -1,11 +1,12 @@
 # Data Driven Testing using Json with Cucumber
 ## What is Data Driven Testing?
 Data that is external to functional tests is loaded and used to extend automated test cases.
-In order to demonstrate DDT in practice we will use entering customer personal details step.
-We currently use data table to read the data from. This is also a part of DDT, however the data is specified directly in our
+In order to demonstrate data driven testing in practice we will make a use of entering customer personal details step again
+(same step we used when covered DataTables few sections back).
+We currently use data table to read the data from. This is also a data driven testing of DDT, however the data is specified directly in our
 feature file. This is perfectly fine, but what if in real word project we need to use large data sample or apply different data sets to the same test scenario?
 To be sure that the application works as expected with different sets of input data and for more effective management of test
-data DDT comes into play.
+data data driven testing with external data source comes into play.
 
 ### How Data Driven Testing can be done with Cucumber?
 There a few different ways of doing Data Driven Testing with Cucumber:
@@ -18,20 +19,20 @@ Out of above, we will use the Data Driven Technique using Example Keywords in ou
 And we will be using JSON to provide Data to our test.
 
 ## What is JSON?
-JSON is short for JavaScript Object Notation, and is a way to store information in an organized, easy-to-access manner.
-It gives us a human-readable collection of data that we can access in a really logical manner.
+JSON is short for **JavaScript Object Notation**, and is a way to store information in an organized, easy-to-access manner.
+It gives us a human-readable collection of data that we can access in a logical manner.
 
 ### Why JSON over Excel?
 Excel is good to manage data and to use but it comes with its own limitations. Like MS Office needs to be installed
 on the system where the tests are being executed. This is a big limitation on its own, as the test servers has never
-bound to have have such dependencies. If test are meant to run on Mac, then it is also a problem.
+bound to have such dependencies. If tests are meant to run on Mac, this is also a problem.
 
-We have to do lot of amendments in our project in this chapter to implement Data Driven Technique using JSON files:
+We have to do a lot of changes in our project in this chapter in order to implement Data Driven Technique using JSON files:
 
 - Add another senario which will be using JSON file as a data source
 - Create JSON Data set
 - Write a Java POJO class to represent JSON data
-- Pass JSON data file location to Properties file and Write a method to read the same
+- Pass JSON data file location to Properties file and Write a method to read that location
 - Create a JSON Data Reader class
 - Modify FileReaderManager to accommodate JSON Data Reader
 - Modify Checkout Page object to use Test Data object
@@ -39,10 +40,11 @@ We have to do lot of amendments in our project in this chapter to implement Data
 
 ## Step 1 : Add another scenario which will be using JSON file as a data source
 For simplicity we will be using the same scenario we already have
-We will implement differently a step when customer details needs to be entered at the checkout point so it takes data
-from our JSON file and we make it **Scenario Outline** which will allow run the same test multiple time every time
-using different set of data.
-DDTOur Feature file should looks like this:
+We will implement differently a step when customer details need to be entered at the checkout point so it takes data
+from our JSON file. we also will make it **Scenario Outline** type of Scenario.  This will allow run the same test multiple time and every time
+with different set of data.
+Our Feature file should now looks like this:
+### End2End_Test.feature
 ```
 Feature: Automated End2End Tests
   Description: The purpose of this feature is to test End 2 End integration.
@@ -71,9 +73,11 @@ Feature: Automated End2End Tests
       | Opencast |
       | Testuser |
 ```
-As we can see, we using same steps in our both scenarios apart from  **And I enter <customer> personal details**
-We already know that code duplication is not a good practice so it is a great opportunity to use Gherkin **Background**
-keyword here to make our Scenario look better:
+### Optimising Feature file using 'Background' Gherkin key word
+As we can see, we using same steps in our both scenarios up to the step  **And I enter <customer> personal details**
+We already know that code duplication is not a good practice so it is a great opportunity to use **'Background'**
+keyword here to make our Scenario look better. We will put all same for both Scenarios steps inside 'Background' block':
+### End2End_Test.feature
 ```
 Feature: Automated End2End Tests
   Description: The purpose of this feature is to test End 2 End integration.
@@ -102,15 +106,15 @@ Feature: Automated End2End Tests
   ```
 
 ## Step 2 : Create JSON data set for Customer data
-So far we just passed Customer name from feature file, but we need a complete customer details to pass to checkout
+So far we just passed Customer name from feature file, but we need a other customer details to pass to checkout
 page to complete the order. These details we will get from JSON file. We ask JSON file to give us the details of any
 particular Customer out of the all Customers Data. As we need multiple customer data we need to create JSON Data in Arrays.
 
 1) Create a New Package under src/test/resources and name it 'testDataResources.
-We need to keep all our test resources in the src/test/resources folder, it is better to create a package with in
-that to have all the JSON file in it.
+As we are keeping all our test resources in the src/test/resources folder, it is logical we create a new package inside this folder
+for all our JSON files.
 
-2) Create a New File and name it is 'Customer.json'
+2) Create a New File inside testDataResources package and name it is 'Customer.json'
 ### Customer.json
 ```
 [
@@ -153,8 +157,8 @@ that to have all the JSON file in it.
 ]
 ```
 ## Step 3 : Write a Java POJO class to represent JSON data
-To use this JSON data in the test we need to first deserializes the JSON into an object of the specified class.
-And to have the JSON deserialized, a java class object must be created that has the same fields names with the fields
+To use this JSON data in the test we need to first deserializes JSON into an object of the specified class.
+And to have the JSON deserialized, a java class object must be created that has the same fields names as the fields
 in the JSON string.
 
 1) Create a New Class in scr/main/java under 'testDataType package and name it is 'Customer'
@@ -189,12 +193,12 @@ public class Customer {
     }
 }
 ```
-## Step 4: Prepare ConfigFileReader to read Json path location from Properties
+## Step 4: Prepare ConfigFileReader to read Json file location from Properties
 1) First just make an extra entry on the Configuration.properties file to specify the JSON file path
 ```
 testDataResourcePath=src/test/resources/testDataResources/
 ```
-with above complete Configuration file will become like this:
+with above, complete Configuration file will become like this:
 
 ### Configuration.properties
 ```
@@ -217,7 +221,8 @@ public String getTestDataResourcePath(){
 ```
 ### Explanation:
 
-In the above code, we just get the value saved in the config file for key testDataResourcePath. We throw the exception in case of null value returned from getProperty() method or return the value if it is found not null.
+In the above code, we just get the value saved in the config file for key testDataResourcePath. We throw the exception in case of null value returned from getProperty() method
+or return the value if it is found not null.
 
 Including above method, the complete Config Reader file will become like this:
 ```
@@ -306,7 +311,7 @@ public class ConfigFileReader {
 ### How to read JSON  and what is GSON?
 **GSON** is an open source code and it’s used a lot in working with JSON and Java.
 GSON uses Java Reflection to provide simple methods to convert JSON to java and vice versa.
-It can downloaded as GSON jar file from google code website or if used maven, added as a dependency.
+It can be downloaded as GSON jar file from google code website or if used maven, added as a dependency.
 1) Add GSON Maven dependency to our pom.xml file:
 ```
      <dependency>
@@ -365,13 +370,13 @@ public class JsonDataReader {
 ### Explanation:
 
 **getCustomerData() :**
-This is a private method, which has the logic implemented to read the Customer Json and save it to the class instance variable. You should be creating more methods like this if you have more test data files like getPaymentOptions(), getProducts() etc.
+This is a private method, which has the logic implemented to read the Customer Json and save it to the class instance variable.
 
 **JsonDataReader() :**
 Here the responsibility of the constructor is to call getCustomerData() method only.
 
-**getCustomerByName() :** This just filter the information and return the specific customer to the test.
-## Step 6 : Modify FileReaderManager to return JSsonDataReader object
+**getCustomerByName() :** This just filter method. It scans all the information and return the specific customer to the test.
+## Step 6 : Modify FileReaderManager to return JsonDataReader object
 As we have a FileReaderManager singleton class over all the readers, so we need to make an entry of JsonDataReader
 in that as well.
 
@@ -402,9 +407,9 @@ public class FileReaderManager {
 }
 ```
 ## Step 7: Modify Checkout Page object to use Test Data object
-All the setup work is done, it is the time to move closer to the test. First, we need to create a new method inside our
-CheckoutPage called **CustomerPersonalDetailsFromJSON**. This method will takes customer data stpred in Customer object
-and enter it into our form.
+All the setup work is done, it is time to move closer to the test. First, we need to create a new method inside our
+CheckoutPage called **CustomerPersonalDetailsFromJSON**. This method will take customer data stored in Customer object
+and enter it into checkout form.
 
 ```
 public void CustomerPersonalDetailsFromJSON(Customer customer, long customTimeout) throws InterruptedException {
@@ -426,20 +431,20 @@ public void CustomerPersonalDetailsFromJSON(Customer customer, long customTimeou
 ## Step 8 : Modify CheckoutPage Steps file to pass Test Data to Checkout Page Objects
 As we already have modified our feature file in the first step, now we need to make necessary changes to the step file
 as well.
-We need to add a new step which comes from Senario Outline so we run our test first to get a code snippet for it.
+We need to add a new step which comes from Scenario Outline so we run our test first to get a code snippet for it.
 1) Run TestRunner and copy a code snippet from the console window to the CheckoutPageSteps definition file.
 ```
 @When("I enter (.+) personal details")
-public void i_enter_Opencast_personal_details() {
+public void i_enter_personal_details() {
     // Write code here that turns the phrase above into concrete actions
     throw new cucumber.api.PendingException();
 }
 
 ```
-2) Add the following code inside the step:
+2) Add the following code inside this new step:
 ```
-When("I enter (.+) personal details")
-    public void enter_personal_details_on_checkout_page(String customerName) throws InterruptedException {
+    @When("I enter (.+) personal details")
+    public void i_enter_personal_details(String customerName) throws InterruptedException {
 
         Customer customer = FileReaderManager.getInstance().getJsonReader().getCustomerByName(customerName);
         checkoutPage.CustomerPersonalDetailsFromJSON(customer, customTimeout);
@@ -448,7 +453,7 @@ When("I enter (.+) personal details")
 ### Explanation :
 Fetching the Customer data from json reader using **getCustomerByName()** by passing the Customer Name.
 Supplying the same data to the Checkout page objects **CustomerPersonalDetailsFromJSON()** method.
-The complete class would look like this:
+The complete class should look like this:
 ### CheckoutPageSteps.java
 ```
 package stepDefinitions;
@@ -478,7 +483,7 @@ public class CheckoutPageSteps {
     }
 
     @When("I enter (.+) personal details")
-    public void enter_personal_details_on_checkout_page(String customerName) throws InterruptedException {
+    public void i_enter_personal_details(String customerName) throws InterruptedException {
 
         Customer customer = FileReaderManager.getInstance().getJsonReader().getCustomerByName(customerName);
         checkoutPage.CustomerPersonalDetailsFromJSON(customer, customTimeout);
@@ -494,12 +499,12 @@ public class CheckoutPageSteps {
 
 ```
 
-Run TestRunner and test. Now we have 3 tests to execute (one as a scenario and other two as scenario outline with two
-different customers). To save a bit of time when testing newly implemented Data Driven Test using JSON code, we can
+Now we have 3 tests to execute (one as a scenario and other two as scenario outline with two
+different sets of customer data). To save a bit of time when testing newly implemented Data Driven Test using JSON code, we can
 make a good use of Cucumber tags. Tags are used to filter the test we want to execute at a particular run.
 In order to do so, we need to make two small changes to feature file and our test runner class:
-1) Add @wip tag above Scenario Outline in our Feature file. (wip stands for Work In Progress and is used while test automation is
-in progress)
+1) Inside our Feature file add @wip tag above Scenario Outline. (wip stands for 'Work In Progress' and is used while test automation
+ development is in progress)
 ```
 @wip
   Scenario Outline: Customer place an order by purchasing an item from search - customer details are taken from JSON file
@@ -511,7 +516,8 @@ in progress)
       | Opencast |
       | Testuser |
 ```
-2) Add tag property to our Test runner class, so only scenario with @wip tag will be executed:
+2) Add tag property to @CucumberOptions inside our Test runner class, so only scenario with @wip tag will be executed:
+### TestRunner.java
 ```
 package runners;
 import org.junit.runner.RunWith;
@@ -527,7 +533,7 @@ import cucumber.api.junit.Cucumber;
 public class TestRunner {
 }
 ```
-Run test with Test Runner Class. Two tests should be executed successfully.
+Run test with Test Runner Class. Two tests with different sets of customer data should be executed successfully.
 
 
 
