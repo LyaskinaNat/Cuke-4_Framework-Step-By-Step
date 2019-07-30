@@ -255,6 +255,7 @@ public class ProductPageSteps {
 }
 ```
 ## Step 3: Implement Product Name Validation (@Then step)
+
 1) Add getProductNames() method to ConfirmationPage Class. This method will retrieve names of all products added to the cart:
 ### ConfirmationPage.java
 ```
@@ -302,7 +303,9 @@ public class ConfirmationPage {
 ```
 We now finally ready to move @Then step code from the old Setps.java definition file to the class of its own: ConfirmationPageSteps.
 But first we need to initialise ConfirmationPage class inside PageObjectManager class:
+
 2) Add a new **getConfirmationPage()** method to get the Confirmation Page object in the PageObjectManager class.
+### PageObjectManage.java
 ```
 package managers;
 
