@@ -52,9 +52,9 @@ classes during the test execution will receive this instance of a driver
 
 @after Hook is responsible for closing the browser after all test have been executed.
 
-```
 ## Step 2: Remove closeDriver() method from CheckoutPageSteps definition file
-CheckoutPageSteps definition file should look like this;
+CheckoutPageSteps definition file should look like this:
+### CheckoutPageSteps.java
 ```
 package stepDefinitions;
 
