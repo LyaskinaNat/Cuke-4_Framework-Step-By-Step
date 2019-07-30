@@ -649,11 +649,3 @@ public class Hooks {
 ```
  Run the Test Runner and check that the previous report is now stored in ArchivedReport folder. Run test again and check that another
  previous report is added too.
-
-
-
-
-
-
-
-
