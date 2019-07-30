@@ -32,31 +32,76 @@ ________________________________________________________________________________
 
 # SECTION 1: Cucumber end-to-end test
 ## Step 1: Create a resources folder
-1) Delete App.java and AppTest.java files as they are just sample project files created by default by Maven.
-To delete the files, just right click on the package and select Delete.
-2) Create a new resources folder under src/test/. As a standard we keep Cucumber feature files in resources folder.
-Right click on the src/test/java and create a New Package and specify the name as resources.
+1) Delete App.java and AppTest.java files if they are present as they are just sample project files created by default by Maven.
+To delete the files, just right click on the file and select Delete.
+2) Create a new 'resources' folder under **src/test/**. As a standard, we keep Cucumber feature files in resources folder.
+Right click on the src/test/ and create a New Package and specify the name as 'resources'.
  -  For Eclipse IDE - right click on the root project and select Maven >> Update Project.
 
- (Note: In Eclipse, if any changes are made to Maven POM or any folder structure,  always update project Maven >> Update Project
+ (Note: In Eclipse, if any changes are made to Maven POM or to any folder structure,  always update project: Maven >> Update Project
  to reflect the latest changes)
- -   For IntelliJ IDE  -  right click on the resource folder and choose Mark directory as >> Test resources root.
- (Note: In IntelliJ, enable autoupdate  - prompt should pop up on the bottom-right corner)
-## Step 2: Add Selenium and JUnit to project
+ -   For IntelliJ IDE  -  right click on the resource folder and choose Mark directory as >> 'Test resources root'.
+ (Note: In IntelliJ, enable autoupdate  - prompt should pop up on the bottom-right corner and we do not need to refresh the project every time)
+## Step 2: Add Selenium and JUnit dependencies to the project.
+Search in Maven repository (https://mvnrepository.com) for:
 1) Selenium: selenium-java; version 3.141.59
 2) JUnit: junit; version 4.12
+```
+    <dependency>
+         <groupId>org.seleniumhq.selenium</groupId>
+         <artifactId>selenium-java</artifactId>
+         <version>3.141.59</version>
+    </dependency>
+    <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <version>4.12</version>
+     </dependency>
+```
 ## Step 3: Add Cucumber Dependencies to the Project
 1) cucumber-java, version 4.2.0
 2) cucumber-junit, version 4.2.0
-(Note: Cucumber-java and cucumber-junit dependencies required to be of the same version.
-Properties tag can be used in pom.xml to create a variable for cucumber related dependencies for easier upgrading)
+```
+    <properties>
+            <cucumber.version>4.2.0</cucumber.version>
+    </properties>
+
+    <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>${cucumber.version}</version>
+    </dependency>
+    <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+    </dependency>
+
+```
+Note: Cucumber-java and cucumber-junit dependencies required to be of the same version.
+
+Properties tag can be used in pom.xml to create a variable for cucumber related dependencies for easier upgrading
 ## Step 4: Set up Maven Compiler Plugin
 The Compiler Plugin is used to compile the sources of your project.
-Also note that at present the default source setting is 1.5 and the default target setting is 1.5, independently of the JDK
+Also note that at present, the default source setting is 1.5 and the default target setting is 1.5, independently of the JDK
 you run Maven with. If you want to change these defaults, you should set source and target as described
 in Setting the –source and –target of the Java Compiler.
-maven-compiler-plugin; version 3.7.0
+maven-compiler-plugin: version 3.7.0
+```
+     <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.7.0</version>
+              <configuration>
+                <encoding>UTF-8</encoding>
+                <source>1.8</source>
+                <target>1.8</target>
+                <compilerArgument>-Werror</compilerArgument>
+              </configuration>
+     </plugin>
 
+```
 Pom.xml should look like this:
 ```
 <?xml version="1.0" encoding="UTF-8"?>
@@ -117,48 +162,62 @@ Pom.xml should look like this:
 
 ## Step 5: Add Chrome driver to the project
 1) Download Chrome driver from http://chromedriver.chromium.org/downloads
-(Note: make sure the version of Chrome driver matches the Chrome browser version on you PC)
+
+Note: make sure the version of Chrome driver matches the Chrome browser version on you PC!
+
 2) Create a New Package and name it 'drivers' by right click on the src and select New >> Package
 3) Place Chrome driver from your Download folder to project's src/drivers folder
 ## Step 6: Write End 2 End test in a Feature file
-For the purpose of this tutorial, we use the test longer than the usual. This is to demonstrate right examples of framework
-components.  Cucumber Framework requires to have complex page objects, various configurations and challenges.
+For the purpose of this tutorial, we use the test longer than usual. This is to demonstrate right example of framework
+components.  Cucumber Framework requires to have complex page objects, various configurations and other challenges.
 This end-to-end scenario could be viewed as a business scenario to automate and it will help us
-demonstrate Cucumber framework implementation
-1) Test to Automate
-User visits Demo Website and searches for a Dress. User selects the first product and goes to product page.
-User successfully adds it to the bag. User continues to Cart Page from mini cart icon at the top right corner.
-Then user moves forward to Checkout page and order details. User fills in required information, accepts Terms and conditions
-and proceeds with the order. User is presented with order confirmation including details on the purchased dress.
-2) Create Feature File:
-2.1) Create a New Package and name it 'features', by right click on the src/test/resources and select New >> Package.
+demonstrate Cucumber framework implementation.
+
+1) Test to Automate:
+```
+
+User visits Demo Website and searches a 'Dress'.
+User selects the first product from the search results and goes to product page.
+User successfully adds the product to the cart. User continues to Cart Page from mini cart icon at the top right corner.
+Then user moves forward to Checkout page and order details.
+User fills in required information, accepts Terms and conditions and proceeds with the order.
+User is presented with order confirmation including details on the purchased dress.
+```
+2) Create a Feature File:
+
+2.1) Create a New Package and name it 'features' by right click on the src/test/resources and select New >> Package.
 (Note: It is always recommended to put all the feature files in the resources folder).
-2.2) Create a Feature file and name it as End2End_Test.feature by right click on the above created package
+
+2.2) Create a Feature file and name it 'End2End_Test.feature' by right click on the above created package
 and select New >> File.
-(Note: all feature files must have .feature extension)
+
+Note: all feature files must have .feature extension
+
 3) Add the test steps to the feature file as follows:
+### End2End_Test.feature
 ```
 Feature: Automated End2End Tests
   Description: The purpose of this feature is to test End 2 End integration.
 
   Scenario: Customer place an order by purchasing an item from search
-    Given user is on Home Page
-    When he search for "dress"
-    And choose to buy the first item
-    And moves to checkout from mini cart
-    And enter customer personal details
-    And place the order
-    Then verify the order details
+    Given I am on Home Page
+    When I search for product in dress category
+    And I choose to buy the first item
+    And I move to checkout from mini cart
+    And I enter my personal details
+    And I place the order
+    Then Order details are successfully verified
 ```
 
 ##  Step 7: Create a JUnit Test Runner
- 1) Create a New Package and name it as runners by right click on the src/test/java and select New >> Package.
- 2) Create a New Java Class file and name it as TestRunner by right click on the above created package and select New >> Class.
+ 1) Create a New Package and name it 'runners' by right click on the src/test/java and select New >> Package.
+ 2) Create a New Java Class file and name it 'TestRunner' by right click on the above created package and select New >> Class.
 
-(Note: It is important to have a key word 'Test' as a part of a runner class name, so test(s) can be run from the command line using Maven)
+Note: It is important to have a key word 'Test' as a part of a runner class name so test(s) can be run from the command line using Maven
+
 ## Step 8: Write test code to Step file
 To get the steps automatically generated, we need to execute TestRunner class.
-Right click on the TestRunner file and select
+Right click on the TestRunner file and select:
 
 ```
 Eclipse: Run As >> JUnit Test
@@ -174,6 +233,7 @@ src/test/resources/features/End2End_Test.feature:4 # Customer place an order by 
 1 Scenarios (1 undefined)
 7 Steps (7 undefined)
 0m0.399s
+
 
 You can implement missing steps with the snippets below:
 
@@ -219,13 +279,16 @@ public void order_details_are_successfully_verified() {
     throw new cucumber.api.PendingException();
 }
 
+
+
 Process finished with exit code 0
 
 ```
 2) Create a New Package and name it 'stepDefinitions' by right click on the src/test/java and select New >> Package.
-3) Create a New Java Class and name it is 'Steps' by right click on the above created package and select New >> Class.
+3) Create a New Java Class and name it 'Steps' by right click on the above created package and select New >> Class.
 4) Now copy all the steps created by IDE to this Steps file and start filling up these steps with Selenium Code.
 Steps test file will look like this:
+### Steps.java
 
 ```
 package stepDefinitions;
@@ -242,6 +305,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
 import org.openqa.selenium.support.ui.Select;
+
 
 public class Steps {
     WebDriver driver;
@@ -304,55 +368,56 @@ public class Steps {
     }
 
     @When("I enter my personal details")
-        public void i_enter_my_personal_details() throws InterruptedException {
-            Thread.sleep(2000);
-            //On Checkout page, fill in customer details
-            WebElement firstName = driver.findElement(By.id("billing_first_name"));
-            firstName.sendKeys("TestAutomation");
+    public void i_enter_my_personal_details() throws InterruptedException {
+        Thread.sleep(2000);
+        //On Checkout page, fill in customer details
+        WebElement firstName = driver.findElement(By.id("billing_first_name"));
+        firstName.sendKeys("TestAutomation");
 
-            WebElement lastName = driver.findElement(By.id("billing_last_name"));
-            lastName.sendKeys("Opencast");
-            WebElement select_Country = driver.findElement(By.id("billing_country"));
-            Select country = new Select(select_Country);
-            country.selectByVisibleText("United Kingdom (UK)");
+        WebElement lastName = driver.findElement(By.id("billing_last_name"));
+        lastName.sendKeys("Opencast");
+        WebElement select_Country = driver.findElement(By.id("billing_country"));
+        Select country = new Select(select_Country);
+        country.selectByVisibleText("United Kingdom (UK)");
 
-            WebElement address = driver.findElement(By.id("billing_address_1"));
-            address.sendKeys("Hoults Yard, Walker Road");
+        WebElement address = driver.findElement(By.id("billing_address_1"));
+        address.sendKeys("Hoults Yard, Walker Road");
 
-            WebElement city = driver.findElement(By.id("billing_city"));
-            city.sendKeys("Newcastle upon Tyne");
-            WebElement postcode = driver.findElement(By.id("billing_postcode"));
-            postcode.sendKeys("NE6 3PE");
-            //Page gets refreshed after the postcode is entered, so we introduce an extra wait
-            Thread.sleep(2000);
+        WebElement city = driver.findElement(By.id("billing_city"));
+        city.sendKeys("Newcastle upon Tyne");
+        WebElement postcode = driver.findElement(By.id("billing_postcode"));
+        postcode.sendKeys("NE6 3PE");
+        //Page gets refreshed after the postcode is entered, so we introduce an extra wait
+        Thread.sleep(2000);
 
-            WebElement phone = driver.findElement(By.id("billing_phone"));
-            phone.sendKeys("07438862327");
-            WebElement emailAddress = driver.findElement(By.id("billing_email"));
-            emailAddress.sendKeys("test@test.com");
+        WebElement phone = driver.findElement(By.id("billing_phone"));
+        phone.sendKeys("07438862327");
+        WebElement emailAddress = driver.findElement(By.id("billing_email"));
+        emailAddress.sendKeys("test@test.com");
 
-        }
+    }
 
-        @When("I place the order")
-        public void i_place_the_order() throws InterruptedException {
-            Thread.sleep(2000);
-            //On Checkout page, click on T&Cs and submit the order
-            WebElement chkbx_AcceptTermsAndCondition = driver.findElement(By.cssSelector(".woocommerce-form__input-checkbox"));
-            chkbx_AcceptTermsAndCondition.click();
-            WebElement btn_PlaceOrder = driver.findElement(By.id("place_order"));
-            btn_PlaceOrder.submit();
-            Thread.sleep(2000);
-        }
+    @When("I place the order")
+    public void i_place_the_order() throws InterruptedException {
+        Thread.sleep(2000);
+        //On Checkout page, click on T&Cs and submit the order
+        WebElement chkbx_AcceptTermsAndCondition = driver.findElement(By.cssSelector(".woocommerce-form__input-checkbox"));
+        chkbx_AcceptTermsAndCondition.click();
+        WebElement btn_PlaceOrder = driver.findElement(By.id("place_order"));
+        btn_PlaceOrder.submit();
+        Thread.sleep(2000);
+        driver.manage().deleteAllCookies();
+        driver.close();
+        driver.quit();
+    }
 
-        @Then("Order details are successfully verified")
-        public void order_details_are_successfully_verified() {
-           //User is automatically re-directed to the Order confirmation page. Validation step will be implemented later on this course
-            System.out.println("Not implemented");
-            //Closing the browser
-            driver.manage().deleteAllCookies();
-            driver.close();
-            driver.quit();
-        }
+    @Then("Order details are successfully verified")
+    public void order_details_are_successfully_verified() {
+       //User is automatically re-directed to the Order confirmation page. Validation step will be implemented later on this course
+        System.out.println("Not implemented");
+        //Closing the browser
+
+    }
 
 }
 
@@ -361,10 +426,14 @@ public class Steps {
 5) Update TestRunner class
 
 We also need to make sure that the TestRunner would able to find the steps files.
-To achieve that we need to mention the path of the StepDefinition package in CucumberOptions.
-(Note: By default Junit/Cucumber finds the test code in the src/test/java folder,
-this is why we just need to specify the package name for the cucumber glue).
+
+To achieve that we need to mention the path of the StepDefinition package in @CucumberOptions.
+
+Note: By default Junit/Cucumber finds the test code in the src/test/java folder,
+this is why we just need to specify the package name for the cucumber glue.
+
 Updated TestRunner class should look like this:
+### TestRunner.java
 
 ```
 package runners;
@@ -391,12 +460,13 @@ public class TestRunner {
  ```
  mvn clean compile test
  ```
+
 Out end-to-end test should be executed successfully
 
 _________________________________________________________________________________________________________________________
 
 # SECTION 2: Page Object Design Pattern with Selenium PageFactory
-This section is about Page Object Model Framework which is also known as Page Object Design Pattern or Page Objects.
+This section is about Page Object Model Framework which is also known as Page Object Design Pattern or Page Object.
 The main advantage of Page Object Model is that if the UI or any HTML object changes for any page,
 the test does not need any fix. Only the code within the page objects will be affected but it does not have any impact
 on the test code.
@@ -409,24 +479,24 @@ to Selenium driver.
 
 The Page Object Pattern technique provides a solution for working with multiple web pages. It will help prevent unwanted
 code duplication and enable an effective solution for a code maintenance. In general, every page of the application involved
-in our end-to-end testing will be represented by a unique class of its own. Such class will inlcude both page element inspection
+in our end-to-end testing will be represented by a unique class of its own. Such class will include both page element inspection
 and associated actions performed by Selenium on the corresponding page.
 
 In order to implement the Page Object Model we will be using **Selenium PageFactory**
 
 Selenium PageFactory is an inbuilt Page Object Model concept for Selenium WebDriver and it is very optimized.
-PageFactory is used to Initialise Elements of a Page class without having to use ‘FindElement‘ or ‘FindElements‘.
+PageFactory is used to Initialise Elements of a Page class without having to use ‘FindElement()‘ or ‘FindElements()‘ methods.
 Annotations can be used to supply descriptive names of target objects to improve code readability.
 
 **@FindBy Annotation:**
 
 As the name suggest, it helps to find the elements in the page using By strategy.
-@FindBy can accept TagName, PartialLinkText, Name, LinkText, Id, Css, ClassName, XPath as attributes.
+@FindBy can accept TagName, PartialLinkText, Name, LinkText, Id, Css, ClassName and XPath as an attribute.
 ```
 @FindBy(id = “idname“)]
 public WebElement element;
 ```
-The above code will create a PageObject and name it as 'element' by finding it using its 'id' locator.
+The above code will create a PageObject and name it 'element' by finding it using its 'id' locator.
 
 **InitElements:**
 
@@ -440,16 +510,16 @@ PageFactory.initElements(WebDriver, PageObject.Class);
 
 - WebDriver – The driver that will be used to look up the elements
 
-- PageObjects  – A class which will be initialised
+- PageObject  – A class which will be initialised
 
 **Returns:**
-An instantiated instance of the class with WebElement and List<WebElement> fields proxied
+An instantiated instance of the class with WebElement and List<WebElement> fields proxies
 
 **PageFactory NameSpace:**
 
 In order to use PageFactory, *org.openqa.selenium.support.PageFactory* needs to be imported to the associated Class.
 
-## Step 1: Create Checkout Page Object Class
+## Step 1: Create Page Object Classes
 The flow of our test spreads across the following pages:
 - Home Page
 - Product Listing Page
@@ -457,16 +527,17 @@ The flow of our test spreads across the following pages:
 - Checkout Page
 - Confirmation Page
 
-Therefore, we will be creating corresponding Java Classes in our Project like so
-- Personal Details Page
-- Shipping Details Page
-- Payment Details Page
-- Confirmation Details Page
+Therefore, we will be creating corresponding Java Classes in our Project like so:
+- HomePage.java
+- ProductListingPage.java
+- CartPage.java
+- CheckoutPage.java
+-ConfirmationPage.java
 
-1) Create a New Package file and name it pageObjects, by right click on the src/main/java and select New >> Package.
+1) Create a New Package file and name it 'pageObjects', by right click on the src/main/java and select New >> Package.
 
-2) Create five New Class file and name them as was mentioned above
-3) Initiate the Page Object for each Class using Constructor
+2) Create five New Class files and name them as was mentioned above
+3) Initiate the Page Object for each Class using Constructor. Example of CheckoutPage initiation:
 ```
 public CheckoutPage(WebDriver driver) {
      PageFactory.initElements(driver, this);
@@ -476,7 +547,7 @@ public CheckoutPage(WebDriver driver) {
 and replace 'findElement(s) (By by)' method with @FindBy annotation.
 5) Wrap Selenium actions performed on each page into re-usable methods and again, place them into corresponding Page Object Class.
 
-(Note: ConfirmationPage.java is the only Class which we leave blank as we have no implementation of @Then Step yet)
+Note: ConfirmationPage.java is the only Class which we leave blank as we have no implementation of @Then Step yet
 
 Newly created **Page Object** Classes should looks like this:
 
@@ -515,6 +586,7 @@ public class HomePage {
         input_Search.sendKeys(Keys.RETURN);
     }
 }
+
 ```
 ### ProductListingPage.java
 ```
@@ -546,7 +618,6 @@ public class ProductListingPage {
     @FindBy(id="pa_size")
     public WebElement selectSize;
 
-
     public void select_Product(int productNumber) {
         prd_List.get(productNumber).click();
     }
@@ -561,7 +632,6 @@ public class ProductListingPage {
     public void clickOn_AddToCart() {
         btn_AddToCart.click();
     }
-
 }
 
 ```
@@ -586,7 +656,6 @@ public class CartPage {
     @FindBy(css = ".checkout-button.alt")
     public WebElement btn_ContinueToCheckout;
 
-
     public void clickOn_Cart() {
         btn_Cart.click();
     }
@@ -594,7 +663,6 @@ public class CartPage {
     public void clickOn_ContinueToCheckout(){
         btn_ContinueToCheckout.click();
     }
-
 }
 ```
 ### CheckoutPage.java
@@ -643,7 +711,6 @@ public class CheckoutPage {
     @FindBy(id = "place_order")
     public WebElement btn_PlaceOrder;
 
-
     public void enter_Name(String name) {
         txtbx_FirstName.sendKeys(name);
     }
@@ -670,7 +737,6 @@ public class CheckoutPage {
 
     public void enter_PostCode(String postCode) {
         txtbx_PostCode.sendKeys(postCode);
-
     }
 
     public void select_Country(String countryName) {
@@ -726,7 +792,7 @@ import pageObjects.ProductListingPage;
 
 public class Steps {
     WebDriver driver;
-    HomePage home;
+    HomePage homePage;
     ProductListingPage productListingPage;
     CartPage cartPage;
     CheckoutPage checkoutPage;
@@ -737,16 +803,18 @@ public class Steps {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        driver.get("http://www.shop.demoqa.com");
+        homePage = new HomePage(driver);
+        homePage.navigateTo_HomePage();
     }
 
     @When("I search for product in dress category")
     public void i_search_for_product_in_dress_category() throws InterruptedException {
-        home = new HomePage(driver);
         Thread.sleep(1000);
-        home.perform_Search("dress");
+        homePage.perform_Search("dress");
         Thread.sleep(1000);
+
     }
+
     @When("I choose to buy the first item")
     public void i_choose_to_buy_the_first_item() throws InterruptedException {
         productListingPage = new ProductListingPage(driver);
@@ -755,6 +823,7 @@ public class Steps {
         productListingPage.makeSelection(1);
         productListingPage.clickOn_AddToCart();
     }
+
     @When("I move to checkout from mini cart")
     public void i_move_to_checkout_from_mini_cart() throws InterruptedException{
         cartPage = new CartPage(driver);
@@ -762,30 +831,37 @@ public class Steps {
         cartPage.clickOn_Cart();
         cartPage.clickOn_ContinueToCheckout();
     }
+
     @When("I enter my personal details")
     public void i_enter_my_personal_details() throws InterruptedException {
         checkoutPage = new CheckoutPage(driver);
         Thread.sleep(1000);
         checkoutPage.fill_PersonalDetails();
+
     }
+
     @When("I place the order")
     public void i_place_the_order() throws InterruptedException {
         checkoutPage = new CheckoutPage(driver);
         Thread.sleep(1000);
         checkoutPage.check_TermsAndCondition();
         checkoutPage.clickOn_PlaceOrder();
-    }
-    @Then("Order details are successfully verified")
-    public void order_details_are_successfully_verified() {
-        System.out.println("Not implemented");
         driver.manage().deleteAllCookies();
         driver.close();
         driver.quit();
     }
+
+    @Then("Order details are successfully verified")
+    public void order_details_are_successfully_verified() {
+        System.out.println("Not implemented");
+
+    }
 }
+
 
 ```
 Run TestRunner and the test should be executed successfully
+
 _________________________________________________________________________________________________________________________
 
 # SECTION 3: Page Object Manager
@@ -804,13 +880,13 @@ This is against the coding principle.
 
 To avoid this situation, we can create a **Page Object Manager**.
 
-The purpose of the Page Object Manger is to create the page’s object and also to make sure that the object
+The purpose of the Page Object Manger is to create a page object and also to make sure that the object
 is only created once and it can be used across all step definition files.
 
 ## Step 1: Design Page Object Manager Class
-1) Create a New Package file and name it 'managers', by right click on the src/main/java and select New >> Package.
+1) Create a New Package in src/main/java and name it 'managers'.
 
-2) Create a New Class file and name it PageObjectManager by right click on the above created Package and select New >> Class.
+2) Create a New Class inside 'managers' package and name it 'PageObjectManager'.
 3) Add the following code to the class
 ### PageObjectManager.java
 ```
@@ -865,10 +941,9 @@ public PageObjectManager(WebDriver driver) {
      this.driver = driver;
 }
 ```
-This constructor is asking for parameter of type WebDriver.
-As to create an object of the Pages, this class requires a driver.
+This constructor is asking for parameter of type WebDriver: to create an object of the Pages, this class requires a driver.
 
-In oder to create an object of PageObjectManager class, driver needs to be provided:
+Therefore to create an object of PageObjectManager class, driver also needs to be provided:
 ```
 PageObjectManager pageObjectManager = new PageObjectManager(driver);
 ```
@@ -884,12 +959,13 @@ This method has two responsibilities:
 - To supply the already created object if it is not null
 
 ## Step 2: Modify Step Definition File
-Implementation of PageObjectManager requires change in our step definition file as well
+Implementation of PageObjectManager requires change in our step definition file as well.
 Now the duty of the creation of all the pages assigned to only one class which is Page Object Manager.
 ### Steps.java
 ```
 package stepDefinitions;
 
+import java.util.concurrent.TimeUnit;
 import cucumber.api.java.en.Then;
 import managers.PageObjectManager;
 import org.openqa.selenium.WebDriver;
@@ -900,6 +976,7 @@ import pageObjects.CartPage;
 import pageObjects.CheckoutPage;
 import pageObjects.HomePage;
 import pageObjects.ProductListingPage;
+
 
 public class Steps {
     WebDriver driver;
@@ -916,6 +993,7 @@ public class Steps {
         driver = new ChromeDriver();
         pageObjectManager = new PageObjectManager(driver);
         driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         homePage = pageObjectManager.getHomePage();
         homePage.navigateTo_HomePage();
     }
@@ -959,14 +1037,14 @@ public class Steps {
         Thread.sleep(1000);
         checkoutPage.check_TermsAndCondition();
         checkoutPage.clickOn_PlaceOrder();
+        driver.manage().deleteAllCookies();
+        driver.close();
+        driver.quit();
     }
 
     @Then("Order details are successfully verified")
     public void order_details_are_successfully_verified() {
         System.out.println("Not implemented");
-        driver.manage().deleteAllCookies();
-        driver.close();
-        driver.quit();
     }
 
 }
@@ -978,27 +1056,28 @@ ________________________________________________________________________________
 
 # SECTION 4: Read Project Configurations from Property File
 So far in our project we have been storing hard coded values inside the project code.
-It is against the coding principles to do so as it makes our test be less manageable and maintainable.
-Therefore with the help of properties file we will be focusing on eliminating these hard coded values.
+It is against the coding principles to do so as it makes our test less manageable and maintainable.
+Therefore with the help of 'properties' file we will be focusing on eliminating these hard coded values.
 
-### What is a Property file in Java
-**.properties** files are mainly used in Java programs to maintain project **configuration data, database config or
-project settings**, etc.
-Each parameter in properties file is stored as a pair of strings, in key-value pair format.
-You can easily read properties from this file using object of type Properties. This is a utility provided by Java itself.
+### What is a Properties file in Java
+**.properties** files are mainly used in Java programs to maintain project **configuration data, database config,
+project settings, etc**.
+Each parameter in .properties file is stored as a pair of strings, in key-value pair format.
+You can easily read properties from this file using **object of type Properties**. This is a utility provided by Java itself:
 ```
 java.util.Properties;
 ```
-### Advantages of Property file in Java
+### Advantages of .properties file in Java
 If any information is changed from the properties file, you don’t need to recompile the java class.
 In other words, the advantage of using properties file is we can configure things which are prone to change
-over a period of time without need of changing anything in code.
-## Step 1: Create a Property file
+over a period of time without a need of changing test code.
+## Step 1: Create a .properties file
 1) Create a New Folder and name it 'configs', by right click on the root Project and select New >> Folder.
-2) Create a New File by right click on the above created folder and select New >> File and name it 'Configuration.properties'
-3) Write Hard Coded Values in the Property File.
+2) Create a New File by right click on the above created folder and name it 'Configuration.properties'
+3) Write Hard Coded Values in the Configuration.properties File.
 
-So far there are three hard coded values we will move to our **Configuration.properties** file like so:
+So far there are three hard coded values we will move to our **Configuration.properties**:
+### Configuration.properties
 ```
 driverPath=src/drivers/chromedriver
 url=http://shop.demoqa.com
@@ -1006,9 +1085,9 @@ implicitWait=5
 ```
 ## Step 2: Create a Config File Reader
 1) Create a New Package under src/main/java/ and name it 'dataProviders'.
-We will keep all the data readers files here in this package.
+We will keep all the data reader files here in this package.
 
-2) Create a New Class file and name it 'ConfigFileReader', by right click on the above created package and select New >> Class.
+2) Create a New Class file inside 'dataProviders' package and name it 'ConfigFileReader'.
 3) Add the following code to ConfigFileReader
 ### ConfigFileReader.java
 ```
@@ -1023,13 +1102,13 @@ import java.util.Properties;
 public class ConfigFileReader {
 
     private Properties properties;
-    private final String propertyFilePath= "configs//Configuration.properties";
-
+    private final String propertyFilePath= "configs/Configuration.properties";
 
     public ConfigFileReader(){
         BufferedReader reader;
         try {
             reader = new BufferedReader(new FileReader(propertyFilePath));
+            //Configuration properties can be easily read from .properties file using object of type Properties provided by java.utils
             properties = new Properties();
             try {
                 properties.load(reader);
@@ -1049,7 +1128,7 @@ public class ConfigFileReader {
         else throw new RuntimeException("driverPath not specified in the Configuration.properties file.");
     }
 
-    public long getImplicitlyWait() {
+    public long getImplicitWait() {
         String implicitWait = properties.getProperty("implicitWait");
         if(implicitWait != null) return Long.parseLong(implicitWait);
         else throw new RuntimeException("implicitlyWait not specified in the Configuration.properties file.");
@@ -1060,11 +1139,11 @@ public class ConfigFileReader {
         if(url != null) return url;
         else throw new RuntimeException("url not specified in the Configuration.properties file.");
     }
-
 }
+
 ```
 ## Explanation
-### How to Load Property File
+### How to Load Properties File
 ```
 BufferedReader reader = new BufferedReader(new FileReader(propertyFilePath));
 Properties properties = new Properties();
@@ -1099,10 +1178,10 @@ Reads a property list (key and value) from the input character stream in a simpl
 
 **properties.getProperty(“driverPath”) :**
 Properties object gives us a *getProperty()* method which takes the Key of the property as a parameter and return
-the Value of the matched key from the .properties file.
-If the properties file does not have the specified key, it returns the null.
-This is why we have put the null check and in case of null we like to throw an exception to stop the test
-with the stack trace information.
+the Value of the matching key from the .properties file.
+If the properties file does not have the specified key, it returns null.
+This is why we have put the null check and in case of null we like to throw an exception with the stack trace information
+and stop the test.
 
 ## Step 3: Use ConfigFileReader object in the Steps.java file and HomePage.java file
 To use the **ConfigFileReader object** in the test, we need to fist create an object of the class.
@@ -1113,7 +1192,7 @@ ConfigFileReader configFileReader= new ConfigFileReader();
 
 Then we can replace the below statement
 ```
-System.setProperty(“webdriver.chrome.driver”,“scr/drivers”);
+System.setProperty(“webdriver.chrome.driver”,“src/drivers/chromedriver”);
 ```
 
 with
@@ -1137,9 +1216,7 @@ import pageObjects.CartPage;
 import pageObjects.CheckoutPage;
 import pageObjects.HomePage;
 import pageObjects.ProductListingPage;
-
 import java.util.concurrent.TimeUnit;
-
 
 public class Steps {
     WebDriver driver;
@@ -1149,7 +1226,6 @@ public class Steps {
     CheckoutPage checkoutPage;
     PageObjectManager pageObjectManager;
     ConfigFileReader configFileReader;
-
 
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
@@ -1169,7 +1245,6 @@ public class Steps {
         Thread.sleep(1000);
         homePage.perform_Search("dress");
         Thread.sleep(1000);
-
     }
 
     @When("I choose to buy the first item")
@@ -1194,7 +1269,6 @@ public class Steps {
         Thread.sleep(1000);
         checkoutPage = pageObjectManager.getCheckoutPage();
         checkoutPage.fill_PersonalDetails();
-
     }
 
     @When("I place the order")
@@ -1202,17 +1276,17 @@ public class Steps {
         Thread.sleep(1000);
         checkoutPage.check_TermsAndCondition();
         checkoutPage.clickOn_PlaceOrder();
-    }
-
-    @Then("Order details are successfully verified")
-    public void order_details_are_successfully_verified() {
-        System.out.println("Not implemented");
         driver.manage().deleteAllCookies();
         driver.close();
         driver.quit();
     }
 
+    @Then("Order details are successfully verified")
+    public void order_details_are_successfully_verified() {
+        System.out.println("Not implemented");
+    }
 }
+
 ```
 And our Home Page object class file will look like this:
 
@@ -1258,8 +1332,8 @@ public class HomePage {
 ```
 
 
-Note: Generally, it is bad practice to create object of property file in every class.
-We have created the object of the Property Class in Steps file and another object of Properties Class again
+Note: Generally, it is bad practice to create object of ConfigFileReader class in every class which requires it.
+We have created the object of the ConfigFileReader Class in Steps file and another object of this Class again
 in the HomePage class.
 
 We will cover how to overcome this issue in the next section.
@@ -1269,9 +1343,9 @@ Run TestRunner and the test should be executed successfully
 _________________________________________________________________________________________________________________________
 
 # SECTION 5: File Reader Manager as a Singleton Design Pattern
-In the previous section, we run into a problem of having multiple instances of Property Class in our project.
+In the previous section, we run into a problem of having multiple instances of ConfigFileReader Class in our project.
 In this section we will use File Reader Manager as Singleton Design Pattern to eliminate the issue.
-Singleton Design Pattern helps in achieving having only one instance of a class which can be accessed globally.
+Singleton Design Pattern helps in achieving that we only have one instance of a class which can be accessed globally.
 
 ### What is a Singleton Design Pattern?
 The Singleton’s purpose is to control object creation, limiting the number of objects to only one.
@@ -1287,7 +1361,7 @@ To implement Singleton pattern, we have to implement the following concept:
 to get the instance of the singleton class.
 
 ## Step 1: Create File Reader Manager as Singleton Design Pattern
-1) Create a New Class and name it as FileReaderManager, by right click on the managers package and select New >> Class.
+1) Create a New Class in src/main/java inside 'managers' package and name it 'FileReaderManager'.
 2) Add the following code so **File Reader Manager** looks like this:
 ### FileReaderManager.java
 ```
@@ -1330,7 +1404,6 @@ FileReaderManager.getInstance().getConfigReader()
 package stepDefinitions;
 
 import cucumber.api.java.en.Then;
-import dataProviders.ConfigFileReader;
 import managers.PageObjectManager;
 import managers.FileReaderManager;
 import org.openqa.selenium.WebDriver;
@@ -1341,8 +1414,8 @@ import pageObjects.CartPage;
 import pageObjects.CheckoutPage;
 import pageObjects.HomePage;
 import pageObjects.ProductListingPage;
-
 import java.util.concurrent.TimeUnit;
+
 
 public class Steps {
     WebDriver driver;
@@ -1369,7 +1442,6 @@ public class Steps {
         Thread.sleep(1000);
         homePage.perform_Search("dress");
         Thread.sleep(1000);
-
     }
 
     @When("I choose to buy the first item")
@@ -1394,7 +1466,6 @@ public class Steps {
         Thread.sleep(1000);
         checkoutPage = pageObjectManager.getCheckoutPage();
         checkoutPage.fill_PersonalDetails();
-
     }
 
     @When("I place the order")
@@ -1402,14 +1473,14 @@ public class Steps {
         Thread.sleep(1000);
         checkoutPage.check_TermsAndCondition();
         checkoutPage.clickOn_PlaceOrder();
+        driver.manage().deleteAllCookies();
+        driver.close();
+        driver.quit();
     }
 
     @Then("Order details are successfully verified")
     public void order_details_are_successfully_verified() {
         System.out.println("Not implemented");
-        driver.manage().deleteAllCookies();
-        driver.close();
-        driver.quit();
     }
 }
 ```
@@ -1417,7 +1488,6 @@ public class Steps {
 ```
 package pageObjects;
 
-import dataProviders.ConfigFileReader;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -1428,12 +1498,10 @@ import managers.FileReaderManager;
 public class HomePage {
 
     WebDriver driver;
-    ConfigFileReader configFileReader;
 
     public HomePage(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
-        configFileReader= new ConfigFileReader();
     }
 
     @FindBy(css=".noo-search")
@@ -1452,6 +1520,7 @@ public class HomePage {
         input_Search.sendKeys(Keys.RETURN);
     }
 }
+
 ```
 Run TestRunner and the test should be executed successfully
 
@@ -1469,13 +1538,13 @@ should only be responsible for test execution
 The only responsibility of the WebDriver Manager is to provide the WebDriver, when we ask for it.
 To achieve this we will do the following:
 
-- Specify new WebDriver Properties to the Configuration File
+- Specify new WebDriver Properties in the Configuration File
 - Create Enums for DriverType and EnvironmentType
 - Write new Methods to read the above properties
 - Design a WebDriver Manager
 - Modify the Steps file to use the new WebDriver Manager in the script
 
-## Step 1 : Add WebDriver Properties to the Configuration file
+## Step 1 : Add WebDriver Properties to the Configuration.properties file
 Configuration file should look like this:
 ### Configuration.properties
 ```
@@ -1503,7 +1572,7 @@ public enum DriverType {
     CHROME
 }
 ```
-4) Create another Enum class 'EnvironmentType' and add Local & Remote environmental variables to it.
+4) Create another Enum class 'EnvironmentType' and add Local and Remote environmental variables to it.
 ### EnvironmentType.java
 ```
 package enums;
@@ -1514,7 +1583,7 @@ public enum EnvironmentType {
 ```
 ## Step 3 : Write new Method to Read new properties
 In ConfigFileReader create **getBrowser(), getEnvironment()** and **getBrowserWindowSize()** methods to read newly added properties
-
+ConfigFileReader should look like this:
 ### ConfigFileReader.java
 ```
 package dataProviders;
@@ -1597,8 +1666,8 @@ public class ConfigFileReader {
 Null check is performed and in case of null by default value is returned as true. In case of not null,
 String value is parsed to Boolean.
 
-**getEnvironment() :** EnvironmentType.Local is returned in case of Null and if the value  is equal to Local.
-Which means that in case of missing environment property, execution will be carried on local machine.
+**getEnvironment() :** EnvironmentType.Local is returned in case of Null and if the value is equal to Local.
+It means that in case of missing environment property, execution will be carried on local machine.
 
 **getBrowser() :** Default value is returned as DriverType.Chrome in case of Null. Exception is thrown if
 the value does not match with anything.
@@ -1612,14 +1681,14 @@ The only thing which we need to keep in mind is that the manager would expose on
 **GetDriver()** method further call the method
 
 **createDriver()**, which will decide that
-the remote driver is needed or local driver for the execution.
+the remote or local driver is needed for execution.
 
-Accordingly **CreateDriver()** method would make a call let’s say to **createLocalDriver()**.
+Accordingly, **CreateDriver()** method would make a call let’s say to **createLocalDriver()**.
 
 **CreateLocalDriver()** method will further decide which type of driver needs to be created.
 
 **closeDriver()** method is responsible for closing the browser and will be called after execution of all tests / test steps is completed
-1) Create a new file in src/main/java/managers and call it WebDriverManager
+1) Create a new file in src/main/java/managers and call it 'WebDriverManager'
 2) Add the following code to it:
 ### WebDriverManager.java
 ```
@@ -1694,7 +1763,6 @@ package stepDefinitions;
 
 import cucumber.api.java.en.Then;
 import managers.PageObjectManager;
-import managers.FileReaderManager;
 import managers.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import cucumber.api.java.en.Given;
@@ -1703,7 +1771,6 @@ import pageObjects.CartPage;
 import pageObjects.CheckoutPage;
 import pageObjects.HomePage;
 import pageObjects.ProductListingPage;
-
 
 public class Steps {
     WebDriver driver;
@@ -1716,13 +1783,13 @@ public class Steps {
 
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
-        System.setProperty("webdriver.chrome.driver", FileReaderManager.getInstance().getConfigReader().getDriverPath());
         webDriverManager = new WebDriverManager();
         driver = webDriverManager.getDriver();
         pageObjectManager = new PageObjectManager(driver);
         homePage = pageObjectManager.getHomePage();
         homePage.navigateTo_HomePage();
     }
+
     @When("I search for product in dress category")
     public void i_search_for_product_in_dress_category() throws InterruptedException {
         homePage = new HomePage(driver);
@@ -1760,14 +1827,13 @@ public class Steps {
         Thread.sleep(1000);
         checkoutPage.check_TermsAndCondition();
         checkoutPage.clickOn_PlaceOrder();
+        webDriverManager.closeDriver();
     }
 
     @Then("Order details are successfully verified")
     public void order_details_are_successfully_verified() {
         System.out.println("Not implemented");
-        webDriverManager.closeDriver();
-    }
-
+     }
 }
 ```
 Run TestRunner and the test should be executed successfully
@@ -1777,42 +1843,42 @@ ________________________________________________________________________________
 # SECTION 7: Sharing Test Context between steps and Step Definition files
 ## Why do we need to share Test Context?
 Dividing Cucumber Steps between many classes may be a good idea. It is, however, probably not needed early in a project.
-When you write your first scenario, you will most likely only have just a few steps. The first class with steps is probably
-small and you can easily find your way around in it.
+When we write our first scenario, we will most likely only have just a few steps. The first class with steps is probably
+small and we can easily find our way around it.
 
-But a scenario in Cucumber is a series of steps which gets executed one after one. Each step in scenario may have some state
-which can be required by other step in the scenario. In other way you can also say that some steps may depend on
+But a scenario in Cucumber is a series of steps which gets executed one after another. Each step may have some state
+which can be required by other step in the scenario. In other words, some steps may depend on
 previous steps. This means that we must be able to share state/collected data between steps.
 
-Also when number of tests grows as project matures, keeping all the steps in a single Step Definition class quickly becomes
-impractical, so you use many classes.
+Also when a number of tests grows as project matures, keeping all the steps in a single Step Definition class quickly becomes
+difficult to manage. To overcome this,  different classes for different features / scenarios / steps are used instead.
 
-Now you have a new problem – objects you create in one step class may be needed in the other step classes as well.
+Now we have a new problem – objects we create in one step class may be needed in the other step classes as well.
 
-In our case as well, till now we just had one scenario which had few steps and we kept all the steps in the same
-Step definition file. In a real life project there are tens or even hundreds of scenarios and step defenition files.
+Back to our case, till now we just had one scenario which had few steps and we kept all the steps in the same
+Step definition file. In a real life project there are tens or even hundreds of scenarios and step definition files.
 And often there is a need to share the Test Context (including Scenario Context, Test State,
-data collected during test step execution) with all the Step Definitions files.
+data collected during test step execution) with all the Step Definition classes.
 Cucumber supports several Dependency Injection (DI) Containers – it simply tells a DI container to instantiate
-your step definition classes and wire them up correctly. One of the supported DI containers is **PicoContainer**.
+step definition classes and wire them up correctly. One of the supported DI containers is **PicoContainer**.
 
 ## What is PicoContainer?
-**PicoContainer** is a small library which doesn’t require sey up of any configuration and
+**PicoContainer** is a small library which doesn’t require set up of any configuration and
 use of any APIs such as @Inject. It uses constructors instead.
 
 **PicoContainer** really only has a one functionality – it instantiates objects.
-Simply hand it some classes and it will instantiate each one, correctly wired together via their constructors.
+Simply hand it some classes and it will instantiate each one, correctly wiring together via their constructors.
 Cucumber scans your classes with step definitions in them, passes them to PicoContainer,
 then asks it to create new instances for every scenario.
 
-We will be performing below steps to share data state across steps:
+We will be performing below steps to implement data sharing across steps:
 
-- Add PicoContainer to the Project
+- Add PicoContainer dependency to the Project
 - Create a Test Context class which will hold all the objects state
 - Divide the Steps class into multiple steps classes with logical separation
 - Write Constructor to share Test Context
 
-## Step 1: Add PicoContainer Library to the Maven Project
+## Step 1: Add PicoContainer Dependency to the Maven Project
 ```
        <dependency>
             <groupId>io.cucumber</groupId>
@@ -1822,8 +1888,9 @@ We will be performing below steps to share data state across steps:
         </dependency>
 ```
 
-Note: It is suggested to use cucumber-picocontainer version same as cucumber. In our case it is 4.2.0
-
+Note: It is suggested to use the same cucumber-picocontainer version as cucumber version. In our case it is 4.2.0
+We also need to create a new property **cucumber-picocontainer.version** inside <properties> tag of pom.xml where we specify
+picocontainer version:
 ```
     <properties>
         <cucumber.version>4.2.0</cucumber.version>
@@ -1833,7 +1900,7 @@ Note: It is suggested to use cucumber-picocontainer version same as cucumber. In
 ```
 ## Step 2 : Create a Test Context class
 We should create this class logically: identify all information our Step definition file is using
-and put that information in to this class. In our case our Step definition file is using the following information:
+and put that information into this class. In our case our Steps.java is using the following information:
 
 - PageObjects : Provided by PageObjectManager
 - WebDriver : Provided by WebDriverManager
@@ -1841,11 +1908,13 @@ and put that information in to this class. In our case our Step definition file 
 
 So, we need the above objects in our Test Context class.
 Next, if we look at the objects, we see that our FileReaderManager is already a Singleton Class and to use it we don’t need
-to create an instance of it. It creates its instance by itself. So no need to add FileReaderManager to TestContext class,
+to create an instance of it. It creates it by itself. So no need to add FileReaderManager to TestContext class,
 as this class can be referred directly statically like
 ```
 FileReaderManager.getInstance()
 ```
+
+
 1) Create a New Package under src/main/java and name it 'cucumber'.
 We will keep all the Cucumber Helper classes in the same package moving forward.
 
@@ -1878,7 +1947,7 @@ public class TestContext {
 }
 ```
 ### Explanation
-We kept the initialisation in the constructor and created getMethods() for both the objects.
+We kept the initialisation in the constructor and created getMethods() for both objects.
 ## Step 3 : Divide the Steps file
 We will divide the steps file as we did the separations between the Page Objects - for every different page
 we have a separate PageObject class. So it makes sense to have a separate step definition class for every page as well.
@@ -1894,7 +1963,7 @@ Then we start copying-pasting information from steps class into above created cl
 
 (Note: We will create ConfirmationPageSteps Class in the following section and for now leave the code for **@Then** Step in our old
 step definition file **Steps.java**)
-### HomePageSteps.java
+### HomePageSteps.java (after copying step definitions related to HomePage to its own HomePage step definition class and before implementing TextContext)
 ```
 package stepDefinitions;
 
@@ -1906,17 +1975,14 @@ import managers.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import pageObjects.HomePage;
 
-
 public class HomePageSteps {
     WebDriver driver;
     HomePage homePage;
     PageObjectManager pageObjectManager;
     WebDriverManager webDriverManager;
 
-
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
-        System.setProperty("webdriver.chrome.driver", FileReaderManager.getInstance().getConfigReader().getDriverPath());
         webDriverManager = new WebDriverManager();
         driver = webDriverManager.getDriver();
         pageObjectManager = new PageObjectManager(driver);
@@ -1939,7 +2005,7 @@ Code for other Step definition Classes will follow the same principle
 First, lets look at our HomePageSteps file. We need **WebDriverManager** and **PageObjectManager**
 in every step file. Therefore we need to create objects for both classes using new operator again and again.
 
-Now with just adding Constructor to HomePageSteps file and passing **TestContext** as a Parameter to constructor
+Now with just adding Constructor to HomePageSteps class and passing **TestContext** as a Parameter to constructor
 would take all the pain. Within the TestContext object we have everything available which is required for the test.
 The new HomePageSteps class should look like this now:
 ### HomePageSteps.java (after adding step class constructor with TextContext as a parameter)
@@ -1951,7 +2017,6 @@ import cucumber.api.java.en.When;
 import managers.FileReaderManager;
 import cucumber.TestContext;
 import pageObjects.HomePage;
-
 
 public class HomePageSteps {
 
@@ -1966,7 +2031,6 @@ public class HomePageSteps {
 
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
-        System.setProperty("webdriver.chrome.driver", FileReaderManager.getInstance().getConfigReader().getDriverPath());
         homePage.navigateTo_HomePage();
     }
     @When("I search for product in dress category")
@@ -2056,7 +2120,6 @@ public class CheckoutPageSteps {
     public void i_enter_my_personal_details() throws InterruptedException {
         Thread.sleep(1000);
         checkoutPage.fill_PersonalDetails();
-
     }
 
     @When("I place the order")
@@ -2091,19 +2154,20 @@ Run TestRunner and the test should be executed successfully
 _________________________________________________________________________________________________________________________
 
 # SECTION 8: Hooks in Cucumber Framework
-Unlike **TestNG Annotations**, Cucumber supports only two hooks (**@Before** and  **@After**).
+Unlike **TestNG Annotations**, Cucumber supports only two hooks (**@before** and  **@after**).
 They work at the start and the end of the test scenario. As the name suggests, @Before hook gets executed well before
-any other test scenario, and @After hook gets executed after executing the scenario.
+any other test scenario, and @after hook gets executed after executing the scenario.
 
 Implementation of Cucumber Hooks will allow us to to move manipulations with WebDriver (initialisation / closing down)
 from Page Objects and Step definitions to Hooks Class.
 In order to achieve the above, we will be performing below steps:
 
-- Create a Hook Class
-- Add goToUrl() method to Web Driver Manager Class
-- Remove WebDriverManager and FileReaderManager related code from HopePage Class
-- Modify HomePageSteps definition file to reflect the changes
+- Create a Hook Class and include GetDriver() and ClosingDriver() methods
 - Remove closeDriver() method from CheckoutPageSteps definition file
+
+Note: Currently WebDriver is being initialised when we called navigateTo_HomePage() from our @given Step. This means that technically we may not need to add
+**getDriver()** to @before Hooks. But for the purpose of keeping correct structure of the framework and following separation of concern principle, we make sure that
+the first initialisation of a WebDriver happens in the @before Hook and not during actual test execution
 
 
 ## Step 1: Create a Hooks Class
@@ -2137,83 +2201,14 @@ public class Hooks {
 
 }
 ```
-## Step 2: Add goToUrl() method to Web Driver Manager Class
-Add a new method to WebDriverManager.java. The method will take
-App URL as a parameter and execute Selenium driver.get("Url") method.
-It will be called from HomePageSteps definition file where ConfigReader will read App URL from our
-Configuration.properties file
+### Explanation
+@before Hook is now responsible for WebDriver initialisation and every other WebDriver requests by any other
+classes during the test execution will receive this instance of a driver
+
+@after Hook is responsible for closing the browser after all test have been executed.
+
 ```
-    public void goToUrl(String url) {
-        driver.get(url);
-    }
-```
-## Step 3: Remove WebDriverManager and FileReaderManager related code from HopePage Class
-HopePage Class should look like this:
-### HomePage.java
-```
-package pageObjects;
-
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-
-public class HomePage {
-
-    public HomePage(WebDriver driver) {
-        PageFactory.initElements(driver, this);
-    }
-
-    @FindBy(css=".noo-search")
-    public WebElement btn_Search;
-
-    @FindBy(css=".form-control")
-    public WebElement input_Search;
-
-    public void perform_Search(String search) {
-        btn_Search.click();
-        input_Search.sendKeys(search);
-        input_Search.sendKeys(Keys.RETURN);
-    }
-}
-```
-## Step 4: Modify HomePageSteps definition file to reflect the changes
-HopePageSteps definition file should look like this:
-### HopePageSteps.java
-```
-package stepDefinitions;
-
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.When;
-import managers.FileReaderManager;
-import cucumber.TestContext;
-import pageObjects.HomePage;
-
-public class HomePageSteps {
-    HomePage homePage;
-    TestContext testContext;
-
-    //constructor
-    public HomePageSteps(TestContext context) {
-        testContext = context;
-        homePage = testContext.getPageObjectManager().getHomePage();
-    }
-
-    @Given("I am on Home Page")
-    public void i_am_on_Home_Page() {
-        testContext.getWebDriverManager().goToUrl(FileReaderManager.getInstance().getConfigReader().getApplicationUrl());
-    }
-
-    @When("I search for product in dress category")
-    public void i_search_for_product_in_dress_category() throws InterruptedException {
-        homePage.perform_Search("dress");
-        Thread.sleep(1000);
-
-    }
-}
-```
-## Step 5: Remove closeDriver() method from CheckoutPageSteps definition file
+## Step 2: Remove closeDriver() method from CheckoutPageSteps definition file
 CheckoutPageSteps definition file should look like this;
 ```
 package stepDefinitions;
@@ -2235,6 +2230,7 @@ public class CheckoutPageSteps {
     public void i_enter_my_personal_details() throws InterruptedException {
         Thread.sleep(1000);
         checkoutPage.fill_PersonalDetails();
+
     }
 
     @When("I place the order")
@@ -2242,18 +2238,18 @@ public class CheckoutPageSteps {
         Thread.sleep(1000);
         checkoutPage.check_TermsAndCondition();
         checkoutPage.clickOn_PlaceOrder();
+
     }
 }
 ```
 Run TestRunner and the test should be executed successfully
-
 _________________________________________________________________________________________________________________________
 
 # SECTION 9: Data tables in Cucumber 3 +
-Version 3 and above of Cucumber brings a new implementation of Data tables.
+Starting from Cucumber version 3 abd above brings a new implementation of Data tables.
 From a Gherkin perspective, nothing has changed. Data tables are supported as earlier. However, implementation needs some
 adaptation.
-In our project we will be converting **N-column data table into a custom type**
+In our project we will be converting **multi-column data table** into a **custom** type
 
 Note: For more information about different DataTables data structures and conversions please follow the below links:
 - https://github.com/cucumber/cucumber/tree/master/datatable
@@ -2287,7 +2283,7 @@ Feature: Automated End2End Tests
 ## Step 2: Implement new (custom) type which represents DataTable data
 1) Create a new package in src/main/java and name it 'testDataTypes'
 2) Create a New Class file in src/main/java inside testDataTypes package and name it 'CustomerDataType'.
-3) The new type CustomerDataType has to be implemented. This is one possible implementation:
+3) The new type CustomerDataType now needs to be implemented. This is one possible implementation:
 ### CustomerDataType.java
 ```
 package testDataTypes;
@@ -2352,9 +2348,9 @@ public class CustomerDataType {
 }
 ```
 It is an immutable type with the same number of fields as columns in our DataTable and
-hhe fields match the table headers. The fields and headers doesn't have to match. But as they describe the same thing
+the fields match the table headers. The fields and headers doesn't have to match. But as they describe the same thing
 it feels natural that they have the same name in this case.
-The next step is new for Cucumber 3 +. The type has to registered before it can be used in a data table:
+The next step is new for Cucumber version 3 and above. The type has to be registered before it can be used in a data table:
 ## Step 3: Register a newly created customer type so Cucumber can convert the data table to it
 1) Create a new class in src/test/java inside stepDefinitions package and name it 'Configurer'
 2) Place the following code inside it:
@@ -2554,15 +2550,14 @@ public class CheckoutPageSteps {
     }
 }
 ```
-Run TestRunner and test should be executed successfully
+Run TestRunner and the test should be executed successfully
 
 _________________________________________________________________________________________________________________________
 
 # SECTION 10: Implicit and Explicit Wait in Selenium WebDriver
-
-In selenium "Waits" play an important role in executing tests.
+In Selenium "Waits" play an important role in executing tests.
 ## Why Do We Need Waits In Selenium?
-Most of the web applications are developed using Ajax and Javascript.
+Most of the Web applications are developed using Ajax and Javascript.
 When a page is loaded by the browser the elements which we want to interact with may load at different time intervals.
 Not only it makes this difficult to identify the element but also if the element is not located it will throw an
 **"ElementNotVisibleException"** exception. Using Waits, we can resolve this problem.
@@ -2586,16 +2581,17 @@ driver.manage().timeouts().implicitlyWait(FileReaderManager.getInstance().getCon
 The explicit wait is used to tell the Web Driver to wait for certain conditions (Expected Conditions) or the maximum time
 exceeded before throwing an "ElementNotVisibleException" exception.
 The explicit wait is an intelligent kind of wait, but it can be applied **only for specified elements**.
-Explicit wait gives better options than that of an implicit wait as it will wait for dynamically loaded Ajax elements.
+Explicit wait gives better options than an implicit wait as it will wait for dynamically loaded Ajax elements.
 Once we declare explicit wait we have to use **"ExpectedConditions"**.
 
-So far in our project we are using **Thread.Sleep()**. This generally is not recommended to use as it significantly
-slows down test execution. Execution will just stops for specified in Thread.sleep()statement time before continue with
+So far in our project we are using **Thread.Sleep()**. This generally is not recommended to use. Only in exeptional conditions, when there is no other options
+to work around a particular execution, we can use it.  Thread.Sleep() significantly slows down test execution.
+Execution will just stops for specified in Thread.sleep()statement time before continue with
 the next statement.
 In order to make our test execution more time efficient, we are going to implement a couple of
-**Explicit Wait** and custom specified timeout time.
+**Explicit Wait** methods and custom specified timeout time.
 In order to implement Explicit Wait we will be performing the below steps:
-- Create New utility class where all Wait methods will be placed
+- Create a New utility class where all Wait methods will be placed
 - Add explicitWait variable into Configuration.properties file
 - Modify getImplicitWait method so it reads both custom Explicit and Implicit Wait value by taken a 'Key' as a parameter
 - Include Wait methods inside our project's PageObject classes
@@ -2775,11 +2771,16 @@ public class HomePage {
         wait = new Waits();
         PageFactory.initElements(driver, this);
     }
+
     @FindBy(css=".noo-search")
     public WebElement btn_Search;
 
     @FindBy(css=".form-control")
     public WebElement input_Search;
+
+    public void navigateTo_HomePage() {
+            driver.get(FileReaderManager.getInstance().getConfigReader().getApplicationUrl());
+        }
 
     public void perform_Search(String search, long customTimeout) {
         if(wait.WaitForVisibleWithCustomTimeout(driver,btn_Search, customTimeout)) {
@@ -2787,6 +2788,7 @@ public class HomePage {
             input_Search.sendKeys(search);
             input_Search.sendKeys(Keys.RETURN);
         }
+
     }
 }
 ```
@@ -2824,7 +2826,6 @@ public class ProductListingPage {
 
     @FindBy(id="pa_size")
     public WebElement selectSize;
-
 
     public void select_Product(int productNumber, long customTimeout) {
 
@@ -2878,7 +2879,6 @@ public class CartPage {
     @FindBy(css = ".checkout-button.alt")
     public WebElement btn_ContinueToCheckout;
 
-
     public void clickOn_Cart(long customTimeout) {
         if(wait.WaitForVisibleWithCustomTimeout(driver,btn_Cart, customTimeout)) {
             btn_Cart.click();
@@ -2890,6 +2890,7 @@ public class CartPage {
             btn_ContinueToCheckout.click();
         }
     }
+
 }
 ```
 ### CheckoutPage.java
@@ -2904,7 +2905,6 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
 import testDataTypes.CustomerDataType;
 import utils.Waits;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -2950,7 +2950,6 @@ public class CheckoutPage {
 
     @FindBy(id = "order_review")
     public WebElement test;
-
 
     public void select_Country(String countryName) {
             Select country = new Select(select_Country);
@@ -3049,12 +3048,13 @@ public class HomePageSteps {
 
     @Given("I am on Home Page")
     public void i_am_on_Home_Page() {
-        testContext.getWebDriverManager().goToUrl(url);
+        homePage.navigateTo_HomePage();
     }
 
     @When("I search for product in dress category")
     public void i_search_for_product_in_dress_category() {
         homePage.perform_Search("dress", customTimeout);
+
     }
 }
 
@@ -3160,7 +3160,6 @@ private WebDriver createLocalDriver() {
                 System.setProperty(CHROME_DRIVER_PROPERTY, FileReaderManager.getInstance().getConfigReader().getDriverPath());
                 driver = new ChromeDriver();
                 break;
-
         }
 
         if(FileReaderManager.getInstance().getConfigReader().getBrowserWindowSize()) driver.manage().window().maximize();
@@ -3186,16 +3185,16 @@ So what is Test Context and Scenario Context and what is the difference between 
 ### Test Context
 TestContext is the parent class and the medium to share the information between the different steps in a test.
 
-It can have many class objects in it. If we go back to our previous tutorial of Test Context, we can see
-that it already has **PageObjectManager** and **WebDriverManager** object in it.
+It can have many class objects in it. If we go back to the section 7 of this tutorial where Test Context was first introduced, we can see
+that it already has **PageObjectManager** and **WebDriverManager** objects in it.
 ### Scenario Context
-Scenario Context is a class which holds the test data information specifically.
-It actually use the Test Context to travel the information between various steps.
-With in this ScenarioContext class, we can create any number of fields to store any form of data.
-It stores the information in the key value pair and again, value can be of any type.
-It can store String, Boolean, Integer or may be a Class. Also the important point here is that the information
-which we store in Scenario Context is generated at the run time. This means that during the execution, if you wish
-to store some information, you will use Scenario Context.
+Scenario Context is a class which specifically designed to hold test data information.
+It actually uses the Test Context class to travel the information between various steps.
+Within this ScenarioContext class, we can create any number of fields to store any form of data.
+It stores the information in the key-value pair and again, value can be of any type.
+Also the important point here is that the information
+which we store in Scenario Context is generated at the run time. This means that during the execution, if we wish
+to store some information, we will use Scenario Context.
 
 Structure of the TestContext class will be like this:
 ```
@@ -3256,7 +3255,7 @@ public class ScenarioContext {
 ### Explanation
 
 **scenarioContext :**
-This is a HasMap object which store the information in the Key-Value pair.
+This is a HasMap object which stores the information in the Key-Value pair.
 Key type is String and Value can be of any Object Type.
 
 **setContext() :**
@@ -3266,9 +3265,10 @@ This method takes two parameters,  key as String and value as object. Key is not
 
 **isContains() :** This method performs a check on the complete Map that if it contains the key or not.
 
-3) Include **ScenarioContext** in **TextContext**, so that it can be shared across all the Cucumber Steps
-using Pico-Container library. Also, we need to add a getter method as **getScenarioContext()** to get the
+3) Include **ScenarioContext** in **TextContext** class, so that it can be shared across all the Cucumber Steps
+using Picocontainer library. Also, inside the TestContext class we need to add a 'getter' method **getScenarioContext()** to get the
 scenarioContext object.
+TestContext class will look like this:
 ### TestContext.java
 ```
 package cucumber;
@@ -3299,14 +3299,24 @@ public class TestContext {
     public ScenarioContext getScenarioContext() {
         return scenarioContext;
     }
-
 }
 ```
-## Step 2 : Save test information/data/state in the Scenario Context
-To use the value of the product name later in the test for validation, we need to save its Name as a part of
+## Step 2: Save test information/data/state in the Scenario Context
+To use the value of the product Name later in the test for validation, we need to save it as a part of
 **'I choose to buy the first item**' step.
 
-1) Add a new **getProductName()** method in the ProductListingPage class which will return the Name of the Product.
+1) Add a new **getProductName()** method in the ProductListingPage class which will return the Name of the Product:
+```
+    public String getProductName(long customTimeout) {
+        String productName;
+        if (wait.WaitForVisibleWithCustomTimeout(driver,selectedProduct, customTimeout)) {
+            productName = selectedProduct.findElement(By.cssSelector("h1")).getText();
+        } else {
+            productName = "Unable to get Product Name";
+        }
+        return productName;
+    }
+```
 ### ProductListingPage.java
 ```
 package pageObjects;
@@ -3418,7 +3428,8 @@ public class ProductPageSteps {
 }
 ```
 ## Step 3: Implement Product Name Validation (@Then step)
-1) Add the following code to ConfirmationPage Class:
+1) Add getProductNames() method to ConfirmationPage Class. This method will retrieve names of all products added to the cart:
+### ConfirmationPage.java
 ```
 package pageObjects;
 
@@ -3462,6 +3473,8 @@ public class ConfirmationPage {
 }
 
 ```
+We now finally ready to move @Then step code from the old Setps.java definition file to the class of its own: ConfirmationPageSteps.
+But first we need to initialise ConfirmationPage class inside PageObjectManager class:
 2) Add a new **getConfirmationPage()** method to get the Confirmation Page object in the PageObjectManager class.
 ```
 package managers;
@@ -3508,7 +3521,7 @@ public class PageObjectManager {
 }
 ```
 
-3) Now we can finally move our code for Confirmation page step from the old Steps class file to ConfirmationPageSteps class
+3) Now move our code for Confirmation page step from the old Steps class file to ConfirmationPageSteps class like so:
 ### ConfirmationPageSteps.java
 ```
 package stepDefinitions;
@@ -3519,7 +3532,6 @@ import cucumber.TestContext;
 import cucumber.api.java.en.Then;
 import enums.Context;
 import pageObjects.ConfirmationPage;
-
 
 public class ConfirmationPageSteps {
     TestContext testContext;
@@ -3542,20 +3554,21 @@ public class ConfirmationPageSteps {
     }
 }
 ```
-4) Delete Steps.java file from scr/test/java/stepDefinitions package
+4) Delete old Steps.java file from scr/test/java/stepDefinitions package
 
 Run TestRunner and test should be executed successfully
 
 _________________________________________________________________________________________________________________________
 
-# SECTION 12: Data Driven Testing using Json with Cucumber
+# SECTION 12: Data Driven Testing using JSON with Cucumber
 ## What is Data Driven Testing?
 Data that is external to functional tests is loaded and used to extend automated test cases.
-In order to demonstrate DDT in practice we will use entering customer personal details step.
-We currently use data table to read the data from. This is also a part of DDT, however the data is specified directly in our
+In order to demonstrate data driven testing in practice we will make a use of entering customer personal details step again
+(same step we used when covered DataTables few sections back).
+We currently use data table to read the data from. This is also a data driven testing of DDT, however the data is specified directly in our
 feature file. This is perfectly fine, but what if in real word project we need to use large data sample or apply different data sets to the same test scenario?
 To be sure that the application works as expected with different sets of input data and for more effective management of test
-data DDT comes into play.
+data data driven testing with external data source comes into play.
 
 ### How Data Driven Testing can be done with Cucumber?
 There a few different ways of doing Data Driven Testing with Cucumber:
@@ -3568,20 +3581,20 @@ Out of above, we will use the Data Driven Technique using Example Keywords in ou
 And we will be using JSON to provide Data to our test.
 
 ## What is JSON?
-JSON is short for JavaScript Object Notation, and is a way to store information in an organized, easy-to-access manner.
-It gives us a human-readable collection of data that we can access in a really logical manner.
+JSON is short for **JavaScript Object Notation**, and is a way to store information in an organized, easy-to-access manner.
+It gives us a human-readable collection of data that we can access in a logical manner.
 
 ### Why JSON over Excel?
 Excel is good to manage data and to use but it comes with its own limitations. Like MS Office needs to be installed
 on the system where the tests are being executed. This is a big limitation on its own, as the test servers has never
-bound to have have such dependencies. If test are meant to run on Mac, then it is also a problem.
+bound to have such dependencies. If tests are meant to run on Mac, this is also a problem.
 
-We have to do lot of amendments in our project in this chapter to implement Data Driven Technique using JSON files:
+We have to do a lot of changes in our project in this chapter in order to implement Data Driven Technique using JSON files:
 
 - Add another senario which will be using JSON file as a data source
 - Create JSON Data set
 - Write a Java POJO class to represent JSON data
-- Pass JSON data file location to Properties file and Write a method to read the same
+- Pass JSON data file location to Properties file and Write a method to read that location
 - Create a JSON Data Reader class
 - Modify FileReaderManager to accommodate JSON Data Reader
 - Modify Checkout Page object to use Test Data object
@@ -3589,10 +3602,11 @@ We have to do lot of amendments in our project in this chapter to implement Data
 
 ## Step 1 : Add another scenario which will be using JSON file as a data source
 For simplicity we will be using the same scenario we already have
-We will implement differently a step when customer details needs to be entered at the checkout point so it takes data
-from our JSON file and we make it **Scenario Outline** which will allow run the same test multiple time every time
-using different set of data.
-DDTOur Feature file should looks like this:
+We will implement differently a step when customer details need to be entered at the checkout point so it takes data
+from our JSON file. we also will make it **Scenario Outline** type of Scenario.  This will allow run the same test multiple time and every time
+with different set of data.
+Our Feature file should now looks like this:
+### End2End_Test.feature
 ```
 Feature: Automated End2End Tests
   Description: The purpose of this feature is to test End 2 End integration.
@@ -3621,9 +3635,11 @@ Feature: Automated End2End Tests
       | Opencast |
       | Testuser |
 ```
-As we can see, we using same steps in our both scenarios apart from  **And I enter <customer> personal details**
-We already know that code duplication is not a good practice so it is a great opportunity to use Gherkin **Background**
-keyword here to make our Scenario look better:
+### Optimising Feature file using 'Background' Gherkin key word
+As we can see, we using same steps in our both scenarios up to the step  **And I enter <customer> personal details**
+We already know that code duplication is not a good practice so it is a great opportunity to use **'Background'**
+keyword here to make our Scenario look better. We will put all same for both Scenarios steps inside 'Background' block':
+### End2End_Test.feature
 ```
 Feature: Automated End2End Tests
   Description: The purpose of this feature is to test End 2 End integration.
@@ -3652,15 +3668,15 @@ Feature: Automated End2End Tests
   ```
 
 ## Step 2 : Create JSON data set for Customer data
-So far we just passed Customer name from feature file, but we need a complete customer details to pass to checkout
+So far we just passed Customer name from feature file, but we need a other customer details to pass to checkout
 page to complete the order. These details we will get from JSON file. We ask JSON file to give us the details of any
 particular Customer out of the all Customers Data. As we need multiple customer data we need to create JSON Data in Arrays.
 
 1) Create a New Package under src/test/resources and name it 'testDataResources.
-We need to keep all our test resources in the src/test/resources folder, it is better to create a package with in
-that to have all the JSON file in it.
+As we are keeping all our test resources in the src/test/resources folder, it is logical we create a new package inside this folder
+for all our JSON files.
 
-2) Create a New File and name it is 'Customer.json'
+2) Create a New File inside testDataResources package and name it is 'Customer.json'
 ### Customer.json
 ```
 [
@@ -3703,8 +3719,8 @@ that to have all the JSON file in it.
 ]
 ```
 ## Step 3 : Write a Java POJO class to represent JSON data
-To use this JSON data in the test we need to first deserializes the JSON into an object of the specified class.
-And to have the JSON deserialized, a java class object must be created that has the same fields names with the fields
+To use this JSON data in the test we need to first deserializes JSON into an object of the specified class.
+And to have the JSON deserialized, a java class object must be created that has the same fields names as the fields
 in the JSON string.
 
 1) Create a New Class in scr/main/java under 'testDataType package and name it is 'Customer'
@@ -3739,12 +3755,12 @@ public class Customer {
     }
 }
 ```
-## Step 4: Prepare ConfigFileReader to read Json path location from Properties
+## Step 4: Prepare ConfigFileReader to read Json file location from Properties
 1) First just make an extra entry on the Configuration.properties file to specify the JSON file path
 ```
 testDataResourcePath=src/test/resources/testDataResources/
 ```
-with above complete Configuration file will become like this:
+with above, complete Configuration file will become like this:
 
 ### Configuration.properties
 ```
@@ -3767,7 +3783,8 @@ public String getTestDataResourcePath(){
 ```
 ### Explanation:
 
-In the above code, we just get the value saved in the config file for key testDataResourcePath. We throw the exception in case of null value returned from getProperty() method or return the value if it is found not null.
+In the above code, we just get the value saved in the config file for key testDataResourcePath. We throw the exception in case of null value returned from getProperty() method
+or return the value if it is found not null.
 
 Including above method, the complete Config Reader file will become like this:
 ```
@@ -3856,7 +3873,7 @@ public class ConfigFileReader {
 ### How to read JSON  and what is GSON?
 **GSON** is an open source code and it’s used a lot in working with JSON and Java.
 GSON uses Java Reflection to provide simple methods to convert JSON to java and vice versa.
-It can downloaded as GSON jar file from google code website or if used maven, added as a dependency.
+It can be downloaded as GSON jar file from google code website or if used maven, added as a dependency.
 1) Add GSON Maven dependency to our pom.xml file:
 ```
      <dependency>
@@ -3915,13 +3932,13 @@ public class JsonDataReader {
 ### Explanation:
 
 **getCustomerData() :**
-This is a private method, which has the logic implemented to read the Customer Json and save it to the class instance variable. You should be creating more methods like this if you have more test data files like getPaymentOptions(), getProducts() etc.
+This is a private method, which has the logic implemented to read the Customer Json and save it to the class instance variable.
 
 **JsonDataReader() :**
 Here the responsibility of the constructor is to call getCustomerData() method only.
 
-**getCustomerByName() :** This just filter the information and return the specific customer to the test.
-## Step 6 : Modify FileReaderManager to return JSsonDataReader object
+**getCustomerByName() :** This just filter method. It scans all the information and return the specific customer to the test.
+## Step 6 : Modify FileReaderManager to return JsonDataReader object
 As we have a FileReaderManager singleton class over all the readers, so we need to make an entry of JsonDataReader
 in that as well.
 
@@ -3952,9 +3969,9 @@ public class FileReaderManager {
 }
 ```
 ## Step 7: Modify Checkout Page object to use Test Data object
-All the setup work is done, it is the time to move closer to the test. First, we need to create a new method inside our
-CheckoutPage called **CustomerPersonalDetailsFromJSON**. This method will takes customer data stpred in Customer object
-and enter it into our form.
+All the setup work is done, it is time to move closer to the test. First, we need to create a new method inside our
+CheckoutPage called **CustomerPersonalDetailsFromJSON**. This method will take customer data stored in Customer object
+and enter it into checkout form.
 
 ```
 public void CustomerPersonalDetailsFromJSON(Customer customer, long customTimeout) throws InterruptedException {
@@ -3976,20 +3993,20 @@ public void CustomerPersonalDetailsFromJSON(Customer customer, long customTimeou
 ## Step 8 : Modify CheckoutPage Steps file to pass Test Data to Checkout Page Objects
 As we already have modified our feature file in the first step, now we need to make necessary changes to the step file
 as well.
-We need to add a new step which comes from Senario Outline so we run our test first to get a code snippet for it.
+We need to add a new step which comes from Scenario Outline so we run our test first to get a code snippet for it.
 1) Run TestRunner and copy a code snippet from the console window to the CheckoutPageSteps definition file.
 ```
 @When("I enter (.+) personal details")
-public void i_enter_Opencast_personal_details() {
+public void i_enter_personal_details() {
     // Write code here that turns the phrase above into concrete actions
     throw new cucumber.api.PendingException();
 }
 
 ```
-2) Add the following code inside the step:
+2) Add the following code inside this new step:
 ```
-When("I enter (.+) personal details")
-    public void enter_personal_details_on_checkout_page(String customerName) throws InterruptedException {
+    @When("I enter (.+) personal details")
+    public void i_enter_personal_details(String customerName) throws InterruptedException {
 
         Customer customer = FileReaderManager.getInstance().getJsonReader().getCustomerByName(customerName);
         checkoutPage.CustomerPersonalDetailsFromJSON(customer, customTimeout);
@@ -3998,7 +4015,7 @@ When("I enter (.+) personal details")
 ### Explanation :
 Fetching the Customer data from json reader using **getCustomerByName()** by passing the Customer Name.
 Supplying the same data to the Checkout page objects **CustomerPersonalDetailsFromJSON()** method.
-The complete class would look like this:
+The complete class should look like this:
 ### CheckoutPageSteps.java
 ```
 package stepDefinitions;
@@ -4028,7 +4045,7 @@ public class CheckoutPageSteps {
     }
 
     @When("I enter (.+) personal details")
-    public void enter_personal_details_on_checkout_page(String customerName) throws InterruptedException {
+    public void i_enter_personal_details(String customerName) throws InterruptedException {
 
         Customer customer = FileReaderManager.getInstance().getJsonReader().getCustomerByName(customerName);
         checkoutPage.CustomerPersonalDetailsFromJSON(customer, customTimeout);
@@ -4044,12 +4061,12 @@ public class CheckoutPageSteps {
 
 ```
 
-Run TestRunner and test. Now we have 3 tests to execute (one as a scenario and other two as scenario outline with two
-different customers). To save a bit of time when testing newly implemented Data Driven Test using JSON code, we can
+Now we have 3 tests to execute (one as a scenario and other two as scenario outline with two
+different sets of customer data). To save a bit of time when testing newly implemented Data Driven Test using JSON code, we can
 make a good use of Cucumber tags. Tags are used to filter the test we want to execute at a particular run.
 In order to do so, we need to make two small changes to feature file and our test runner class:
-1) Add @wip tag above Scenario Outline in our Feature file. (wip stands for Work In Progress and is used while test automation is
-in progress)
+1) Inside our Feature file add @wip tag above Scenario Outline. (wip stands for 'Work In Progress' and is used while test automation
+ development is in progress)
 ```
 @wip
   Scenario Outline: Customer place an order by purchasing an item from search - customer details are taken from JSON file
@@ -4061,7 +4078,8 @@ in progress)
       | Opencast |
       | Testuser |
 ```
-2) Add tag property to our Test runner class, so only scenario with @wip tag will be executed:
+2) Add tag property to @CucumberOptions inside our Test runner class, so only scenario with @wip tag will be executed:
+### TestRunner.java
 ```
 package runners;
 import org.junit.runner.RunWith;
@@ -4077,16 +4095,16 @@ import cucumber.api.junit.Cucumber;
 public class TestRunner {
 }
 ```
-Run test with Test Runner Class. Two tests should be executed successfully.
+Run test with Test Runner Class. Two tests with different sets of customer data should be executed successfully.
 
 _________________________________________________________________________________________________________________________
 
 # SECTION 13: Cucumber Reports
-When ever we do test execution, it is also require to understand the out put of the execution.
+When ever we do test execution, it is also require to understand the output of the execution.
 ## Cucumber Reports
 When we executing Cucumber Scenarios, it automatically generates an output in the IDE console.
 There is a default behavior associated with that output and we can also configure that output as per our needs.
-So how do we modify the default behavior, let’s see this now.
+So let's see how we can modify the default behavior.
 ### Pretty Report
 The first plugin, we will talk about is **Pretty**.  It provides more verbose output.
 To implement this, just specify plugin = “pretty” in **CucumberOptions**.
@@ -4095,13 +4113,12 @@ To implement this, just specify plugin = “pretty” in **CucumberOptions**.
 ```
 ### Monochrome Mode Reporting
 If the monochrome option is set to false, then the console output is not as readable as it should be.
-The output when the monochrome option is set to false is shown in the above example.
-It is just because, if the monochrome is not defined in Cucumber Options, it takes it as false by default.
+It is just because, if the monochrome is not defined in Cucumber Options, it sets it to false by default.
 How to specify it:
 ```
 @CucumberOptions( monochrome = true );
 ```
-CucumberOption code should look like this:
+With new 'Pretty" plugin and monochrome option set to true, CucumberOption code should look like this:
 ### TestRunner.java
 ```
 package runners;
@@ -4121,7 +4138,7 @@ public class TestRunner {
 }
 ```
 
-Console outpul will now look like this:
+Console output will now look like this:
 ```
 Feature: Automated End2End Tests
   Description: The purpose of this feature is to test End 2 End integration.
@@ -4196,12 +4213,12 @@ Console output will now look like this:
   } ...
   ```
 ## Cucumber Report Output
-So far we have seen above is actually good for a test or for couple of tests. But if we run a full test suite,
-this report is not much useful in that case. On top of that it is difficult to keep these console output safe for future use.
+So far what we have seen above is actually good for a test or for couple of tests. But if we run a full test suite,
+this report becomes not very useful. On top of that it is difficult to keep these console output safe for future use.
 
-Cucumber gives us capability to generate reports as well in the form of HTML, XML, JSON & TXT.
-Cucumber frameworks generate very good and detailed reports, which can be shared with all stake holders.
-There are multiple options available for reports which can be used depending on the requirement.
+Cucumber gives us capability to generate reports in the form of HTML, XML, JSON & TXT.
+Cucumber framework generate very good and detailed reports, which can be shared with all stakeholders.
+There are multiple options available for reports which can be used depending on the business requirements.
 
 ### Cucumber HTML Reports
 For HTML reports, add **html:target/cucumber-reports**  to the @CucumberOptions plugin option.
@@ -4214,9 +4231,9 @@ For HTML reports, add **html:target/cucumber-reports**  to the @CucumberOptions 
 
 )
 ```
-Note: We have specified the path of the Cucumber report, which we want it to generate it under target folder.
+Note: We have specified the path for the Cucumber report, which we want to generate under the 'target' folder.
 
-Run Test Runner and check HTML report output in target/cucumber-reports folder
+Run Test Runner and check HTML report output inside target/cucumber-reports.
 
 ### Cucumber JSON Report
 For JSON reports, add **json:target/cucumber-reports/Cucumber.json**  to the @CucumberOptions plugin option.
@@ -4276,7 +4293,7 @@ For JUNIT reports, add **junit:target/cucumber-reports/Cucumber.xml** to the @Cu
                 , "junit:target/cucumber-reports/Cucumber.xml"}
 )
 ```
-Note : This report generates XML files just like Apache Ant’s junit report task.
+Note : This report generates XML file just like Apache Ant’s junit report task.
 This XML format is understood by most continuous integration servers, who will use it to generate visual reports.
 XML Report Output:
 ```
@@ -4316,7 +4333,6 @@ One of such plugins is 'Extent Report' by Anshoo Arora. This is currently consid
 This report fits fine with any test framework you use. With Cucumber as well it works fine but it requires to
 have some hacks to produce reports.
 It would have been easy if Cucumber also had annotations like @beforeScenario and @beforeFeature.
-
 These annotations are available in SpecFLow which is Cucumber in C#.
 But there is an alternative for Cucumber called 'Cucumber Extent Report'.
 
@@ -4362,13 +4378,11 @@ is not addressed as a part of the upgrade process.
          <version>4.0.9</version>
      </dependency>
 ```
-
 ## Step 2: Create Extent Report Configuration file
 Extent Config is required by the Cucumber Extent Report plugin to read the report configuration.
 It gives us the capability to set many useful setting to the report from the XML configuration file.
 By default, it is read from the resources folder in scr/test so
 we need to place our Extent Report Configuration file into this specific location.
-
 
 1) Create a New File in src/test/ inside resources folder and name it 'extent-config.xml'
 ### extent-config.xml
@@ -4429,9 +4443,7 @@ to be picked up by the adapter.
 1) Create a New File in src/test/ inside resources folder and name it 'extent.properties'
 Note: We will only be activating HTML Report in this tutorial:
  - set flag to true for **extent.reporter.html.start** key
-
  - specify the location for the report file: html report needs to be mentioned as a value for the key
-
  **extent.reporter.html.config**
  - specify the location for the report path for **extent.reporter.html.out** key
 ### extent.properties
@@ -4500,7 +4512,7 @@ In order to implement this, we do the following:
 2) Inside ExtentReportBuilder class we will make use of  WebDriver's getCapabilities()method. I provides information
 regarding the current instance of a driver. We will use it for getting browser name and version. We also make use of
 System.getProperty() method to get information about Platform and OC version alongside with the details of a user
-who excecuted the test.
+who executed the test.
 Extent Report Builder Class should look like this:
 ```
 package utils;
@@ -4597,7 +4609,7 @@ file manipulations.
  saveScreenshotsTo = test-output/Screenshots/
  ```
 
- 3) Create a new empy forlder inside test-output folder and name it 'Screenshots'
+ 3) Create a new empty folder inside test-output folder and name it 'Screenshots'
 
 
  4) Create a new config reader in src/main/java under 'dataProviders' package and name it
@@ -4632,7 +4644,7 @@ public class ExtentReportConfigReader {
         }
     }
 
-    public String getSaveScreentShotsTo(){
+    public String getSaveScreenShotsTo(){
         String saveScreenShotsTo = properties.getProperty("saveScreenshotsTo");
         if(saveScreenShotsTo!= null) return saveScreenShotsTo;
         else throw new RuntimeException("Screenshots path not specified in the Configuration.properties file for the Key: saveScreenshotsTo");
@@ -4710,7 +4722,6 @@ public class ExtentReportBuilder {
         saveScreenshotsTo = FileReaderManager.getInstance().getExtentReportConfigReader().getSaveScreenShotsTo();
         saveArchiveReportsTo = FileReaderManager.getInstance().getExtentReportConfigReader().getSaveArchiveReportsTo();
         latestReportPath = FileReaderManager.getInstance().getExtentReportConfigReader().getCurrentReportPath();
-
     }
 
     public void additionalReportInfo(Scenario scenario)  {
@@ -4768,9 +4779,7 @@ public class ExtentReportBuilder {
 **returnDateStamp() :**
 is a helper method aiding in constructing screenshot filename which is a date stamp
 **returnScreenshotName() :**
-
 Uses returnScreenshotPath() returns file path where screenshot should be saved
-
 **captureScreenshot(Scenario scenario) :**
 This method does all the main work - captures screenshot, saves it to a file, constructs file name and assign it to the file and place it into the report
 
@@ -4819,13 +4828,11 @@ public class Hooks {
 Now we all set to test our screenshot taken feature. Let's make a change in your test code so we intentionally failing it.
 (e.g. change one of the @FindBy locators to non-existing). Run the TestRunner and check that screenshot is saved at the specified location and is added to the report.
 
-
 ## Archiving previous Reports
 When dealing with a real life project, business requirement might be to keep track of all previous test execution results.
 In this case we need to find a way how we preserve a previous report before it is overwritten with a new report data.
 
-
-To achive the above, we will add a new variable into our extent.properties file to specify previous reports storage
+To achieve the above, we will add a new variable into our extent.properties file to specify previous reports storage
 location and write some methods which will be responsible for copying a previous report before its being updated after
 new test is run. We will make use of our returnDateStamp() method again so we can capture the date,
 previous report was archived. We will be following the below steps:
@@ -4835,7 +4842,7 @@ previous report was archived. We will be following the below steps:
  archiveReportsTo = test-output/ArchivedReports/
  ```
 
- 2) Create a new empy forlder inside test-output folder and name it 'ArchivedReports'
+ 2) Create a new empty folder inside test-output folder and name it 'ArchivedReports'
 
 
  3) Add two methods to our ExtentReportConfigReader Class which will read current report path from "extent.reporter.html.out" key and a path for previous report to be stored;
@@ -4868,7 +4875,7 @@ public class ExtentReportConfigReader {
         }
     }
 
-    public String getSaveScreentShotsTo(){
+    public String getSaveScreenShotsTo(){
         String saveScreenShotsTo = properties.getProperty("saveScreenshotsTo");
         if(saveScreenShotsTo!= null) return saveScreenShotsTo;
         else throw new RuntimeException("Screenshots path not specified in the Configuration.properties file for the Key: saveScreenshotsTo");
@@ -4888,12 +4895,10 @@ public class ExtentReportConfigReader {
 
 }
 ```
-
 4) Add two new methods to ExtentReportBuilder Class for renaming and copying previous report file:
 
 ```
 public void copyFileUsingStream(File source, File dest) throws IOException {
-
         InputStream is = null;
         OutputStream os = null;
         try {
@@ -4924,10 +4929,8 @@ public void copyFileUsingStream(File source, File dest) throws IOException {
 **copyFileUsingStream() :**
 This is a standard Java method for copying files
 **copyLatestExtentReport() :**
-
 This method specifies what file needs to be copied and where to. We will invoke this method from our
 @after Hook in Hooks Class
-
 
 5) Invoke **copyLatestExtentReport()** method from cucumber @after hook
 ### Hooks.java
@@ -4969,7 +4972,7 @@ public class Hooks {
     }
 }
 ```
- Run the Test Runer and check that the previous report is now stored in ArchivedReport folder. Run test again aand check that another
+ Run the Test Runner and check that the previous report is now stored in ArchivedReport folder. Run test again and check that another
  previous report is added too.
 
  _________________________________________________________________________________________________________________________
